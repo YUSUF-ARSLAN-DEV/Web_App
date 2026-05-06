@@ -11,6 +11,29 @@ namespace WEB_APPLICATION.Models
         private SqlConnection conn = UtilityDAL.createConnection() ; 
         
 
+        // the method below Creates a new course 
+        public bool createCourse(int userId , String courseName , String courseDescription, String imageUrl  )
+        {
+
+            bool success = false;
+            Course course = new Course(userId , courseName , courseDescription , imageUrl ) ;
+            try
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand(
+                    "INSERT INTO Course  (userId, courseDescription  , courseName   ,   activeStatus   ,   imageUrl   ) VALUES (@userId, @courseDescription, @courseName, @activeStatus, @imageUrl)", conn);
+                    cmd.Parameters.AddWithValue("@userId", course.userId);
+                    cmd.Parameters.AddWithValue("@courseDescription", course.courseDescription);
+                    cmd.Parameters.AddWithValue("@courseName", course.courseName);
+                    cmd.Parameters.AddWithValue("@activeStatus", course.activeStatus);
+                    cmd.Parameters.AddWithValue("@imageUrl", (Object)course.imageUrl ?? DBNull.Value  ) ; 
+                    success = true;
+            }
+            catch (SqlException e) { Console.WriteLine(e.Message); }
+            finally { conn.Close(); }
+            return success;
+        }
+
         // the method below takes a course ID and deletes the course entry form the data base - through a soft delete not a hard delete 
         public bool deleteCourse(int courseId )
         {
@@ -53,7 +76,7 @@ namespace WEB_APPLICATION.Models
         }
         
 
-        // The method below takes an a user ID and returns all courses created by that User 
+        // The method below takes an a user ID and returns all courses created by that User  - this is an instructor method 
         public List<Course> getCoursesByUserId(int specifiedUserId)
         {
             int courseId ; 
@@ -93,9 +116,38 @@ namespace WEB_APPLICATION.Models
             return courseList;
         }
 
+        // the Id is passsed to the method and the course object is retrived 
+        public Course getCourseById(int courseId )
+        {
+            Course course = null ; 
+            try
+            {
+                conn.Open();
+                using ( SqlCommand cmd = new SqlCommand("SELECT * FROM Course  WHERE courseId = @courseId", conn))      
+                {
+                    cmd.Parameters.AddWithValue("@courseId", courseId ) ;
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read()) // if the reader finds teh value 
+                            {
+                                course = new Course(
+                                    UtilityDAL.returnInt(reader, "courseId"),
+                                    UtilityDAL.returnInt(reader, "userId"),
+                                    UtilityDAL.returnString(reader, "courseName"),
+                                    UtilityDAL.returnString(reader, "courseDescription"),
+                                    UtilityDAL.returnString(reader, "imageUrl"),
+                                    UtilityDAL.returnBit(reader, "activeStatus")                                 
+                                );
+                            }
+                        }
+                }
+            }
+            catch (SqlException e) { Console.WriteLine(e.Message); }
+            finally { conn.Close(); }
+            return course ; 
+        }
 
-
-
+         
 
 
 

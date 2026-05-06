@@ -20,6 +20,15 @@ namespace WEB_APPLICATION.Models
             this.imageUrl = imageUrl;
             this.activeStatus = true;
         }
+        // this constructor is for creating a new course - for first time insertion into the data base 
+        public Course(int userId , String courseName , String courseDescription , String imageUrl )
+        {
+            this.userId = userId;
+            this.courseName = courseName;
+            this.courseDescription = courseDescription;
+            this.imageUrl = imageUrl;
+            this.activeStatus = true;
+        }
         public Course(int courseId, int userId, string courseName, string courseDescription, string imageUrl, bool activeStatus)
         {
             this.courseId = courseId;
