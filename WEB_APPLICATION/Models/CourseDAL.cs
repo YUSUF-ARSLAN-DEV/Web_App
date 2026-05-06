@@ -147,15 +147,88 @@ namespace WEB_APPLICATION.Models
             return course ; 
         }
 
-         
+        // the method below in essence retrives every single course Object in the  Data base active and 
+        // non active as the getAllCourse() method is nan admin  method 
+         public List<Course>   getAllCourses()
+        {
+            List<Course> courseList = new List<Course>();
+            try
+            {
+                conn.Open();
+                using ( SqlCommand cmd = new SqlCommand(
+                    "SELECT * FROM Course ", conn))
+                {
 
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Course c =  new Course(
+                                UtilityDAL.returnInt(reader, "courseId"),
+                                UtilityDAL.returnInt(reader, "userId"),
+                                UtilityDAL.returnString(reader, "courseName"),
+                                UtilityDAL.returnString(reader, "courseDescription"),
+                                UtilityDAL.returnString(reader, "imageUrl"),
+                                UtilityDAL.returnBit(reader, "activeStatus") 
+                            );
+                            courseList.Add(c); 
+                        }
+                    }
+                }
+                
+            }
+            catch (SqlException e) { Console.WriteLine(e.Message); }
+            finally { conn.Close(); }
+            return courseList;
+        }
+        
 
+        // The method below retrives all courses where the passsed filtering word 
+        // exiss in the courses name or description 
 
-
-
-
-
-
-
+        public List<Course>  filterCourses(String filterText )
+        {
+            List<Course > list = new List<Course >();
+            try
+            {
+                conn.Open();
+                using ( SqlCommand cmd = new SqlCommand( // this does not mean duplicate objects but expands the conditoins for an object to be accepted 
+                    "SELECT * FROM Course  WHERE activeStatus = 1 AND (courseName LIKE @filterText OR courseDescription LIKE @filterText)   "  , conn) )
+                {
+                        
+                    cmd.Parameters.AddWithValue("@filterText", "%"+filterText+"%"); //so that the final query will look like this "%sorting value%"
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read()) // while there are rows that exist and the reader moved to 
+                        {
+                            list.Add(new Course( // creating a course object for the found entry 
+                                UtilityDAL.returnInt(reader, "courseId"),
+                                UtilityDAL.returnInt(reader, "userId"),
+                                UtilityDAL.returnString(reader, "courseName"),
+                                UtilityDAL.returnString(reader, "courseDescription"),
+                                UtilityDAL.returnString(reader, "imageUrl"),
+                                UtilityDAL.returnBit(reader, "activeStatus") 
+                            ));
+                        }
+                    }
+                }
+            }
+            catch (SqlException e) { Console.WriteLine(e.Message); }
+            finally { conn.Close(); }   
+            return list ;  
+        }
+    
+    
+    
+    
     }
+
+
+
+
+
+
+
+
+    
 }
