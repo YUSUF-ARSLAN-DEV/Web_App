@@ -56,8 +56,10 @@ namespace WEB_APPLICATION.Models
             string title ;
             string content ;
             string imagePath ;
+            DateTime postDate ;
+            TimeSpan postTime ;
             using (SqlCommand cmd = new SqlCommand(
-                "SELECT postId, forumId, userId, title, textContent, imageUrl FROM Post WHERE forumId = @forumId", conn))
+                "SELECT postId, forumId, userId, title, textContent, imageUrl, postDate, postTime FROM Post WHERE forumId = @forumId", conn))
             {
                 cmd.Parameters.AddWithValue("@forumId", requiredForumId);
                 conn.Open();
@@ -67,12 +69,14 @@ namespace WEB_APPLICATION.Models
                     {
                         postId = UtilityDAL.returnInt(reader, "postId");
                         userId = UtilityDAL.returnInt(reader, "userId");
-                        forumId = UtilityDAL.returnInt(reader, "forureturnmId");
+                        forumId = UtilityDAL.returnInt(reader, "forumId");
                         title = UtilityDAL.returnString(reader, "title");
                         content = UtilityDAL.returnString(reader, "textContent");
                         imagePath = UtilityDAL.returnString(reader, "imageUrl");
+                        postDate = UtilityDAL.returnDateTime(reader, "postDate");
+                        postTime = UtilityDAL.returnTimeSpan(reader, "postTime");
 
-                        Post post = new Post(postId, userId, forumId, title, content, imagePath);
+                        Post post = new Post(postId, forumId, userId, title, content, imagePath, postDate, postTime);
 
                         posts.Add(post);
                     }

@@ -36,6 +36,16 @@ namespace WEB_APPLICATION.Models
 
 
 // Constructor for creating new user (no userId yet)
+    public User(string userName, string password, Role role, string firstName, string lastName)
+    {
+        this.userId = 0; // will be assigned by DB
+        this.userName = userName;
+        this.password = password;
+        this.role = role;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.accountCreationDate = DateTime.UtcNow;
+    }
 
 }
 }
