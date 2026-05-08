@@ -162,11 +162,11 @@ namespace WEB_APPLICATION.Models
                 conn.Close() ;
             }
         }  
-        public bool   updateUserProfile(int userId, string firstName = "", string lastName = "")
+        public bool  updateUserProfile(int userId, string firstName = "", string lastName = "")
         {
             if (firstName == "" && lastName == "") { return false; }
             
-            SqlConnection conn = null; // tries to Error Hanlde the Case if the connection is not created 
+           
             try
             {
 
@@ -191,11 +191,10 @@ namespace WEB_APPLICATION.Models
                 return true;
             }
             catch (SqlException e) { return false; }
-            finally { if (conn != null) conn.Close(); }
+            finally { conn.Close(); }
         }
         public  bool UpdatePassword(int userId, string newPassword)
         {
-            SqlConnection conn = null;
             try
             {
                 string hashedPassword = BCrypt.Net.BCrypt.HashPassword(newPassword);
@@ -211,7 +210,6 @@ namespace WEB_APPLICATION.Models
         }
         public  bool deleteUser(int userId ) 
         {
-            SqlConnection conn = null;
             try
             {
 
@@ -222,7 +220,7 @@ namespace WEB_APPLICATION.Models
                 return rows > 0;
             }
             catch (SqlException e) { return false; }
-            finally { if (conn != null) conn.Close(); }
+            finally {  conn.Close(); }
         }
 
     }

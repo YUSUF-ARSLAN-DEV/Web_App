@@ -1,9 +1,6 @@
 using System;
 
 
-namespace WEB_APPLICATION.Models
-{
-using System;
 
 namespace WEB_APPLICATION.Models
 {
@@ -31,4 +28,4 @@ namespace WEB_APPLICATION.Models
         }
     }
 }
-}
+

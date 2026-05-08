@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using System.Data.Sqlclient ; 
+using System.Data.SqlClient ; 
 
 namespace WEB_APPLICATION.Models
 {
     public class SessionDAL
     {
-        private SqlConnection conn =  UtilityDAl.createConnection() ; 
+        private SqlConnection conn =  UtilityDAL.createConnection() ; 
 
 
         // the method below registers when a user logs in in the system - CRUD - insertion 
