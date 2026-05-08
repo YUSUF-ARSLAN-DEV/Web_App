@@ -103,7 +103,7 @@ namespace WEB_APPLICATION.Models
                 {
                     cmd.Parameters.AddWithValue("@title", post.title);
                     cmd.Parameters.AddWithValue("@textContent", post.textContent);
-                    cmd.Parameters.AddWithValue("@imageUrl", (object)post.imageUrl ?? System.DBNull.Value);
+                    cmd.Parameters.AddWithValue("@imageUrl", (object)post.imageUrl ?? System.DBNull.Value); // the ?? operator checks for null value 
                     cmd.Parameters.AddWithValue("@postId", post.postId);
 
                     conn.Open();
