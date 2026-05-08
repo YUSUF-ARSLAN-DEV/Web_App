@@ -21,6 +21,14 @@ namespace WEB_APPLICATION.Models
             this.date = DateTime.Now.Date;
             this.loginTime = DateTime.Now.TimeOfDay;
         }
+        public Session(int sessionId, int userId, DateTime date, TimeSpan loginTime, TimeSpan logoutTime)
+        {
+            this.sessionId = sessionId;
+            this.userId = userId;
+            this.date = date;
+            this.loginTime = loginTime;
+            this.logoutTime = logoutTime;
+        }
     }
 }
 }

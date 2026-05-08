@@ -35,5 +35,60 @@ namespace WEB_APPLICATION.Models
             finally { conn.Close(); }
             return id;
         }
+    
+        public bool logLogout(int sessionId )
+        {
+            TimeSpan logoutTime = DateTime.Now.TimeOfDay ; 
+            bool success = false;
+            try
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(
+                    "UPDATE [Session] SET logoutTime = @logoutTime WHERE sessionId = @sessionId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@logoutTime", logoutTime);
+                    cmd.Parameters.AddWithValue("@sessionId", sessionId);
+                    if (cmd.ExecuteNonQuery() > 0)
+                        success = true;
+                }
+            }
+            catch (SqlException e) { Console.WriteLine(e.Message); }
+            finally { conn.Close(); }
+            return success;
+
+        }
+    
+        public List<Session> getSessionsByUser(int userId ) // this is an Admin Method that shows all of the Sessions for a specific user 
+        {
+            List<Session> userSessions = new List<Session>() ; 
+            try // returns 
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand( 
+                    "SELECT * FROM [Session] WHERE userId = @userId ORDER BY loginDate DESC ", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            userSessions.Add(new Session(
+                                UtilityDAL.returnInt(reader, "sessionId"),
+                                UtilityDAL.returnInt(reader, "userId"),
+                                UtilityDAL.returnDateTime(reader, "loginDate"),
+                                UtilityDAL.returnTimeSpan(reader, "loginTime"),
+                                UtilityDAL.returnTimeSpan(reader, "logoutTime")
+                            ));
+                        }
+                    }
+                }
+            }
+            catch (SqlException e) { Console.WriteLine(e.Message); }
+            finally { conn.Close(); }
+            return userSessions ; 
+        } 
+        
+        
+    
     }
 }
