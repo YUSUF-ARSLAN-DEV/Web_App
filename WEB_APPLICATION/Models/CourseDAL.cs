@@ -217,7 +217,36 @@ namespace WEB_APPLICATION.Models
             return list ;  
         }
     
-    
+        // the method bleow will be used to get All courses for the public catalogue of course 
+        public List<Course> getAllActiveCourses()
+        {
+            List<Course> courseList = new List<Course>();
+            try
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT * FROM Course WHERE activeStatus = 1", conn))
+                {
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            courseList.Add(new Course(
+                                UtilityDAL.returnInt(reader, "courseId"),
+                                UtilityDAL.returnInt(reader, "userId"),
+                                UtilityDAL.returnString(reader, "courseName"),
+                                UtilityDAL.returnString(reader, "courseDescription"),
+                                UtilityDAL.returnString(reader, "imageUrl"),
+                                UtilityDAL.returnBit(reader, "activeStatus")
+                            ));
+                        }
+                    }
+                }
+            }
+            catch (SqlException e) { Console.WriteLine(e.Message); }
+            finally { conn.Close(); }
+            return courseList;
+        }
     
     
     }
