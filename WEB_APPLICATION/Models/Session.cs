@@ -3,20 +3,24 @@ using System;
 
 namespace WEB_APPLICATION.Models
 {
+using System;
+
+namespace WEB_APPLICATION.Models
+{
     public class Session
     {
-        public int SessionID { get; set; }
-        public int UserID { get; set; }
-        public DateTime Date { get; set; }
-        public DateTime LoginTime { get; set; }
-        public DateTime LogoutTime { get; set; }
+        public int sessionId { get; set; }
+        public int userId { get; set; }
+        public DateTime date { get; set; }
+        public TimeSpan loginTime { get; set; }
+        public TimeSpan logoutTime { get; set; }
 
-        public Session(int sessionID, int userID) // this is a constructor to register a new login 
+        public Session(int userId) // this constructor creates a new login session
         {
-            SessionID = sessionID;
-            UserID = userID;
-            Date = DateTime.Now; // this returns the data nad itme but what gets stored in data base is only date 
-            LoginTime = DateTime.UtcNow;
+            this.userId = userId;
+            this.date = DateTime.Now.Date;
+            this.loginTime = DateTime.Now.TimeOfDay;
         }
     }
+}
 }

@@ -1,5 +1,27 @@
-The Case for the loginAuthentication Method in UserDAL.cs 
-0 - Success (username + password correct)
-1 - Username found, password wrong
-2 - Username not found
--1 - for unexpected errors 
+═══════════════════════════════════════════════════════
+         RETURN CODE RULEBOOK — EduNest DAL
+═══════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────
+UserDAL.LoginAuthentication(string userName, string password)
+───────────────────────────────────────────────────────
+ 0  → Success (username found, password correct)
+ 1  → Username found, password wrong
+ 2  → Username not found
+-1  → Unexpected error (SqlException)
+
+───────────────────────────────────────────────────────
+SessionDAL.logLogin(int userId)
+───────────────────────────────────────────────────────
+ N  → Success (N is the generated sessionId, always > 0)
+-1  → Unexpected error (SqlException)
+
+═══════════════════════════════════════════════════════
+GENERAL RULES
+───────────────────────────────────────────────────────
+bool methods   → true = success, false = failure/error
+int status     → 0 = success, negative = error code
+int id return  → > 0 = success, -1 = error
+List<T>        → empty list = no results, null = error
+object/Model   → null = not found or error
+═══════════════════════════════════════════════════════

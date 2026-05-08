@@ -1,5 +1,3 @@
-This is a template  for crude operations SQL connections 
-
 ═══════════════════════════════════════════════════════
                   SQL DAL TEMPLATES
 ═══════════════════════════════════════════════════════
@@ -11,12 +9,14 @@ bool success = false;
 try
 {
     conn.Open();
-    SqlCommand cmd = new SqlCommand(
-        "INSERT INTO TableName (col1, col2) VALUES (@val1, @val2)", conn);
-    cmd.Parameters.AddWithValue("@val1", value1);
-    cmd.Parameters.AddWithValue("@val2", value2);
-    if (cmd.ExecuteNonQuery() > 0)
-        success = true;
+    using (SqlCommand cmd = new SqlCommand(
+        "INSERT INTO TableName (col1, col2) VALUES (@val1, @val2)", conn))
+    {
+        cmd.Parameters.AddWithValue("@val1", value1);
+        cmd.Parameters.AddWithValue("@val2", value2);
+        if (cmd.ExecuteNonQuery() > 0)
+            success = true;
+    }
 }
 catch (SqlException e) { Console.WriteLine(e.Message); }
 finally { conn.Close(); }
@@ -29,12 +29,14 @@ bool success = false;
 try
 {
     conn.Open();
-    SqlCommand cmd = new SqlCommand(
-        "UPDATE TableName SET col1 = @val1 WHERE id = @id", conn);
-    cmd.Parameters.AddWithValue("@val1", value1);
-    cmd.Parameters.AddWithValue("@id", id);
-    if (cmd.ExecuteNonQuery() > 0)
-        success = true;
+    using (SqlCommand cmd = new SqlCommand(
+        "UPDATE TableName SET col1 = @val1 WHERE id = @id", conn))
+    {
+        cmd.Parameters.AddWithValue("@val1", value1);
+        cmd.Parameters.AddWithValue("@id", id);
+        if (cmd.ExecuteNonQuery() > 0)
+            success = true;
+    }
 }
 catch (SqlException e) { Console.WriteLine(e.Message); }
 finally { conn.Close(); }
@@ -47,17 +49,19 @@ ModelClass result = null;
 try
 {
     conn.Open();
-    SqlCommand cmd = new SqlCommand(
-        "SELECT * FROM TableName WHERE id = @id", conn);
-    cmd.Parameters.AddWithValue("@id", id);
-    using (SqlDataReader reader = cmd.ExecuteReader())
+    using (SqlCommand cmd = new SqlCommand(
+        "SELECT * FROM TableName WHERE id = @id", conn))
     {
-        if (reader.Read())
+        cmd.Parameters.AddWithValue("@id", id);
+        using (SqlDataReader reader = cmd.ExecuteReader())
         {
-            result = new ModelClass(
-                UtilityDAL.returnInt(reader, "id"),
-                UtilityDAL.returnString(reader, "col1")
-            );
+            if (reader.Read())
+            {
+                result = new ModelClass(
+                    UtilityDAL.returnInt(reader, "id"),
+                    UtilityDAL.returnString(reader, "col1")
+                );
+            }
         }
     }
 }
@@ -72,17 +76,19 @@ List<ModelClass> list = new List<ModelClass>();
 try
 {
     conn.Open();
-    SqlCommand cmd = new SqlCommand(
-        "SELECT * FROM TableName WHERE col = @val", conn);
-    cmd.Parameters.AddWithValue("@val", value);
-    using (SqlDataReader reader = cmd.ExecuteReader())
+    using (SqlCommand cmd = new SqlCommand(
+        "SELECT * FROM TableName WHERE col = @val", conn))
     {
-        while (reader.Read())
+        cmd.Parameters.AddWithValue("@val", value);
+        using (SqlDataReader reader = cmd.ExecuteReader())
         {
-            list.Add(new ModelClass(
-                UtilityDAL.returnInt(reader, "id"),
-                UtilityDAL.returnString(reader, "col1")
-            ));
+            while (reader.Read())
+            {
+                list.Add(new ModelClass(
+                    UtilityDAL.returnInt(reader, "id"),
+                    UtilityDAL.returnString(reader, "col1")
+                ));
+            }
         }
     }
 }
@@ -97,12 +103,14 @@ int result = 0; // change type as needed
 try
 {
     conn.Open();
-    SqlCommand cmd = new SqlCommand(
-        "SELECT COUNT(*) FROM TableName WHERE col = @val", conn);
-    cmd.Parameters.AddWithValue("@val", value);
-    object scalar = cmd.ExecuteScalar();
-    if (scalar != null)
-        result = Convert.ToInt32(scalar);
+    using (SqlCommand cmd = new SqlCommand(
+        "SELECT COUNT(*) FROM TableName WHERE col = @val", conn))
+    {
+        cmd.Parameters.AddWithValue("@val", value);
+        object scalar = cmd.ExecuteScalar();
+        if (scalar != null)
+            result = Convert.ToInt32(scalar);
+    }
 }
 catch (SqlException e) { Console.WriteLine(e.Message); }
 finally { conn.Close(); }
