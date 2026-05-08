@@ -126,7 +126,7 @@ namespace WEB_APPLICATION.Models
                             completionRate =  UtilityDAL.returnInt(reader,"completionRate") ;  
                             enrollmentDate =  UtilityDAL.returnDateTime(reader,"enrollmentDate") ; 
                             activeStatus = (bool)UtilityDAL.returnBit(reader,"activeStatus") ; 
-                            EnrollmentRecord record = new  EnrollmentRecord(enrollmentId , userId , courseId , completionRate , enrollmentDate ,activeStatus) ;
+                            EnrollmentRecord record = new  EnrollmentRecord(enrollmentId , courseId,  userId  , completionRate , enrollmentDate ,activeStatus) ;
                             listOfRecords.Add(record)  ; 
                         }   
                     }
@@ -174,7 +174,7 @@ namespace WEB_APPLICATION.Models
                             completionRate =  UtilityDAL.returnInt(reader,"completionRate") ;  
                             enrollmentDate =  UtilityDAL.returnDateTime(reader,"enrollmentDate") ; 
                             activeStatus = (bool)UtilityDAL.returnBit(reader,"activeStatus") ; 
-                            EnrollmentRecord record = new  EnrollmentRecord(enrollmentId , userId , courseId , completionRate , enrollmentDate ,activeStatus) ;
+                            EnrollmentRecord record = new  EnrollmentRecord(enrollmentId ,courseId , userId  , completionRate , enrollmentDate ,activeStatus) ;
                             studentEnrollments.Add(record) ; 
                         }
                     }
