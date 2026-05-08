@@ -21,8 +21,8 @@ namespace WEB_APPLICATION.Models
             this.title = title;
             this.textContent = textContent;
             this.imageUrl = imageUrl;
-            this.postDate = DateTime.UtcNow.Date ; // returns only the date to match SQLs date 
-            this.postTime = DateTime.UtcNow.TimeOfDay; // returns a TimeSpan value 
+            this.postDate = DateTime.Now.Date ; // returns only the date to match SQLs date 
+            this.postTime = DateTime.Now.TimeOfDay; // returns a TimeSpan value 
         }
         // overloaded construction for reading 
         public Post(int postId, int forumId, int userId, string title, string textContent, string imageUrl , DateTime postDate , TimeSpan postTime ) 

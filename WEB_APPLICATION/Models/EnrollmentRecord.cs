@@ -17,7 +17,7 @@ namespace WEB_APPLICATION.Models
             this.courseId = courseId;
             this.userId = userId;
             this.completionRate = 0;
-            this.enrollmentDate = DateTime.UtcNow;
+            this.enrollmentDate = DateTime.Now;
             this.activeStatus = true;
         }
     // Constructor for reading an existing enrollment from the database

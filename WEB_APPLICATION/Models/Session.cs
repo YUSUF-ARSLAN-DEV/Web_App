@@ -1,5 +1,6 @@
 using System;
 
+
 namespace WEB_APPLICATION.Models
 {
     public class Session
@@ -10,11 +11,11 @@ namespace WEB_APPLICATION.Models
         public DateTime LoginTime { get; set; }
         public DateTime LogoutTime { get; set; }
 
-        public Session(int sessionID, int userID)
+        public Session(int sessionID, int userID) // this is a constructor to register a new login 
         {
             SessionID = sessionID;
             UserID = userID;
-            Date = DateTime.UtcNow;
+            Date = DateTime.Now; // this returns the data nad itme but what gets stored in data base is only date 
             LoginTime = DateTime.UtcNow;
         }
     }

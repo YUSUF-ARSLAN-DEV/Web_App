@@ -44,7 +44,7 @@ namespace WEB_APPLICATION.Models
         this.role = role;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.accountCreationDate = DateTime.UtcNow;
+        this.accountCreationDate = DateTime.Now; // so that it stores time locally in malaysian time 
     }
 
 }
