@@ -20,14 +20,17 @@ namespace WEB_APPLICATION.Models
             try
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(
-                    "INSERT INTO Course  (userId, courseDescription  , courseName   ,   activeStatus   ,   imageUrl   ) VALUES (@userId, @courseDescription, @courseName, @activeStatus, @imageUrl)", conn);
+                using (SqlCommand cmd = new SqlCommand(
+                    "INSERT INTO Course (userId, courseDescription, courseName, activeStatus, imageUrl) VALUES (@userId, @courseDescription, @courseName, @activeStatus, @imageUrl)", conn))
+                {
                     cmd.Parameters.AddWithValue("@userId", course.userId);
                     cmd.Parameters.AddWithValue("@courseDescription", course.courseDescription);
                     cmd.Parameters.AddWithValue("@courseName", course.courseName);
                     cmd.Parameters.AddWithValue("@activeStatus", course.activeStatus);
-                    cmd.Parameters.AddWithValue("@imageUrl", (Object)course.imageUrl ?? DBNull.Value  ) ; 
-                    success = true;
+                    cmd.Parameters.AddWithValue("@imageUrl", (object)course.imageUrl ?? DBNull.Value);
+                    if (cmd.ExecuteNonQuery() > 0)
+                        success = true;
+                }
             }
             catch (SqlException e) { Console.WriteLine(e.Message); }
             finally { conn.Close(); }
@@ -56,19 +59,21 @@ namespace WEB_APPLICATION.Models
         
 
         // the method below takes courseName and description and updates these fields using the courseID 
-        public bool updateCourse(int courseId, String courseName ,  String courseDescription  )
+        public bool updateCourse(int courseId, string courseName, string courseDescription)
         {
             bool success = false;
             try
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(
-                    "UPDATE Course SET courseName = @courseName , courseDescription = @courseDescription  WHERE courseId = @courseId ", conn);
-                cmd.Parameters.AddWithValue("@courseId", courseId );
-                cmd.Parameters.AddWithValue("@courseName", courseName );
-                cmd.Parameters.AddWithValue("@courseDescription", courseDescription );
-                if (cmd.ExecuteNonQuery() > 0) 
-                    success = true;
+                using (SqlCommand cmd = new SqlCommand(
+                    "UPDATE Course SET courseName = @courseName, courseDescription = @courseDescription WHERE courseId = @courseId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@courseId", courseId);
+                    cmd.Parameters.AddWithValue("@courseName", courseName);
+                    cmd.Parameters.AddWithValue("@courseDescription", courseDescription);
+                    if (cmd.ExecuteNonQuery() > 0)
+                        success = true;
+                }
             }
             catch (SqlException e) { Console.WriteLine(e.Message); }
             finally { conn.Close(); }
@@ -79,12 +84,6 @@ namespace WEB_APPLICATION.Models
         // The method below takes an a user ID and returns all courses created by that User  - this is an instructor method 
         public List<Course> getCoursesByUserId(int specifiedUserId)
         {
-            int courseId ; 
-            int userId ; // this here refers to the ID of the instructor who created thsi 
-            String courseDescription ; 
-            String courseName ; 
-            bool activeStatus ; 
-            String imageUrl ; 
             List<Course> courseList = new List<Course>();
             try
             {
