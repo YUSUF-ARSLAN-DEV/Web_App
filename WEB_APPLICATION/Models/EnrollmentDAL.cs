@@ -191,8 +191,57 @@ namespace WEB_APPLICATION.Models
             }
             return studentEnrollments ; 
         }
-
-    
+        public bool isEnrolled(int userId, int courseId) // returns true if the student is already enrolled  false if not 
+        {
+            int count = 0;
+            try
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT COUNT(*) FROM Enrollment WHERE userId = @userId AND courseId = @courseId AND activeStatus = 1", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@courseId", courseId);
+                    object result = cmd.ExecuteScalar();
+                    if (result != null)
+                        count = Convert.ToInt32(result);
+                }
+            }
+            catch (SqlException e) { Console.WriteLine(e.Message); }
+            finally { conn.Close(); }
+            return count > 0;
+        }
+        public EnrollmentRecord getEnrollment(int userId, int courseId) // returns a student specific enrollment record for a course 
+        {
+            EnrollmentRecord record = null;
+            try
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT * FROM Enrollment WHERE userId = @userId AND courseId = @courseId AND activeStatus = 1", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@courseId", courseId);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            record = new EnrollmentRecord(
+                                UtilityDAL.returnInt(reader, "enrollmentId"),
+                                UtilityDAL.returnInt(reader, "courseId"),
+                                UtilityDAL.returnInt(reader, "userId"),
+                                UtilityDAL.returnInt(reader, "completionRate"),
+                                UtilityDAL.returnDateTime(reader, "enrollmentDate"),
+                                UtilityDAL.returnBit(reader, "activeStatus")
+                            );
+                        }
+                    }
+                }
+            }
+            catch (SqlException e) { Console.WriteLine(e.Message); }
+            finally { conn.Close(); }
+            return record;
+        }
     
     }
 }
