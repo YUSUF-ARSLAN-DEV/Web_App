@@ -4,17 +4,17 @@ namespace WEB_APPLICATION.Models
 {
     public class Forum
     {
-        public int ForumID { get; set; }
-        public int CourseID { get; set; }
-        public string Title { get; set; }
-        public string PostFlair { get; set; }
+        public int forumId { get; set; }
+        public int courseId { get; set; }
+        public string title { get; set; }
+        public string postFlair { get; set; }
 
-        public Forum(int forumID, int courseID, string title, string postFlair)
+        public Forum(int forumId, int courseId, string title, string postFlair)
         {
-            ForumID = forumID;
-            CourseID = courseID;
-            Title = title;
-            PostFlair = postFlair;
+            this.forumId = forumId;
+            this.courseId = courseId;
+            this.title = title;
+            this.postFlair = postFlair;
         }
     }
 }

@@ -5,49 +5,100 @@ namespace WEB_APPLICATION.Models
 {
     public class ForumDAL
     {
-        private SqlConnection conn = UtilityDAL.createConnection(); 
+        private SqlConnection conn = UtilityDAL.createConnection();
 
-        public void CreateForum(Forum forum)
+        public bool createForum(Forum forum)
         {
-
-            using (SqlCommand cmd = new SqlCommand(
-                "INSERT INTO Forum (courseId, title, postFlair) VALUES (@courseId, @title, @postFlair)", conn))
+            try
             {
-                cmd.Parameters.AddWithValue("@courseId", forum.CourseID);
-                cmd.Parameters.AddWithValue("@title", forum.Title);
-                cmd.Parameters.AddWithValue("@postFlair", forum.PostFlair);
-                conn.Open();
-                cmd.ExecuteNonQuery();
+                using (SqlCommand cmd = new SqlCommand(
+                    "INSERT INTO Forum (courseId, title, postFlair) VALUES (@courseId, @title, @postFlair)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@courseId", forum.courseId);
+                    cmd.Parameters.AddWithValue("@title", forum.title);
+                    cmd.Parameters.AddWithValue("@postFlair", forum.postFlair);
+
+                    conn.Open();
+
+                    int rows = cmd.ExecuteNonQuery();
+
+                    return rows > 0;
+                }
+            }
+            catch (SqlException)
+            {
+                return false;
+            }
+            finally
+            {
+                conn.Close();
             }
         }
 
-        public List<Forum> GetForumsByCourse(int courseId)
+        public List<Forum> getForumsByCourse(int courseId)
         {
             List<Forum> forums = new List<Forum>();
 
-            using (SqlCommand cmd = new SqlCommand(
-                "SELECT forumId, courseId, title, postFlair FROM Forum WHERE courseId = @courseId", conn))
+            try
             {
-                cmd.Parameters.AddWithValue("@courseId", courseId);
-                conn.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT forumId, courseId, title, postFlair FROM Forum WHERE courseId = @courseId", conn))
                 {
-                    while (reader.Read())
+                    cmd.Parameters.AddWithValue("@courseId", courseId);
+
+                    conn.Open();
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        forums.Add(new Forum(reader.GetInt32(0), reader.GetInt32(1), reader.GetString(2), reader.GetString(3)));
+                        while (reader.Read())
+                        {
+                            int forumId = UtilityDAL.returnInt(reader, "forumId");
+                            int cId = UtilityDAL.returnInt(reader, "courseId");
+                            string title = UtilityDAL.returnString(reader, "title");
+                            string postFlair = UtilityDAL.returnString(reader, "postFlair");
+
+                            Forum forum = new Forum(forumId, cId, title, postFlair);
+
+                            forums.Add(forum);
+                        }
                     }
                 }
             }
+            catch (SqlException)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+            }
+
             return forums;
         }
 
-        public void DeleteForum(int forumId)
+        public bool deleteForum(int forumId)
         {
-            using (SqlCommand cmd = new SqlCommand("DELETE FROM Forum WHERE forumId = @forumId", conn))
+            try
             {
-                cmd.Parameters.AddWithValue("@forumId", forumId);
-                conn.Open();
-                cmd.ExecuteNonQuery();
+                using (SqlCommand cmd = new SqlCommand(
+                    "DELETE FROM Forum WHERE forumId = @forumId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@forumId", forumId);
+
+                    conn.Open();
+
+                    int rows = cmd.ExecuteNonQuery();
+
+                    return rows > 0;
+                }
+            }
+            catch (SqlException)
+            {
+                return false;
+            }
+            finally
+            {
+                conn.Close();
             }
         }
     }
