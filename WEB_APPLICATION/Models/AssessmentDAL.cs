@@ -8,12 +8,13 @@ namespace WEB_APPLICATION.Models
 {
     public class AssessmentDAL
     {
-        public static bool CreateAssessment(Assessment assessment)
+        SqlConnection conn  = UtilityDAL.createConnection() ; 
+        public  bool CreateAssessment(Assessment assessment)
         {
-            SqlConnection conn = null;
+            
             try
             {
-                conn = UtilityDAL.createConnection();
+                
                 using (SqlCommand cmd = new SqlCommand(
                     "INSERT INTO Assessment (lessonId, attemptNumber) VALUES (@lessonId, @attemptNumber)", conn))
                 {
@@ -30,17 +31,17 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                if (conn != null) conn.Close();
+                 conn.Close();
             }
         }
 
-        public static List<Assessment> GetAssessmentsByLesson(int lessonId)
+        public  List<Assessment> GetAssessmentsByLesson(int lessonId)
         {
             List<Assessment> assessments = new List<Assessment>();
-            SqlConnection conn = null;
+            
             try
             {
-                conn = UtilityDAL.createConnection();
+                
                 using (SqlCommand cmd = new SqlCommand(
                     "SELECT assessmentId, lessonId, attemptNumber FROM Assessment WHERE lessonId = @lessonId", conn))
                 {
@@ -66,17 +67,17 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                if (conn != null) conn.Close();
+                 conn.Close();
             }
             return assessments;
         }
 
-        public static Assessment GetAssessmentById(int assessmentId)
+        public  Assessment GetAssessmentById(int assessmentId)
         {
-            SqlConnection conn = null;
+           
             try
             {
-                conn = UtilityDAL.createConnection();
+               
                 using (SqlCommand cmd = new SqlCommand(
                     "SELECT assessmentId, lessonId, attemptNumber FROM Assessment WHERE assessmentId = @assessmentId", conn))
                 {
@@ -102,17 +103,17 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                if (conn != null) conn.Close();
+                 conn.Close();
             }
             return null;
         }
 
-        public static bool DeleteAssessment(int assessmentId)
+        public  bool DeleteAssessment(int assessmentId)
         {
-            SqlConnection conn = null;
+            
             try
             {
-                conn = UtilityDAL.createConnection();
+                
                 using (SqlCommand cmd = new SqlCommand("DELETE FROM Assessment WHERE assessmentId = @assessmentId", conn))
                 {
                     cmd.Parameters.AddWithValue("@assessmentId", assessmentId);
@@ -127,15 +128,15 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                if (conn != null) conn.Close();
+                 conn.Close();
             }
         }
-        public static bool IncrementAttempt(int assessmentId)
+        public  bool IncrementAttempt(int assessmentId)
         {
-            SqlConnection conn = null;
+            
             try
             {
-                conn = UtilityDAL.createConnection();
+                
                 using (SqlCommand cmd = new SqlCommand(
                     "UPDATE Assessment SET attemptNumber = attemptNumber + 1 WHERE assessmentId = @assessmentId", conn))
                 {
@@ -151,7 +152,7 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                if (conn != null) conn.Close();
+                     conn.Close();
             }
         }
     }
