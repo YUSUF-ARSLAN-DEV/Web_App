@@ -15,7 +15,7 @@ namespace WEB_APPLICATION.Controllers
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
             int userId = (int)Session["userId"];
-            User user = UserDAL.getUserById(userId);
+            User user = new UserDAL().GetUserById(userId);
             if (user == null)
                 return HttpNotFound();
             return View(user);
@@ -28,7 +28,7 @@ namespace WEB_APPLICATION.Controllers
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
             int userId = (int)Session["userId"];
-            User user = UserDAL.getUserById(userId);
+            User user = new UserDAL().GetUserById(userId);
             if (user == null)
                 return HttpNotFound();
             return View(user);
@@ -42,7 +42,7 @@ namespace WEB_APPLICATION.Controllers
                 return RedirectToAction("Login", "Account");
             int userId = (int)Session["userId"];
             UserDAL userDal = new UserDAL();
-            bool success = userDal.updateUserProfile(userId, firstName, lastName);
+            bool success = userDal.UpdateUserProfile(userId, firstName, lastName);
             if (success)
             {
                 TempData["success"] = "Profile updated successfully";

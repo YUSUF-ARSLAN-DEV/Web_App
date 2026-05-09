@@ -12,14 +12,14 @@ namespace WEB_APPLICATION.Controllers
         // GET: Course Index
         public ActionResult Index()
         {
-            List<Course> courses = CourseDAL.GetAllCourses();
+            List<Course> courses = new CourseDAL().GetAllActiveCourses();
             return View(courses);
         }
 
         // GET: Course Details
         public ActionResult Details(int id)
         {
-            Course course = CourseDAL.GetCourseById(id);
+            Course course = new CourseDAL().GetCourseById(id);
             if (course == null)
                 return HttpNotFound();
             return View(course);
@@ -31,8 +31,8 @@ namespace WEB_APPLICATION.Controllers
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
             int userId = (int)Session["userId"];
-            // TODO: implement enrollment query when EnrollmentDAL method exists
-            return View();
+            List<EnrollmentRecord> enrollments = new EnrollmentDAL().GetEnrollmentByUser(userId);
+            return View(enrollments);
         }
 
         // GET: Create Course (admin/instructor only)
@@ -46,12 +46,12 @@ namespace WEB_APPLICATION.Controllers
 
         // POST: Create Course
         [HttpPost]
-        public ActionResult Create(string courseTitle, string courseDescription)
+        public ActionResult Create(string courseName, string courseDescription)
         {
             try
             {
-                Course course = new Course { CourseTitle = courseTitle, CourseDescription = courseDescription };
-                bool success = CourseDAL.CreateCourse(course);
+                int userId = (int)Session["userId"];
+                bool success = new CourseDAL().CreateCourse(userId, courseName, courseDescription, null);
                 if (success)
                 {
                     TempData["success"] = "Course created successfully";
@@ -73,7 +73,7 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
                 return RedirectToAction("Index");
-            Course course = CourseDAL.GetCourseById(id);
+            Course course = new CourseDAL().GetCourseById(id);
             if (course == null)
                 return HttpNotFound();
             return View(course);
@@ -85,15 +85,14 @@ namespace WEB_APPLICATION.Controllers
         {
             try
             {
-                Course course = new Course { CourseID = id, CourseTitle = courseTitle, CourseDescription = courseDescription };
-                bool success = CourseDAL.UpdateCourse(course);
+                bool success = new CourseDAL().UpdateCourse(id, courseTitle, courseDescription);
                 if (success)
                 {
                     TempData["success"] = "Course updated successfully";
                     return RedirectToAction("Details", new { id });
                 }
                 ViewBag.Error = "Failed to update course";
-                return View(course);
+                return View();
             }
             catch
             {
@@ -108,7 +107,7 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
                 return Json(new { success = false });
-            bool success = CourseDAL.DeleteCourse(id);
+            bool success = new CourseDAL().DeleteCourse(id);
             if (success)
                 TempData["success"] = "Course deleted successfully";
             return RedirectToAction("Index");

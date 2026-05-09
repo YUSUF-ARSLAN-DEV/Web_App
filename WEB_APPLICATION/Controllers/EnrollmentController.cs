@@ -15,8 +15,8 @@ namespace WEB_APPLICATION.Controllers
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
             int userId = (int)Session["userId"];
-            // TODO: implement enrollment list query
-            return View();
+            List<EnrollmentRecord> enrollments = new EnrollmentDAL().GetEnrollmentByUser(userId);
+            return View(enrollments);
         }
 
         // POST: Enroll in Course
@@ -27,19 +27,25 @@ namespace WEB_APPLICATION.Controllers
                 return Json(new { success = false, message = "Not logged in" });
             
             int userId = (int)Session["userId"];
-            // TODO: implement enrollment creation when EnrollmentDAL exists
-            return Json(new { success = true, message = "Enrolled successfully" });
+            EnrollmentDAL dal = new EnrollmentDAL();
+            if (dal.IsEnrolled(userId, courseId))
+            {
+                return Json(new { success = false, message = "Already enrolled" });
+            }
+            bool success = dal.Enroll(userId, courseId);
+            return Json(new { success = success });
         }
 
         // POST: Unenroll from Course
         [HttpPost]
-        public ActionResult Unenroll(int enrollmentId)
+        public ActionResult Unenroll(int enrollmentId, int courseId)
         {
             if (Session["userId"] == null)
                 return Json(new { success = false, message = "Not logged in" });
             
-            // TODO: implement enrollment deletion when EnrollmentDAL exists
-            return Json(new { success = true, message = "Unenrolled successfully" });
+            int userId = (int)Session["userId"];
+            bool success = new EnrollmentDAL().UnEnroll(userId, courseId);
+            return Json(new { success = success });
         }
     }
 }

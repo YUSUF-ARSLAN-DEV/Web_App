@@ -22,7 +22,7 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["userId"] == null || !IsAdmin())
                 return RedirectToAction("Login", "Account");
-            List<User> users = UserDAL.getAllUsers("student");
+            List<User> users = new UserDAL().GetAllUsers("student");
             return View(users);
         }
 
@@ -32,8 +32,8 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["userId"] == null || !IsAdmin())
                 return Json(new { success = false });
-            // TODO: implement user deletion logic when UserDAL method exists
-            return Json(new { success = true });
+            bool success = new UserDAL().DeleteUser(userId);
+            return Json(new { success = success });
         }
 
         // GET: Manage Courses
@@ -41,7 +41,7 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["userId"] == null || !IsAdmin())
                 return RedirectToAction("Login", "Account");
-            List<Course> courses = CourseDAL.GetAllCourses();
+            List<Course> courses = new CourseDAL().GetAllCourses();
             return View(courses);
         }
 
@@ -51,7 +51,7 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["userId"] == null || !IsAdmin())
                 return Json(new { success = false });
-            bool deleted = CourseDAL.DeleteCourse(courseId);
+            bool deleted = new CourseDAL().DeleteCourse(courseId);
             return Json(new { success = deleted });
         }
 

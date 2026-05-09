@@ -14,10 +14,10 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
-            Assessment assessment = AssessmentDAL.GetAssessmentById(assessmentId);
+            Assessment assessment = new AssessmentDAL().GetAssessmentById(assessmentId);
             if (assessment == null)
                 return HttpNotFound();
-            List<Question> questions = QuestionDAL.GetQuestionsByAssessment(assessmentId);
+            List<Question> questions = new QuestionDAL().GetQuestionsByAssessment(assessmentId);
             ViewBag.Questions = questions;
             return View(assessment);
         }
@@ -29,7 +29,7 @@ namespace WEB_APPLICATION.Controllers
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
             // TODO: score calculation and storage
-            AssessmentDAL.IncrementAttempt(assessmentId);
+            new AssessmentDAL().IncrementAttempt(assessmentId);
             return RedirectToAction("Results", new { assessmentId });
         }
 
@@ -38,7 +38,7 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
-            Assessment assessment = AssessmentDAL.GetAssessmentById(assessmentId);
+            Assessment assessment = new AssessmentDAL().GetAssessmentById(assessmentId);
             if (assessment == null)
                 return HttpNotFound();
             return View(assessment);
@@ -60,8 +60,8 @@ namespace WEB_APPLICATION.Controllers
         {
             try
             {
-                Assessment assessment = new Assessment { LessonID = lessonId, AttemptNumber = 0 };
-                bool success = AssessmentDAL.CreateAssessment(assessment);
+                Assessment assessment = new Assessment(0, lessonId);
+                bool success = new AssessmentDAL().CreateAssessment(assessment);
                 if (success)
                 {
                     TempData["success"] = "Assessment created successfully";
@@ -93,8 +93,8 @@ namespace WEB_APPLICATION.Controllers
         {
             try
             {
-                Question question = new Question { AssessmentID = assessmentId, QuestionType = questionType, QuestionText = questionText, CorrectAnswer = correctAnswer };
-                QuestionDAL.CreateQuestion(question);
+                Question question = new Question(0, assessmentId, questionType, questionText, correctAnswer);
+                new QuestionDAL().CreateQuestion(question);
                 TempData["success"] = "Question added successfully";
                 return RedirectToAction("AddQuestion", new { assessmentId });
             }
@@ -111,7 +111,7 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
                 return Json(new { success = false });
-            bool success = AssessmentDAL.DeleteAssessment(id);
+            bool success = new AssessmentDAL().DeleteAssessment(id);
             if (success)
                 TempData["success"] = "Assessment deleted successfully";
             return RedirectToAction("Index");

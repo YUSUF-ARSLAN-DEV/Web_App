@@ -62,7 +62,7 @@ namespace WEB_APPLICATION.Controllers
             
             if (authResult == 0) // success
             {
-                User user = UserDAL.getUserByUsername(userName);
+                User user = new UserDAL().GetUserByUsername(userName);
                 if (user != null)
                 {
                     Session["userId"] = user.userId;
@@ -91,6 +91,8 @@ namespace WEB_APPLICATION.Controllers
 
         public ActionResult Logout()
         {
+            SessionDAL sessionDal = new SessionDAL();
+            sessionDal.LogLogout((int)Session["sessionId"]);
             Session.Clear();
             TempData["success"] = "You have logged out";
             return RedirectToAction("Index", "Home");

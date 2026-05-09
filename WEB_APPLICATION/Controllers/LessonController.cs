@@ -12,7 +12,7 @@ namespace WEB_APPLICATION.Controllers
         // GET: Lessons by Course
         public ActionResult Index(int courseId)
         {
-            List<Lesson> lessons = LessonDAL.GetLessonsByCourse(courseId);
+            List<Lesson> lessons = new LessonDAL().GetLessonsByCourse(courseId);
             ViewBag.CourseId = courseId;
             return View(lessons);
         }
@@ -20,7 +20,7 @@ namespace WEB_APPLICATION.Controllers
         // GET: Lesson Details
         public ActionResult Details(int id)
         {
-            Lesson lesson = LessonDAL.GetLessonById(id);
+            Lesson lesson = new LessonDAL().GetLessonById(id);
             if (lesson == null)
                 return HttpNotFound();
             return View(lesson);
@@ -42,8 +42,8 @@ namespace WEB_APPLICATION.Controllers
         {
             try
             {
-                Lesson lesson = new Lesson { CourseID = courseId, LessonTitle = lessonTitle, LessonContent = lessonContent };
-                bool success = LessonDAL.CreateLesson(lesson);
+                Lesson lesson = new Lesson(0, courseId, lessonTitle, lessonContent);
+                bool success = new LessonDAL().CreateLesson(lesson);
                 if (success)
                 {
                     TempData["success"] = "Lesson created successfully";
@@ -65,7 +65,7 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
                 return RedirectToAction("Index");
-            Lesson lesson = LessonDAL.GetLessonById(id);
+            Lesson lesson = new LessonDAL().GetLessonById(id);
             if (lesson == null)
                 return HttpNotFound();
             return View(lesson);
@@ -77,8 +77,8 @@ namespace WEB_APPLICATION.Controllers
         {
             try
             {
-                Lesson lesson = new Lesson { LessonID = lessonId, CourseID = courseId, LessonTitle = lessonTitle, LessonContent = lessonContent };
-                bool success = LessonDAL.UpdateLesson(lesson);
+                Lesson lesson = new Lesson(lessonId, courseId, lessonTitle, lessonContent);
+                bool success = new LessonDAL().UpdateLesson(lesson);
                 if (success)
                 {
                     TempData["success"] = "Lesson updated successfully";
@@ -100,7 +100,7 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
                 return Json(new { success = false });
-            bool success = LessonDAL.DeleteLesson(id);
+            bool success = new LessonDAL().DeleteLesson(id);
             if (success)
                 TempData["success"] = "Lesson deleted successfully";
             return RedirectToAction("Index", new { courseId });

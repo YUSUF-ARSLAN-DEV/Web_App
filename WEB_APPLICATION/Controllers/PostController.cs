@@ -30,7 +30,7 @@ namespace WEB_APPLICATION.Controllers
             {
                 int userId = (int)Session["userId"];
                 Post post = new Post(0, forumId, userId, title, textContent, imageUrl);
-                bool success = PostDAL.CreatePost(post);
+                bool success = new PostDAL().CreatePost(post);
                 if (success)
                 {
                     TempData["success"] = "Post created successfully";
@@ -52,7 +52,7 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
-            Post post = PostDAL.GetPostById(id);
+            Post post = new PostDAL().GetPostById(id);
             if (post == null)
                 return HttpNotFound();
             if (post.userId != (int)Session["userId"])
@@ -69,8 +69,11 @@ namespace WEB_APPLICATION.Controllers
             
             try
             {
-                Post post = new Post(postId, forumId, (int)Session["userId"], title, textContent, imageUrl);
-                PostDAL.UpdatePost(post);
+                Post post = new PostDAL().GetPostById(postId);
+                post.title = title;
+                post.textContent = textContent;
+                post.imageUrl = imageUrl;
+                new PostDAL().UpdatePost(post);
                 TempData["success"] = "Post updated successfully";
                 return RedirectToAction("Details", "Forum", new { id = forumId });
             }
@@ -87,10 +90,10 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["userId"] == null)
                 return Json(new { success = false });
-            Post post = PostDAL.GetPostById(id);
+            Post post = new PostDAL().GetPostById(id);
             if (post == null || post.userId != (int)Session["userId"])
                 return Json(new { success = false });
-            PostDAL.DeletePost(id);
+            new PostDAL().DeletePost(id);
             TempData["success"] = "Post deleted successfully";
             return RedirectToAction("Details", "Forum", new { id = forumId });
         }

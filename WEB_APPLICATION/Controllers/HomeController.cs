@@ -11,7 +11,7 @@ namespace WEB_APPLICATION.Controllers
     {
         public ActionResult Index()
         {
-            List<Course> courses = CourseDAL.GetAllCourses();
+            List<Course> courses = new CourseDAL().GetAllActiveCourses();
             return View(courses);
         }
 

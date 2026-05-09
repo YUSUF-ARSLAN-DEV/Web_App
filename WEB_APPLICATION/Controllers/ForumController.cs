@@ -12,7 +12,7 @@ namespace WEB_APPLICATION.Controllers
         // GET: Forums by Course
         public ActionResult Index(int courseId)
         {
-            List<Forum> forums = ForumDAL.GetForumsByCourse(courseId);
+            List<Forum> forums = new ForumDAL().GetForumsByCourse(courseId);
             ViewBag.CourseId = courseId;
             return View(forums);
         }
@@ -20,10 +20,10 @@ namespace WEB_APPLICATION.Controllers
         // GET: Forum Details
         public ActionResult Details(int id)
         {
-            Forum forum = ForumDAL.GetForumById(id);
+            Forum forum = new ForumDAL().GetForumById(id);
             if (forum == null)
                 return HttpNotFound();
-            List<Post> posts = PostDAL.GetPostsByForum(id);
+            List<Post> posts = new PostDAL().GetPostsByForum(id);
             ViewBag.Posts = posts;
             return View(forum);
         }
@@ -44,8 +44,8 @@ namespace WEB_APPLICATION.Controllers
         {
             try
             {
-                Forum forum = new Forum { CourseID = courseId, Title = title, PostFlair = postFlair };
-                ForumDAL.CreateForum(forum);
+                Forum forum = new Forum(0, courseId, title, postFlair);
+                new ForumDAL().CreateForum(forum);
                 TempData["success"] = "Forum created successfully";
                 return RedirectToAction("Index", new { courseId });
             }
@@ -62,7 +62,7 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
                 return Json(new { success = false });
-            ForumDAL.DeleteForum(id);
+            new ForumDAL().DeleteForum(id);
             TempData["success"] = "Forum deleted successfully";
             return RedirectToAction("Index", new { courseId });
         }
