@@ -8,12 +8,13 @@ namespace WEB_APPLICATION.Models
 {
     public class PostDAL
     {
-        public static bool CreatePost(Post post)
+        private SqlConnection conn = UtilityDAL.createConnection() ; 
+        public  bool CreatePost(Post post)
         {
-            SqlConnection conn = null;
+            
             try
             {
-                conn = UtilityDAL.createConnection();
+                
                 using (SqlCommand cmd = new SqlCommand(
                     "INSERT INTO Post (forumId, userId, title, textContent, imageUrl, postDate, postTime) VALUES (@forumId, @userId, @title, @textContent, @imageUrl, @postDate, @postTime)", conn))
                 {
@@ -35,17 +36,17 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                if (conn != null) conn.Close();
+                conn.Close();
             }
         }
 
-        public static List<Post> GetPostsByForum(int requiredForumId)
+        public  List<Post> GetPostsByForum(int requiredForumId)
         {
             List<Post> posts = new List<Post>();
-            SqlConnection conn = null;
+           
             try
             {
-                conn = UtilityDAL.createConnection();
+                
                 using (SqlCommand cmd = new SqlCommand(
                     "SELECT postId, forumId, userId, title, textContent, imageUrl, postDate, postTime FROM Post WHERE forumId = @forumId", conn))
                 {
@@ -75,17 +76,17 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                if (conn != null) conn.Close();
+                 conn.Close();
             }
             return posts;
         }
 
-        public static bool UpdatePost(Post post)
+        public  bool UpdatePost(Post post)
         {
-            SqlConnection conn = null;
+            
             try
             {
-                conn = UtilityDAL.createConnection();
+                
                 using (SqlCommand cmd = new SqlCommand(
                     "UPDATE Post SET title = @title, textContent = @textContent, imageUrl = @imageUrl WHERE postId = @postId", conn))
                 {
@@ -104,16 +105,16 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                if (conn != null) conn.Close();
+                conn.Close();
             }
         }
 
-        public static bool DeletePost(int postId)
+        public  bool DeletePost(int postId)
         {
-            SqlConnection conn = null;
+           
             try
             {
-                conn = UtilityDAL.createConnection();
+                
                 using (SqlCommand cmd = new SqlCommand("DELETE FROM Post WHERE postId = @postId", conn))
                 {
                     cmd.Parameters.AddWithValue("@postId", postId);
@@ -128,16 +129,16 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                if (conn != null) conn.Close();
+                 conn.Close();
             }
         }
 
-        public static Post GetPostById(int postId)
+        public  Post GetPostById(int postId)
         {
-            SqlConnection conn = null;
+            
             try
             {
-                conn = UtilityDAL.createConnection();
+                
                 using (SqlCommand cmd = new SqlCommand(
                     "SELECT postId, forumId, userId, title, textContent, imageUrl, postDate, postTime FROM Post WHERE postId = @postId", conn))
                 {
@@ -166,7 +167,7 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                if (conn != null) conn.Close();
+                conn.Close();
             }
             return null;
         }
