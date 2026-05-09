@@ -159,10 +159,10 @@ namespace WEB_APPLICATION.Models
 
         public  int GetLessonCountByCourse(int courseId)
         {
-            SqlConnection conn = null;
+            
             try
             {
-                conn = UtilityDAL.createConnection();
+                
                 using (SqlCommand cmd = new SqlCommand(
                     "SELECT COUNT(*) FROM Lesson WHERE courseId = @courseId", conn))
                 {
