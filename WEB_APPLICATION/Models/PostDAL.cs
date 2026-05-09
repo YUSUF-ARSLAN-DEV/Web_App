@@ -1,21 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
-using System.Web.Management;
-
-
 
 namespace WEB_APPLICATION.Models
 {
     public class PostDAL
     {
-      private SqlConnection conn = UtilityDAL.createConnection(); 
-
-        public  bool CreatePost(Post post)
+        public static bool CreatePost(Post post)
         {
-            bool success = false ; 
-            try 
+            SqlConnection conn = null;
+            try
             {
+                conn = UtilityDAL.createConnection();
                 using (SqlCommand cmd = new SqlCommand(
                     "INSERT INTO Post (forumId, userId, title, textContent, imageUrl, postDate, postTime) VALUES (@forumId, @userId, @title, @textContent, @imageUrl, @postDate, @postTime)", conn))
                 {
@@ -23,43 +21,36 @@ namespace WEB_APPLICATION.Models
                     cmd.Parameters.AddWithValue("@userId", post.userId);
                     cmd.Parameters.AddWithValue("@title", post.title);
                     cmd.Parameters.AddWithValue("@textContent", post.textContent);
-                    // casting ImageUrl to an object as ?? needs both sides to be compatible but if 
-                    cmd.Parameters.AddWithValue("@imageUrl", (object)post.imageUrl ?? System.DBNull.Value); // a muhc shorter version of if else 
+                    cmd.Parameters.AddWithValue("@imageUrl", (object)post.imageUrl ?? System.DBNull.Value);
                     cmd.Parameters.AddWithValue("@postDate", post.postDate);
                     cmd.Parameters.AddWithValue("@postTime", post.postTime);
                     conn.Open();
-                    cmd.ExecuteNonQuery();
+                    int rows = cmd.ExecuteNonQuery();
+                    return rows > 0;
                 }
-                success = true ; 
-            } 
-            catch (SqlException  e ) 
-            {
-                success = false ; 
-                Console.WriteLine(e.Message) ;     
             }
-            finally 
+            catch (SqlException)
             {
-                
-                conn.Close() ; 
-                
+                return false;
             }
-             return success ; // after the connection close return the status 
-           
+            finally
+            {
+                if (conn != null) conn.Close();
+            }
         }
 
-        public List<Post> getPostsByForum(int requiredForumId) // this method returns a list of Post objects that belong to a specific forum
+        public static List<Post> GetPostsByForum(int requiredForumId)
         {
             List<Post> posts = new List<Post>();
-
+            SqlConnection conn = null;
             try
             {
+                conn = UtilityDAL.createConnection();
                 using (SqlCommand cmd = new SqlCommand(
                     "SELECT postId, forumId, userId, title, textContent, imageUrl, postDate, postTime FROM Post WHERE forumId = @forumId", conn))
                 {
                     cmd.Parameters.AddWithValue("@forumId", requiredForumId);
-
                     conn.Open();
-
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -72,9 +63,7 @@ namespace WEB_APPLICATION.Models
                             string imagePath = UtilityDAL.returnString(reader, "imageUrl");
                             DateTime postDate = UtilityDAL.returnDateTime(reader, "postDate");
                             TimeSpan postTime = UtilityDAL.returnTimeSpan(reader, "postTime");
-
                             Post post = new Post(postId, forumId, userId, title, content, imagePath, postDate, postTime);
-
                             posts.Add(post);
                         }
                     }
@@ -86,30 +75,26 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-
-                    conn.Close();
-                
+                if (conn != null) conn.Close();
             }
-
             return posts;
         }
 
-        public bool updatePost(Post post)
+        public static bool UpdatePost(Post post)
         {
+            SqlConnection conn = null;
             try
             {
+                conn = UtilityDAL.createConnection();
                 using (SqlCommand cmd = new SqlCommand(
                     "UPDATE Post SET title = @title, textContent = @textContent, imageUrl = @imageUrl WHERE postId = @postId", conn))
                 {
                     cmd.Parameters.AddWithValue("@title", post.title);
                     cmd.Parameters.AddWithValue("@textContent", post.textContent);
-                    cmd.Parameters.AddWithValue("@imageUrl", (object)post.imageUrl ?? System.DBNull.Value); // the ?? operator checks for null value 
+                    cmd.Parameters.AddWithValue("@imageUrl", (object)post.imageUrl ?? System.DBNull.Value);
                     cmd.Parameters.AddWithValue("@postId", post.postId);
-
                     conn.Open();
-
                     int rows = cmd.ExecuteNonQuery();
-
                     return rows > 0;
                 }
             }
@@ -119,25 +104,21 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-  
-                    conn.Close();
-                
+                if (conn != null) conn.Close();
             }
         }
 
-        public bool deletePost(int postId)
+        public static bool DeletePost(int postId)
         {
+            SqlConnection conn = null;
             try
             {
-                using (SqlCommand cmd = new SqlCommand(
-                    "DELETE FROM Post WHERE postId = @postId", conn))
+                conn = UtilityDAL.createConnection();
+                using (SqlCommand cmd = new SqlCommand("DELETE FROM Post WHERE postId = @postId", conn))
                 {
                     cmd.Parameters.AddWithValue("@postId", postId);
-
                     conn.Open();
-
                     int rows = cmd.ExecuteNonQuery();
-
                     return rows > 0;
                 }
             }
@@ -147,7 +128,50 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                conn.Close();
+                if (conn != null) conn.Close();
+            }
+        }
+
+        public static Post GetPostById(int postId)
+        {
+            SqlConnection conn = null;
+            try
+            {
+                conn = UtilityDAL.createConnection();
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT postId, forumId, userId, title, textContent, imageUrl, postDate, postTime FROM Post WHERE postId = @postId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@postId", postId);
+                    conn.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            int pId = UtilityDAL.returnInt(reader, "postId");
+                            int fId = UtilityDAL.returnInt(reader, "forumId");
+                            int uId = UtilityDAL.returnInt(reader, "userId");
+                            string title = UtilityDAL.returnString(reader, "title");
+                            string content = UtilityDAL.returnString(reader, "textContent");
+                            string imageUrl = UtilityDAL.returnString(reader, "imageUrl");
+                            DateTime postDate = UtilityDAL.returnDateTime(reader, "postDate");
+                            TimeSpan postTime = UtilityDAL.returnTimeSpan(reader, "postTime");
+                            return new Post(pId, fId, uId, title, content, imageUrl, postDate, postTime);
+                        }
+                    }
+                }
+            }
+            catch (SqlException)
+            {
+                return null;
+            }
+            finally
+            {
+                if (conn != null) conn.Close();
+            }
+            return null;
+        }
+    }
+}
             }
         }
     }

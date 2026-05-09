@@ -46,6 +46,12 @@ public class UtilityDAL
         TimeSpan time = reader.IsDBNull(index) ? TimeSpan.MinValue : reader.GetTimeSpan(index) ; 
         return time ;  
     }
+    public static float returnFloat (SqlDataReader reader , string columnName)
+    {
+        int index = reader.GetOrdinal(columnName);
+        float value = reader.IsDBNull(index) ? 0f : reader.GetFloat(index);
+        return value;
+    }
 
     public static SqlConnection createConnection () 
     {

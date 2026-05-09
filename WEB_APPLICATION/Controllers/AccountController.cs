@@ -51,7 +51,49 @@ namespace WEB_APPLICATION.Controllers
         [HttpGet]
         public ActionResult Login()
         {
-            return View() ; // this basically goes to Views/Account/Login.cshtml and then gets the html code 
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Login(string userName, string password)
+        {
+            UserDAL userDal = new UserDAL();
+            int authResult = userDal.LoginAuthentication(userName, password);
+            
+            if (authResult == 0) // success
+            {
+                User user = UserDAL.getUserByUsername(userName);
+                if (user != null)
+                {
+                    Session["userId"] = user.userId;
+                    Session["userName"] = user.userName;
+                    Session["role"] = user.role.ToString().ToLower();
+                    TempData["success"] = "Login successful!";
+                    
+                    if (user.role == User.Role.Admin)
+                        return RedirectToAction("Dashboard", "Admin");
+                    else if (user.role == User.Role.Instructor)
+                        return RedirectToAction("Index", "Course");
+                    else
+                        return RedirectToAction("Index", "Home");
+                }
+            }
+            
+            if (authResult == 2)
+                ViewBag.Error = "Username not found";
+            else if (authResult == 1)
+                ViewBag.Error = "Incorrect password";
+            else
+                ViewBag.Error = "Login failed";
+            
+            return View();
+        }
+
+        public ActionResult Logout()
+        {
+            Session.Clear();
+            TempData["success"] = "You have logged out";
+            return RedirectToAction("Index", "Home");
         }
     }
 }

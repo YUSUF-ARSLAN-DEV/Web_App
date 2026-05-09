@@ -130,5 +130,29 @@ namespace WEB_APPLICATION.Models
                 if (conn != null) conn.Close();
             }
         }
+        public static bool IncrementAttempt(int assessmentId)
+        {
+            SqlConnection conn = null;
+            try
+            {
+                conn = UtilityDAL.createConnection();
+                using (SqlCommand cmd = new SqlCommand(
+                    "UPDATE Assessment SET attemptNumber = attemptNumber + 1 WHERE assessmentId = @assessmentId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@assessmentId", assessmentId);
+                    conn.Open();
+                    int rows = cmd.ExecuteNonQuery();
+                    return rows > 0;
+                }
+            }
+            catch (SqlException e)
+            {
+                return false;
+            }
+            finally
+            {
+                if (conn != null) conn.Close();
+            }
+        }
     }
 }

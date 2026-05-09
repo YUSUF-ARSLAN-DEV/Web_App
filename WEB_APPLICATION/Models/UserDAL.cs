@@ -6,73 +6,69 @@ using System.Configuration;
 using System.Data.SqlClient ;
 using BCrypt.Net; 
 using System.Data ; 
-using System.Text.RegularExpressions; // this allows us to validate password 
-
+using System.Text.RegularExpressions;
 
 namespace WEB_APPLICATION.Models
 {
-    public class UserDAL // DAL basically stands for Data Access Layer 
-    {   // THE METHOD BELOW RETURNS FALSE IF THE USERNAME ALREADY EXISTS 
-       private SqlConnection conn = UtilityDAL.createConnection();
-       public bool   checkValidCredentials(string userName , string password ) 
-       {
-
-        if (string.IsNullOrEmpty(userName)) {return false ; }// check for empty or null passwords 
-        if (userName.Length <4  || userName.Length > 20 ) {return false ; }
-        // a username can only be letters numbers or underscores no special character
-        if (!Regex.IsMatch(userName , @"^[a-zA-Z0-9_]+$"))  return false ; 
-        if (char.IsDigit(userName[0])) return false ; // user name can not start with digit 
-        if (string.IsNullOrEmpty(password)) return false ; // pass can not be null or empty 
-        if (!Regex.IsMatch(password,@"[A-Z]")) return false ; // makes sure it has at least one upperCase
-        if (!Regex.IsMatch(password,@"[a-z]")) return false ; // makes sure it has at least one lower case 
-        if (!Regex.IsMatch(password,@"[0-9]")) return false ; // the password must at least has one digit 
-        // if non of these run then return true 
-        return true ; 
-       }
-        public bool  registerUser(string username , string password , User.Role userRole , string firstName , string lastName )  
+    public class UserDAL
+    {
+        public static bool CheckValidCredentials(string userName , string password) 
         {
-           
-             try {
-                
-                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password) ;
-                
-                conn.Open() ; 
-                // we do not check first for the user name cause we alreadyt set the column to be UNIQUE In the data base 
-               using ( SqlCommand insert = new SqlCommand("INSERT INTO [User] (userName , [password],role , firstName, lastName , accountCreationDate ) VALUES (@userName , @password, @role , @firstName , @lastName , @accountCreationDate ) ", conn) ) {
-                insert.Parameters.AddWithValue("@userName" , username ) ;
-                insert.Parameters.AddWithValue("@password",  hashedPassword ) ;
-                insert.Parameters.AddWithValue("@role", UtilityDAL.roleToString(userRole)) ;
-                insert.Parameters.AddWithValue("@firstName", firstName ) ;
-                insert.Parameters.AddWithValue("@lastName",  lastName ) ;
-                insert.Parameters.AddWithValue("@accountCreationDate", DateTime.Now) ;
-                
-                insert.ExecuteNonQuery()  ; 
+            if (string.IsNullOrEmpty(userName)) {return false ; }
+            if (userName.Length <4  || userName.Length > 20 ) {return false ; }
+            if (!Regex.IsMatch(userName , @"^[a-zA-Z0-9_]+$"))  return false ; 
+            if (char.IsDigit(userName[0])) return false ; 
+            if (string.IsNullOrEmpty(password)) return false ; 
+            if (!Regex.IsMatch(password,@"[A-Z]")) return false ;
+            if (!Regex.IsMatch(password,@"[a-z]")) return false ;
+            if (!Regex.IsMatch(password,@"[0-9]")) return false ;
+            return true ; 
+        }
+
+        public static bool RegisterUser(string username , string password , User.Role userRole , string firstName , string lastName)  
+        {
+            SqlConnection conn = null;
+            try 
+            {
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
+                conn = UtilityDAL.createConnection();
+                using ( SqlCommand insert = new SqlCommand("INSERT INTO [User] (userName , [password],role , firstName, lastName , accountCreationDate ) VALUES (@userName , @password, @role , @firstName , @lastName , @accountCreationDate ) ", conn) ) 
+                {
+                    insert.Parameters.AddWithValue("@userName" , username ) ;
+                    insert.Parameters.AddWithValue("@password",  hashedPassword ) ;
+                    insert.Parameters.AddWithValue("@role", UtilityDAL.roleToString(userRole)) ;
+                    insert.Parameters.AddWithValue("@firstName", firstName ) ;
+                    insert.Parameters.AddWithValue("@lastName",  lastName ) ;
+                    insert.Parameters.AddWithValue("@accountCreationDate", DateTime.Now) ;
+                    conn.Open();
+                    insert.ExecuteNonQuery()  ; 
                 } 
                 return true ; 
-             } catch (SqlException e ) {return false ; } 
-             finally {conn.Close() ;}
+            } 
+            catch (SqlException e ) {return false ; } 
+            finally {if (conn != null) conn.Close() ;}
         }
-        public  int LoginAuthentication(string userName, string password)
+
+        public static int LoginAuthentication(string userName, string password)
         {
             string passwordReturned  ;
+            SqlConnection conn = null;
             try
             {
-               using( SqlCommand cmd = new SqlCommand("SELECT [password] FROM [User] WHERE userName = @userName", conn)) 
+                conn = UtilityDAL.createConnection();
+                using( SqlCommand cmd = new SqlCommand("SELECT [password] FROM [User] WHERE userName = @userName", conn)) 
                 {
                     cmd.Parameters.AddWithValue("@userName", userName);
                     conn.Open();
                     using (SqlDataReader reader = cmd.ExecuteReader()) 
                     {
-                        if (!reader.Read()) { return 2; } // username not found
+                        if (!reader.Read()) { return 2; }
                         passwordReturned = reader["password"].ToString();
-                    
                     }
-                
                 }
                 bool correctPassword = BCrypt.Net.BCrypt.Verify(password, passwordReturned);
-
-                if (!correctPassword) { return 1; } // wrong password
-                return 0; // success
+                if (!correctPassword) { return 1; }
+                return 0;
             }
             catch (SqlException e)
             {
@@ -80,27 +76,27 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                conn.Close();
+                if (conn != null) conn.Close();
             }
         }
-        public User getUserById(int userId) // retrives the user info by the User's ID 
+
+        public static User GetUserById(int userId)
         {
+            SqlConnection conn = null;
             try
             {
+                conn = UtilityDAL.createConnection();
                 using (SqlCommand cmd = new SqlCommand(
                     "SELECT * FROM [User] WHERE userId = @userId", conn))
                 {
                     cmd.Parameters.AddWithValue("@userId", userId);
-
                     conn.Open();
-
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.Read() == false)
                         {
                             return null;
                         }
-
                         int id = UtilityDAL.returnInt(reader, "userId");
                         string userName = UtilityDAL.returnString(reader, "userName");
                         string password = UtilityDAL.returnString(reader, "password");
@@ -108,7 +104,6 @@ namespace WEB_APPLICATION.Models
                         string firstName = UtilityDAL.returnString(reader, "firstName");
                         string lastName = UtilityDAL.returnString(reader, "lastName");
                         DateTime datetime = UtilityDAL.returnDateTime(reader, "accountCreationDate");
-
                         User user = new User(id, userName, password, role, firstName, lastName, datetime);
                         return user;
                     }
@@ -120,24 +115,61 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                conn.Close();
+                if (conn != null) conn.Close();
             }
-        } 
-        public  List<User> getAllUsers(string userRole)  // this is an Admin only method 
+        }
+
+        public static User GetUserByUsername(string userName)
         {
-            if (userRole == null ) {userRole = "student" ;} // defualt role is student   
-            List<User> specifiedUserList = new List<User>(); 
+            SqlConnection conn = null;
+            try
+            {
+                conn = UtilityDAL.createConnection();
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT * FROM [User] WHERE userName = @userName", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userName", userName);
+                    conn.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (!reader.Read())
+                            return null;
+                        int id = UtilityDAL.returnInt(reader, "userId");
+                        string uName = UtilityDAL.returnString(reader, "userName");
+                        string password = UtilityDAL.returnString(reader, "password");
+                        User.Role role = UtilityDAL.parseStringToRole(UtilityDAL.returnString(reader, "role"));
+                        string firstName = UtilityDAL.returnString(reader, "firstName");
+                        string lastName = UtilityDAL.returnString(reader, "lastName");
+                        DateTime datetime = UtilityDAL.returnDateTime(reader, "accountCreationDate");
+                        return new User(id, uName, password, role, firstName, lastName, datetime);
+                    }
+                }
+            }
+            catch (SqlException)
+            {
+                return null;
+            }
+            finally
+            {
+                if (conn != null) conn.Close();
+            }
+        }
+
+        public static List<User> GetAllUsers(string userRole)
+        {
+            if (userRole == null ) {userRole = "student" ;}
+            List<User> specifiedUserList = new List<User>();
+            SqlConnection conn = null;
             try 
             {
-                conn.Open()  ; 
-                
+                conn = UtilityDAL.createConnection();
                 using ( SqlCommand cmd = new SqlCommand("SELECT * FROM [User] WHERE role = @wantedRole", conn ))  
                 {
                     cmd.Parameters.AddWithValue("@wantedRole", userRole  ) ;
-                    // connection must be open before execution 
+                    conn.Open();
                     using (SqlDataReader reader = cmd.ExecuteReader() ) 
                     {
-                        while (reader.Read() ) // an automatic check for True and False is like done  
+                        while (reader.Read() ) 
                         {
                             int id = UtilityDAL.returnInt(reader, "userId" ) ; 
                             string userName = UtilityDAL.returnString(reader,"userName") ;
@@ -149,27 +181,28 @@ namespace WEB_APPLICATION.Models
                             User user = new User(id , userName , password , readRole , firstName , lastName , datetime );
                             specifiedUserList.Add(user) ;
                         }
-                    } // closing the reader after the loop finished 
+                    }
                 }
                 return specifiedUserList ; 
             }
             catch (SqlException e ) 
-                {
-                    return null ; 
-                }
+            {
+                return null ; 
+            }
             finally 
             {
-                conn.Close() ;
+                if (conn != null) conn.Close();
             }
-        }  
-        public bool  updateUserProfile(int userId, string firstName = "", string lastName = "")
+        }
+
+        public static bool UpdateUserProfile(int userId, string firstName = "", string lastName = "")
         {
             if (firstName == "" && lastName == "") { return false; }
             
-           
+            SqlConnection conn = null;
             try
             {
-
+                conn = UtilityDAL.createConnection();
                 string query;
                 SqlCommand cmd;
 
@@ -187,17 +220,20 @@ namespace WEB_APPLICATION.Models
                 if (lastName != "") cmd.Parameters.AddWithValue("@lastName", lastName);
 
                 conn.Open();
-                cmd.ExecuteNonQuery();
-                return true;
+                int rows = cmd.ExecuteNonQuery();
+                return rows > 0;
             }
             catch (SqlException e) { return false; }
-            finally { conn.Close(); }
+            finally { if (conn != null) conn.Close(); }
         }
-        public  bool UpdatePassword(int userId, string newPassword)
+
+        public static bool UpdatePassword(int userId, string newPassword)
         {
+            SqlConnection conn = null;
             try
             {
                 string hashedPassword = BCrypt.Net.BCrypt.HashPassword(newPassword);
+                conn = UtilityDAL.createConnection();
                 SqlCommand cmd = new SqlCommand("UPDATE [User] SET [password] = @hashedPassword WHERE userId = @userId", conn);
                 cmd.Parameters.AddWithValue("@hashedPassword", hashedPassword);
                 cmd.Parameters.AddWithValue("@userId", userId);
@@ -208,21 +244,21 @@ namespace WEB_APPLICATION.Models
             catch (SqlException e) { return false; }
             finally { if (conn != null) conn.Close(); }
         }
-        public  bool deleteUser(int userId ) 
+
+        public static bool DeleteUser(int userId) 
         {
+            SqlConnection conn = null;
             try
             {
-
-                SqlCommand cmd = new SqlCommand("DELETE  FROM [User] WHERE   userId = @userId", conn);
+                conn = UtilityDAL.createConnection();
+                SqlCommand cmd = new SqlCommand("DELETE FROM [User] WHERE userId = @userId", conn);
                 cmd.Parameters.AddWithValue("@userId", userId);
                 conn.Open();
                 int rows = cmd.ExecuteNonQuery();
                 return rows > 0;
             }
             catch (SqlException e) { return false; }
-            finally {  conn.Close(); }
+            finally { if (conn != null) conn.Close(); }
         }
-
     }
-    
 }
