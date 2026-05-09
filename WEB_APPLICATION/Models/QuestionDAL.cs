@@ -14,11 +14,11 @@ namespace WEB_APPLICATION.Models
                 using (SqlCommand cmd = new SqlCommand(
                     "INSERT INTO Question (assessmentId, questionType, questionText, correctAnswer, questionAnswer) VALUES (@assessmentId, @questionType, @questionText, @correctAnswer, @questionAnswer)", conn))
                 {
-                    cmd.Parameters.AddWithValue("@assessmentId", question.AssessmentID);
-                    cmd.Parameters.AddWithValue("@questionType", question.QuestionType);
-                    cmd.Parameters.AddWithValue("@questionText", question.QuestionText);
-                    cmd.Parameters.AddWithValue("@correctAnswer", question.CorrectAnswer);
-                    cmd.Parameters.AddWithValue("@questionAnswer", (object)question.QuestionAnswer ?? System.DBNull.Value);
+                    cmd.Parameters.AddWithValue("@assessmentId", question.assessmentId);
+                    cmd.Parameters.AddWithValue("@questionType", question.questionType);
+                    cmd.Parameters.AddWithValue("@questionText", question.questionText);
+                    cmd.Parameters.AddWithValue("@correctAnswer", question.correctAnswer);
+                    cmd.Parameters.AddWithValue("@questionAnswer", (object)question.questionAnswer ?? System.DBNull.Value);
 
                     conn.Open();
 
@@ -69,7 +69,7 @@ namespace WEB_APPLICATION.Models
                                 correctAnswer
                             );
 
-                            question.QuestionAnswer = questionAnswer;
+                            question.questionAnswer = questionAnswer;
 
                             questions.Add(question);
                         }
@@ -95,11 +95,11 @@ namespace WEB_APPLICATION.Models
                 using (SqlCommand cmd = new SqlCommand(
                     "UPDATE Question SET questionType = @questionType, questionText = @questionText, correctAnswer = @correctAnswer, questionAnswer = @questionAnswer WHERE questionId = @questionId", conn))
                 {
-                    cmd.Parameters.AddWithValue("@questionType", question.QuestionType);
-                    cmd.Parameters.AddWithValue("@questionText", question.QuestionText);
-                    cmd.Parameters.AddWithValue("@correctAnswer", question.CorrectAnswer);
-                    cmd.Parameters.AddWithValue("@questionAnswer", (object)question.QuestionAnswer ?? System.DBNull.Value);
-                    cmd.Parameters.AddWithValue("@questionId", question.QuestionID);
+                    cmd.Parameters.AddWithValue("@questionType", question.questionType);
+                    cmd.Parameters.AddWithValue("@questionText", question.questionText);
+                    cmd.Parameters.AddWithValue("@correctAnswer", question.correctAnswer);
+                    cmd.Parameters.AddWithValue("@questionAnswer", (object)question.questionAnswer ?? System.DBNull.Value);
+                    cmd.Parameters.AddWithValue("@questionId", question.questionId);
 
                     conn.Open();
 

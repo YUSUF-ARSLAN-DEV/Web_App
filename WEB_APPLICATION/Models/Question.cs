@@ -2,23 +2,23 @@ using System;
 
 namespace WEB_APPLICATION.Models
 {
-    public class Question
-    {
-        public int QuestionID { get; set; }
-        public int AssessmentID { get; set; }
-        public string QuestionType { get; set; }
-        public string QuestionText { get; set; }
-        public string QuestionAnswer { get; set; }
-        public string CorrectAnswer { get; set; }
+public class Question
+{
+    public int questionId { get; set; }
+    public int assessmentId { get; set; }
+    public string questionType { get; set; }
+    public string questionText { get; set; }
+    public string questionAnswer { get; set; }
+    public string correctAnswer { get; set; }
 
-        public Question(int questionID, int assessmentID, string questionType, string questionText, string correctAnswer)
-        {
-            QuestionID = questionID;
-            AssessmentID = assessmentID;
-            QuestionType = questionType;
-            QuestionText = questionText;
-            CorrectAnswer = correctAnswer;
-            QuestionAnswer = null;
-        }
+    public Question(int questionId, int assessmentId, string questionType, string questionText, string correctAnswer)
+    {
+        this.questionId = questionId;
+        this.assessmentId = assessmentId;
+        this.questionType = questionType;
+        this.questionText = questionText;
+        this.correctAnswer = correctAnswer;
+        this.questionAnswer = null;
     }
+}
 }
