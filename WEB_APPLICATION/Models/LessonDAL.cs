@@ -17,9 +17,9 @@ namespace WEB_APPLICATION.Models
                 using (SqlCommand cmd = new SqlCommand(
                     "INSERT INTO Lesson (courseId, lessonTitle, lessonContent) VALUES (@courseId, @lessonTitle, @lessonContent)", conn))
                 {
-                    cmd.Parameters.AddWithValue("@courseId", lesson.CourseID);
-                    cmd.Parameters.AddWithValue("@lessonTitle", lesson.LessonTitle);
-                    cmd.Parameters.AddWithValue("@lessonContent", lesson.LessonContent);
+                    cmd.Parameters.AddWithValue("@courseId", lesson.courseId);
+                    cmd.Parameters.AddWithValue("@lessonTitle", lesson.lessonTitle);
+                    cmd.Parameters.AddWithValue("@lessonContent", lesson.lessonContent);
                     conn.Open();
                     int rows = cmd.ExecuteNonQuery();
                     return rows > 0;
@@ -115,9 +115,9 @@ namespace WEB_APPLICATION.Models
                 using (SqlCommand cmd = new SqlCommand(
                     "UPDATE Lesson SET lessonTitle = @lessonTitle, lessonContent = @lessonContent WHERE lessonId = @lessonId", conn))
                 {
-                    cmd.Parameters.AddWithValue("@lessonTitle", lesson.LessonTitle);
-                    cmd.Parameters.AddWithValue("@lessonContent", lesson.LessonContent);
-                    cmd.Parameters.AddWithValue("@lessonId", lesson.LessonID);
+                    cmd.Parameters.AddWithValue("@lessonTitle", lesson.lessonTitle);
+                    cmd.Parameters.AddWithValue("@lessonContent", lesson.lessonContent);
+                    cmd.Parameters.AddWithValue("@lessonId", lesson.lessonId);
                     conn.Open();
                     int rows = cmd.ExecuteNonQuery();
                     return rows > 0;
