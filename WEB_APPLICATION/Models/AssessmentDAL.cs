@@ -17,8 +17,8 @@ namespace WEB_APPLICATION.Models
                 using (SqlCommand cmd = new SqlCommand(
                     "INSERT INTO Assessment (lessonId, attemptNumber) VALUES (@lessonId, @attemptNumber)", conn))
                 {
-                    cmd.Parameters.AddWithValue("@lessonId", assessment.LessonID);
-                    cmd.Parameters.AddWithValue("@attemptNumber", assessment.AttemptNumber);
+                    cmd.Parameters.AddWithValue("@lessonId", assessment.lessonId);
+                    cmd.Parameters.AddWithValue("@attemptNumber", assessment.attemptNumber);
                     conn.Open();
                     int rows = cmd.ExecuteNonQuery();
                     return rows > 0;
@@ -54,7 +54,7 @@ namespace WEB_APPLICATION.Models
                             int lessonID = UtilityDAL.returnInt(reader, "lessonId");
                             int attemptNumber = UtilityDAL.returnInt(reader, "attemptNumber");
                             Assessment a = new Assessment(assessmentId, lessonID);
-                            a.AttemptNumber = attemptNumber;
+                            a.attemptNumber = attemptNumber;
                             assessments.Add(a);
                         }
                     }
@@ -90,7 +90,7 @@ namespace WEB_APPLICATION.Models
                             int lessonId = UtilityDAL.returnInt(reader, "lessonId");
                             int attemptNumber = UtilityDAL.returnInt(reader, "attemptNumber");
                             Assessment a = new Assessment(aId, lessonId);
-                            a.AttemptNumber = attemptNumber;
+                            a.attemptNumber = attemptNumber;
                             return a;
                         }
                     }
