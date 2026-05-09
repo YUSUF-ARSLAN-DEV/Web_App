@@ -118,7 +118,7 @@ namespace WEB_APPLICATION.Models
             }
         }
 
-        public bool deleteQuestion(int questionId)
+        public bool DeleteQuestion(int questionId)
         {
             try
             {
@@ -144,7 +144,7 @@ namespace WEB_APPLICATION.Models
             }
         }
 
-        public bool checkAnswer(int questionId, string answer)
+        public bool CheckAnswer(int questionId, string answer)
         {
             try
             {
