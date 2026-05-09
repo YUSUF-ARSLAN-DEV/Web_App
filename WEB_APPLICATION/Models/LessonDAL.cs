@@ -183,39 +183,4 @@ namespace WEB_APPLICATION.Models
         }
     }
 }
-                if (conn.State == System.Data.ConnectionState.Open)
-                {
-                    conn.Close();
-                }
-            }
-        }
-
-        public bool DeleteLesson(int lessonId)
-        {
-            try
-            {
-                using (SqlCommand cmd = new SqlCommand(
-                    "DELETE FROM Lesson WHERE lessonId = @lessonId", conn))
-                {
-                    cmd.Parameters.AddWithValue("@lessonId", lessonId);
-
-                    conn.Open();
-                    int rows = cmd.ExecuteNonQuery();
-
-                    return rows > 0;
-                }
-            }
-            catch (SqlException)
-            {
-                return false;
-            }
-            finally
-            {
-                if (conn.State == System.Data.ConnectionState.Open)
-                {
-                    conn.Close();
-                }
-            }
-        }
-    }
-}
+              
