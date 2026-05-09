@@ -17,9 +17,9 @@ namespace WEB_APPLICATION.Models
                 using (SqlCommand cmd = new SqlCommand(
                     "INSERT INTO Forum (courseId, title, postFlair) VALUES (@courseId, @title, @postFlair)", conn))
                 {
-                    cmd.Parameters.AddWithValue("@courseId", forum.CourseID);
-                    cmd.Parameters.AddWithValue("@title", forum.Title);
-                    cmd.Parameters.AddWithValue("@postFlair", forum.PostFlair);
+                    cmd.Parameters.AddWithValue("@courseId", forum.courseId);
+                    cmd.Parameters.AddWithValue("@title", forum.title);
+                    cmd.Parameters.AddWithValue("@postFlair", forum.postFlair);
                     conn.Open();
                     int rows = cmd.ExecuteNonQuery();
                     return rows > 0;
