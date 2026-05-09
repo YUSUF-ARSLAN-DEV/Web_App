@@ -8,12 +8,13 @@ namespace WEB_APPLICATION.Models
 {
     public class ForumDAL
     {
-        public static bool CreateForum(Forum forum)
+        private SqlConnection conn = UtilityDAL.createConnection() ; 
+        public  bool CreateForum(Forum forum)
         {
-            SqlConnection conn = null;
+           
             try
             {
-                conn = UtilityDAL.createConnection();
+               
                 using (SqlCommand cmd = new SqlCommand(
                     "INSERT INTO Forum (courseId, title, postFlair) VALUES (@courseId, @title, @postFlair)", conn))
                 {
@@ -31,17 +32,17 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                if (conn != null) conn.Close();
+               conn.Close();
             }
         }
 
-        public static List<Forum> GetForumsByCourse(int courseId)
+        public  List<Forum> GetForumsByCourse(int courseId)
         {
             List<Forum> forums = new List<Forum>();
-            SqlConnection conn = null;
+          
             try
             {
-                conn = UtilityDAL.createConnection();
+               
                 using (SqlCommand cmd = new SqlCommand(
                     "SELECT forumId, courseId, title, postFlair FROM Forum WHERE courseId = @courseId", conn))
                 {
@@ -67,17 +68,17 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                if (conn != null) conn.Close();
+                 conn.Close();
             }
             return forums;
         }
 
-        public static bool DeleteForum(int forumId)
+        public  bool DeleteForum(int forumId)
         {
-            SqlConnection conn = null;
+            
             try
             {
-                conn = UtilityDAL.createConnection();
+                
                 using (SqlCommand cmd = new SqlCommand("DELETE FROM Forum WHERE forumId = @forumId", conn))
                 {
                     cmd.Parameters.AddWithValue("@forumId", forumId);
@@ -92,16 +93,16 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                if (conn != null) conn.Close();
+               conn.Close();
             }
         }
 
-        public static Forum GetForumById(int forumId)
+        public  Forum GetForumById(int forumId)
         {
-            SqlConnection conn = null;
+            
             try
             {
-                conn = UtilityDAL.createConnection();
+                
                 using (SqlCommand cmd = new SqlCommand(
                     "SELECT forumId, courseId, title, postFlair FROM Forum WHERE forumId = @forumId", conn))
                 {
@@ -126,7 +127,7 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                if (conn != null) conn.Close();
+                 conn.Close();
             }
             return null;
         }
