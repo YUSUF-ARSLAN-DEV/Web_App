@@ -172,7 +172,4 @@ namespace WEB_APPLICATION.Models
         }
     }
 }
-            }
-        }
-    }
-}
+            

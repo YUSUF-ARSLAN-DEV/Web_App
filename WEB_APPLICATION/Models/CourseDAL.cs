@@ -12,7 +12,7 @@ namespace WEB_APPLICATION.Models
         
 
         // the method below Creates a new course 
-        public bool createCourse(int userId , String courseName , String courseDescription, String imageUrl  )
+        public bool CreateCourse(int userId , String courseName , String courseDescription, String imageUrl  )
         {
 
             bool success = false;
@@ -38,7 +38,7 @@ namespace WEB_APPLICATION.Models
         }
 
         // the method below takes a course ID and deletes the course entry form the data base - through a soft delete not a hard delete 
-        public bool deleteCourse(int courseId )
+        public bool DeleteCourse(int courseId )
         {
             bool success = false;
             try
@@ -59,7 +59,7 @@ namespace WEB_APPLICATION.Models
         
 
         // the method below takes courseName and description and updates these fields using the courseID 
-        public bool updateCourse(int courseId, string courseName, string courseDescription)
+        public bool UpdateCourse(int courseId, string courseName, string courseDescription)
         {
             bool success = false;
             try
@@ -82,7 +82,7 @@ namespace WEB_APPLICATION.Models
         
 
         // The method below takes an a user ID and returns all courses created by that User  - this is an instructor method 
-        public List<Course> getCoursesByUserId(int specifiedUserId)
+        public List<Course> GetCoursesByUserId(int specifiedUserId)
         {
             List<Course> courseList = new List<Course>();
             try
@@ -116,7 +116,7 @@ namespace WEB_APPLICATION.Models
         }
 
         // the Id is passsed to the method and the course object is retrived 
-        public Course getCourseById(int courseId )
+        public Course GetCourseById(int courseId )
         {
             Course course = null ; 
             try
@@ -148,7 +148,7 @@ namespace WEB_APPLICATION.Models
 
         // the method below in essence retrives every single course Object in the  Data base active and 
         // non active as the getAllCourse() method is nan admin  method 
-         public List<Course>   getAllCourses()
+         public List<Course>   GetAllCourses()
         {
             List<Course> courseList = new List<Course>();
             try
@@ -185,7 +185,7 @@ namespace WEB_APPLICATION.Models
         // The method below retrives all courses where the passsed filtering word 
         // exiss in the courses name or description 
 
-        public List<Course>  filterCourses(String filterText )
+        public List<Course>  FilterCourses(String filterText )
         {
             List<Course > list = new List<Course >();
             try
@@ -218,7 +218,7 @@ namespace WEB_APPLICATION.Models
         }
     
         // the method bleow will be used to get All courses for the public catalogue of course 
-        public List<Course> getAllActiveCourses()
+        public List<Course> GetAllActiveCourses()
         {
             List<Course> courseList = new List<Course>();
             try

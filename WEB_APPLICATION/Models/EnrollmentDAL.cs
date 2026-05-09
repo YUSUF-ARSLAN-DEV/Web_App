@@ -14,7 +14,7 @@ namespace WEB_APPLICATION.Models
 
         // the method below takes a userId and a courseID and sets his enrollment status to false - soft delete - record still exists 
 
-        public bool enroll(int userId , int courseId ) // takes the user ID and the course they want to enroll two and creates a record 
+        public bool Enroll(int userId , int courseId ) // takes the user ID and the course they want to enroll two and creates a record 
         {
             bool success = false;
             EnrollmentRecord enrollment  = new EnrollmentRecord(courseId , userId ) ; 
@@ -38,7 +38,7 @@ namespace WEB_APPLICATION.Models
             return success;
 
         }
-        public bool unEnroll(int userId , int courseId  ) // takes a user ID and removes them from the course they are enrolled too 
+        public bool UnEnroll(int userId , int courseId  ) // takes a user ID and removes them from the course they are enrolled too 
         {
             bool success = false ; 
             try { 
@@ -72,7 +72,7 @@ namespace WEB_APPLICATION.Models
         }
          
          // this method takes an enrollmentID and updates the compeltetion rate 
-        public bool updateCompletionRate  (int enrollmentId, int rate )
+        public bool UpdateCompletionRate  (int enrollmentId, int rate )
         {
             bool success = false ; 
             try 
@@ -100,7 +100,7 @@ namespace WEB_APPLICATION.Models
             return success ; 
         }
 
-        public List<EnrollmentRecord> getEnrollmentByCousre (int takenCourseId )
+        public List<EnrollmentRecord> GetEnrollmentByCousre (int takenCourseId )
         {
             List<EnrollmentRecord> listOfRecords = new List<EnrollmentRecord>() ; 
             int enrollmentId ;  
@@ -149,7 +149,7 @@ namespace WEB_APPLICATION.Models
         }
     
         // the below method returns all enrollment records of a specific user - it only retrives the active enrollments only 
-        public List<EnrollmentRecord> getEnrollmentByUser(int desiredUserId)
+        public List<EnrollmentRecord> GetEnrollmentByUser(int desiredUserId)
         {
             List<EnrollmentRecord> studentEnrollments = new List<EnrollmentRecord> () ; 
             int enrollmentId ;  
@@ -191,7 +191,7 @@ namespace WEB_APPLICATION.Models
             }
             return studentEnrollments ; 
         }
-        public bool isEnrolled(int userId, int courseId) // returns true if the student is already enrolled  false if not 
+        public bool IsEnrolled(int userId, int courseId) // returns true if the student is already enrolled  false if not 
         {
             int count = 0;
             try
@@ -211,7 +211,7 @@ namespace WEB_APPLICATION.Models
             finally { conn.Close(); }
             return count > 0;
         }
-        public EnrollmentRecord getEnrollment(int userId, int courseId) // returns a student specific enrollment record for a course 
+        public EnrollmentRecord GetEnrollment(int userId, int courseId) // returns a student specific enrollment record for a course 
         {
             EnrollmentRecord record = null;
             try

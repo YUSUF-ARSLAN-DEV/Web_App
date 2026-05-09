@@ -7,7 +7,7 @@ namespace WEB_APPLICATION.Models
     public class QuestionDAL
     {
         private SqlConnection conn = UtilityDAL.createConnection() ; 
-        public bool createQuestion(Question question)
+        public bool CreateQuestion(Question question)
         {
             try
             {
@@ -37,7 +37,7 @@ namespace WEB_APPLICATION.Models
             }
         }
 
-        public List<Question> getQuestionsByAssessment(int assessmentId)
+        public List<Question> GetQuestionsByAssessment(int assessmentId)
         {
             List<Question> questions = new List<Question>();
 
@@ -88,7 +88,7 @@ namespace WEB_APPLICATION.Models
             return questions;
         }
 
-        public bool updateQuestion(Question question)
+        public bool UpdateQuestion(Question question)
         {
             try
             {

@@ -12,7 +12,7 @@ namespace WEB_APPLICATION.Models
 
 
         // the method below registers when a user logs in in the system - CRUD - insertion 
-        public int  logLogin(int userId ) // this method should return the session id of the user if it returns -1 then that means an error occured 
+        public int  LogLogin(int userId ) // this method should return the session id of the user if it returns -1 then that means an error occured 
         {
             Session session = new Session(userId) ; 
             int id = -1 ; 
@@ -36,7 +36,7 @@ namespace WEB_APPLICATION.Models
             return id;
         }
     
-        public bool logLogout(int sessionId )
+        public bool LogLogout(int sessionId )
         {
             TimeSpan logoutTime = DateTime.Now.TimeOfDay ; 
             bool success = false;
@@ -58,7 +58,7 @@ namespace WEB_APPLICATION.Models
 
         }
     
-        public List<Session> getSessionsByUser(int userId ) // this is an Admin Method that shows all of the Sessions for a specific user 
+        public List<Session> GetSessionsByUser(int userId ) // this is an Admin Method that shows all of the Sessions for a specific user 
         {
             List<Session> userSessions = new List<Session>() ; 
             try // returns 
