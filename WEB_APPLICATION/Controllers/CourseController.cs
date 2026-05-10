@@ -33,6 +33,7 @@ namespace WEB_APPLICATION.Controllers
             {
                 int userId = (int)Session["userId"];
                 ViewBag.HasRated = new RatingDAL().HasUserRated(userId, id);
+                  ViewBag.IsEnrolled = new EnrollmentDAL().IsEnrolled(userId, id); // to check if the student is enrolled or not so that he gets shown the corerct button 
                 var enrollment = new EnrollmentDAL().GetEnrollment(userId, id);
                 ViewBag.EnrollmentId = enrollment != null ? enrollment.enrollmentId : 0;
             }
