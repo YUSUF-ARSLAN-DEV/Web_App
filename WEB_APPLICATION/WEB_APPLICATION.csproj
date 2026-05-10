@@ -225,11 +225,11 @@
     <Content Include="Views\Course\Index.cshtml" />
     <Content Include="Views\Account\Registration.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
+    <Content Include="Views\Enrollment\MyEnrollments.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Admin\" />
     <Folder Include="Views\Assessment\" />
-    <Folder Include="Views\Enrollment\" />
     <Folder Include="Views\Forum\" />
     <Folder Include="Views\Lesson\" />
     <Folder Include="Views\Post\" />

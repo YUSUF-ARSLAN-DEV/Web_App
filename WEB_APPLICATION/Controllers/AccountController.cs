@@ -87,7 +87,7 @@ namespace WEB_APPLICATION.Controllers
                     else if (user.role == WEB_APPLICATION.Models.User.Role.Instructor)
                         return RedirectToAction("Index", "Course");
                     else
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction("MyEnrollments", "Enrollment");
                 }
             }
             

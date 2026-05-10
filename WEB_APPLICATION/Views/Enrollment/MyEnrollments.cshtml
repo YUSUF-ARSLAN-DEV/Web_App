@@ -1,0 +1,170 @@
+﻿@model List<WEB_APPLICATION.Models.EnrollmentRecord>
+@{
+    Layout = null;
+    var courses = ViewBag.Courses as List<WEB_APPLICATION.Models.Course>;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduNest – Dashboard</title>
+    <link rel="stylesheet" href="~/Content/site.css" />
+</head>
+<body>
+
+    <div class="dashboard-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <a class="nav-logo" href="@Url.Action("Index", "Home")" style="font-size:18px">
+                    <div class="nav-logo-icon" style="width:28px;height:28px;font-size:14px">&#129338;</div>EduNest
+                </a>
+            </div>
+            <nav style="padding:8px 0">
+                <a class="sidebar-item active" href="@Url.Action("MyEnrollments", "Enrollment")">
+                    <span class="sidebar-icon">&#127968;</span>Dashboard
+                </a>
+                <a class="sidebar-item" href="@Url.Action("Index", "Course")">
+                    <span class="sidebar-icon">&#128218;</span>Browse Courses
+                </a>
+                <a class="sidebar-item" href="@Url.Action("Profile", "User")">
+                    <span class="sidebar-icon">&#128100;</span>Profile
+                </a>
+            </nav>
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:18px 16px;border-top:1px solid var(--border)">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 8px;border-radius:10px;background:var(--surface2)">
+                    <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:#080a10;font-weight:800;font-size:15px;flex-shrink:0">
+                        @(Session["userName"] != null ? Session["userName"].ToString()[0].ToString().ToUpper() : "S")
+                    </div>
+                    <div style="overflow:hidden">
+                        <div style="font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                            @Session["userName"]
+                        </div>
+                        <div style="font-size:11px;color:var(--muted);font-weight:600">Student</div>
+                    </div>
+                </div>
+                <a class="btn btn-ghost" href="@Url.Action("Logout", "Account")"
+                   style="width:100%;text-align:left;font-size:13px;font-weight:700;color:var(--muted);display:block">
+                    &#8592; Sign Out
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="dashboard-main">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px">
+                <div>
+                    <h1 style="font-size:32px;margin-bottom:6px">
+                        Welcome back, @Session["userName"] &#128075;
+                    </h1>
+                    <p style="color:var(--muted);font-weight:600">
+                        @if (Model != null && Model.Count > 0)
+                        {
+                            <text>You have @Model.Count course(s) enrolled. Keep it up!</text>
+                        }
+                        else
+                        {
+                            <text>You have no courses yet. Start exploring!</text>
+                        }
+                    </p>
+                </div>
+                <a class="btn btn-primary" href="@Url.Action("Index", "Course")">+ Explore Courses</a>
+            </div>
+
+            @* Stats *@
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-bottom:36px">
+                <div class="stat-card">
+                    <div class="stat-value">@(Model != null ? Model.Count : 0)</div>
+                    <div class="stat-label">Courses Enrolled</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">
+                        @if (Model != null && Model.Count > 0)
+                        {
+                            @(Math.Round(Model.Average(e => e.completionRate), 1) + "%")
+                        }
+                        else
+                        {
+                            @("0%")
+                        }
+                    </div>
+                    <div class="stat-label">Avg. Progress</div>
+                </div>
+            </div>
+
+            @* Success/Error messages *@
+            @if (TempData["success"] != null)
+            {
+                <div style="background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;color:var(--teal);font-size:13px;font-weight:600">
+                    @TempData["success"]
+                </div>
+            }
+
+            @* Enrolled courses *@
+            <h2 style="font-size:24px;margin-bottom:20px">My Courses</h2>
+
+            @if (Model == null || Model.Count == 0)
+            {
+                <div style="text-align:center;padding:60px 0;color:var(--muted)">
+                    <div style="font-size:48px;margin-bottom:16px">&#128218;</div>
+                    <p style="font-size:16px;margin-bottom:20px">You haven't enrolled in any courses yet.</p>
+                    <a href="@Url.Action("Index", "Course")" class="btn btn-primary">Browse Courses</a>
+                </div>
+            }
+            else
+            {
+                foreach (var enrollment in Model)
+                {
+                    var course = courses != null ? courses.FirstOrDefault(c => c.courseId == enrollment.courseId) : null;
+                    <div class="card" style="padding:18px 22px;display:flex;align-items:center;gap:18px;margin-bottom:14px">
+                        <div style="width:64px;height:56px;border-radius:12px;overflow:hidden;flex-shrink:0;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:28px">
+                            @if (course != null && !string.IsNullOrEmpty(course.imageUrl))
+                            {
+                                <img src="@course.imageUrl" alt="@course.courseName" style="width:100%;height:100%;object-fit:cover" />
+                            }
+                            else
+                            {
+                                @:&#127891;
+                            }
+                        </div>
+                        <div style="flex:1">
+                            <div style="font-weight:700;margin-bottom:4px;font-size:15px">
+                                @(course != null ? course.courseName : "Course #" + enrollment.courseId)
+                            </div>
+                            <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:600">
+                                Enrolled: @enrollment.enrollmentDate.ToString("MMM dd, yyyy")
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width:@enrollment.completionRate%"></div>
+                            </div>
+                        </div>
+                        <div style="text-align:right;flex-shrink:0">
+                            <div style="color:var(--gold);font-weight:800;font-size:18px;font-family:Fraunces">
+                                @enrollment.completionRate%
+                            </div>
+                            <div style="font-size:11px;color:var(--muted);font-weight:600">complete</div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
+                            <a href="@Url.Action("Index", "Lesson", new { courseId = enrollment.courseId })"
+                               class="btn btn-primary" style="font-size:12px;padding:6px 14px">
+                                Continue
+                            </a>
+                            @using (Html.BeginForm("Unenroll", "Enrollment", FormMethod.Post, new { style = "margin:0" }))
+                            {
+                                @Html.Hidden("enrollmentId", enrollment.enrollmentId)
+                                @Html.Hidden("courseId", enrollment.courseId)
+                                <button type="submit" class="btn btn-ghost"
+                                        style="font-size:12px;padding:6px 14px;color:var(--muted)">
+                                    Unenroll
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </main>
+    </div>
+
+</body>
+</html>
