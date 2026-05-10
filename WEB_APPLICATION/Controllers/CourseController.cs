@@ -11,9 +11,13 @@ namespace WEB_APPLICATION.Controllers
     public class CourseController : Controller
     {
         // GET: Course Index
-        public ActionResult Index()
-        {
-            List<Course> courses = new CourseDAL().GetAllActiveCourses();
+        public ActionResult Index(string search )
+        { //every time the Course Home page  is loaded if the search bar has a word it will filter the courses based on that word 
+            List<Course> courses;
+            if (!string.IsNullOrEmpty(search))
+                courses = new CourseDAL().FilterCourses(search);
+            else
+                courses = new CourseDAL().GetAllActiveCourses();
             return View(courses);
         }
 
