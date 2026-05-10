@@ -73,3 +73,13 @@ CREATE TABLE Post(
     postDate DATE , 
     postTime TIME 
 );
+
+
+CREATE TABLE Rating (
+    ratingId INT PRIMARY KEY IDENTITY(1,1),
+    courseId INT FOREIGN KEY REFERENCES Course(courseId),
+    userId INT FOREIGN KEY REFERENCES [User](userId),
+    score INT NOT NULL CHECK (score BETWEEN 1 AND 5),
+    comment NVARCHAR(500),
+    ratingDate DATE DEFAULT GETDATE()
+);
