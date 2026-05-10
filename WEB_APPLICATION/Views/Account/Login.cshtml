@@ -1,0 +1,85 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduNest – Log In</title>
+    <link rel="stylesheet" href="~/Content/site.css" />
+</head>
+<body>
+
+    <div style="display:flex;min-height:100vh">
+
+        <!-- LEFT PANEL -->
+        <div style="flex:1;position:relative;overflow:hidden">
+            <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&q=80" alt="Learning"
+                 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+            <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(8,10,16,0.92),rgba(8,10,16,0.75))"></div>
+            <div style="position:relative;display:flex;flex-direction:column;justify-content:center;height:100%;padding:64px">
+                <a class="nav-logo" href="@Url.Action("Index", "Home")" style="font-size:28px">
+                    <div class="nav-logo-icon" style="width:44px;height:44px;font-size:22px">&#129338;</div>EduNest
+                </a>
+                <div style="margin-top:52px">
+                    <h2 style="font-size:40px;margin-bottom:16px;line-height:1.15">
+                        Learn Anything,<br><span style="color:var(--gold);font-style:italic">Anytime, Anywhere</span>
+                    </h2>
+                    <p style="color:var(--muted);line-height:1.75;font-size:16px;max-width:360px;font-weight:500">
+                        Join thousands of learners advancing their careers with EduNest.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div style="width:500px;display:flex;flex-direction:column;justify-content:center;padding:64px 52px;background:var(--bg)">
+            <h2 style="font-size:30px;margin-bottom:6px">Welcome back</h2>
+            <p style="color:var(--muted);margin-bottom:34px;font-size:14px;font-weight:600">
+                Don't have an account? <a href="@Url.Action("Registration", "Account")" style="color:var(--gold);text-decoration:none">Sign up free</a>
+            </p>
+
+            @* Error message *@
+            @if (ViewBag.Error != null)
+            {
+                <div style="background:rgba(240,107,107,0.1);border:1px solid rgba(240,107,107,0.3);border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:var(--red);font-weight:600">
+                    @ViewBag.Error
+                </div>
+            }
+
+            @* Success message from registration *@
+            @if (TempData["success"] != null)
+            {
+                <div style="background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.3);border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:var(--teal);font-weight:600">
+                    @TempData["success"]
+                </div>
+            }
+
+            @using (Html.BeginForm("Login", "Account", FormMethod.Post))
+            {
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input class="form-input" name="userName" placeholder="Your username" required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input class="form-input" type="password" name="password" placeholder="Password" required />
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg btn-block" style="margin-bottom:18px;width:100%">
+                    Sign In to EduNest
+                </button>
+            }
+
+            <p style="color:var(--muted);font-size:12px;text-align:center;font-weight:600">
+                By signing in you agree to our
+                <span style="color:var(--gold);cursor:pointer">Terms</span> and
+                <span style="color:var(--gold);cursor:pointer">Privacy Policy</span>
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>
