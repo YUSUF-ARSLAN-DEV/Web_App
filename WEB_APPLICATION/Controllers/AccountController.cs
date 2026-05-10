@@ -25,7 +25,7 @@ namespace WEB_APPLICATION.Controllers
             UserDAL userDal = new UserDAL() ; 
             
             User.Role  userRole = UtilityDAL.parseStringToRole(role.ToLower());
-            bool valid = userDal.checkValidCredentials(userName , password ) ;
+            bool valid = userDal.CheckValidCredentials(userName , password ) ;
            
             if (!valid  ) // check if credentials are valid first ; 
             {
@@ -34,7 +34,7 @@ namespace WEB_APPLICATION.Controllers
             } 
             else
             { // then attempt to register 
-                bool success =  userDal.registerUser(userName , password, userRole , firstName , lastName ) ;
+                bool success =  userDal.RegisterUser(userName , password, userRole , firstName , lastName ) ;
                 if (success )
                 {
                     TempData["success"] = "You have successfullly Registered into Edu Nest " ;
@@ -70,9 +70,9 @@ namespace WEB_APPLICATION.Controllers
                     Session["role"] = user.role.ToString().ToLower();
                     TempData["success"] = "Login successful!";
                     
-                    if (user.role == User.Role.Admin)
+                    if (user.role == WEB_APPLICATION.Models.User.Role.Admin)
                         return RedirectToAction("Dashboard", "Admin");
-                    else if (user.role == User.Role.Instructor)
+                    else if (user.role == WEB_APPLICATION.Models.User.Role.Instructor)
                         return RedirectToAction("Index", "Course");
                     else
                         return RedirectToAction("Index", "Home");
