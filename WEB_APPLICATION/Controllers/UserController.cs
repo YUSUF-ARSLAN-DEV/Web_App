@@ -62,6 +62,7 @@ namespace WEB_APPLICATION.Controllers
         }
 
         // POST: Change Password
+        
         [HttpPost]
         public ActionResult ChangePassword(string currentPassword, string newPassword, string confirmPassword)
         {
@@ -74,8 +75,17 @@ namespace WEB_APPLICATION.Controllers
                 return View();
             }
 
-            int userId = (int)Session["userId"];
+            string userName = (string)Session["userName"];
             UserDAL userDal = new UserDAL();
+
+            int authResult = userDal.LoginAuthentication(userName, currentPassword);
+            if (authResult != 0)
+            {
+                ViewBag.Error = "Current password is incorrect";
+                return View();
+            }
+
+            int userId = (int)Session["userId"];
             bool success = userDal.UpdatePassword(userId, newPassword);
             if (success)
             {
