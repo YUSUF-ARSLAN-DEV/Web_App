@@ -48,6 +48,7 @@ namespace WEB_APPLICATION.Controllers
 
         // GET: Edit Post
         [HttpGet]
+
         public ActionResult Edit(int id)
         {
             if (Session["userId"] == null)
@@ -55,7 +56,7 @@ namespace WEB_APPLICATION.Controllers
             Post post = new PostDAL().GetPostById(id);
             if (post == null)
                 return HttpNotFound();
-            if (post.userId != (int)Session["userId"])
+            if (post.userId != (int)Session["userId"]) // ensures that the user can only edit their posts 
                 return new HttpUnauthorizedResult();
             return View(post);
         }
