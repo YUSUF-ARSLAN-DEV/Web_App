@@ -58,6 +58,7 @@ namespace WEB_APPLICATION.Controllers
         public ActionResult Login(string userName, string password)
         {
             UserDAL userDal = new UserDAL();
+            SessionDAL sessoinDal = new SessionDAL() ; 
             int authResult = userDal.LoginAuthentication(userName, password);
             
             if (authResult == 0) // success
@@ -68,6 +69,9 @@ namespace WEB_APPLICATION.Controllers
                     Session["userId"] = user.userId;
                     Session["userName"] = user.userName;
                     Session["role"] = user.role.ToString().ToLower();
+                   
+                    int sessionId = sessoinDal.LogLogin(user.userId);
+                    Session["sessionId"] = sessionId;  // storing the sessionId fo rlater logout purposs 
                     TempData["success"] = "Login successful!";
                     
                     if (user.role == WEB_APPLICATION.Models.User.Role.Admin)
