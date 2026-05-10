@@ -9,9 +9,13 @@ namespace WEB_APPLICATION.Controllers
 {
     public class HomeController : Controller
     {
-        public ActionResult Index()
+        public ActionResult Index(string search)
         {
-            List<Course> courses = new CourseDAL().GetAllActiveCourses();
+            List<Course> courses;
+            if (!string.IsNullOrEmpty(search))
+                courses = new CourseDAL().FilterCourses(search);
+            else
+                courses = new CourseDAL().GetAllActiveCourses();
             return View(courses);
         }
 

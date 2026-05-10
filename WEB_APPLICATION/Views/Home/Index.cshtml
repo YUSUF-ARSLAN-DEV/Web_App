@@ -1,0 +1,140 @@
+﻿@model List<WEB_APPLICATION.Models.Course>
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduNest – Browse Courses</title>
+    <link rel="stylesheet" href="~/Content/site.css" />
+</head>
+<body>
+
+<nav class="nav">
+    <a class="nav-logo" href="@Url.Action("Index", "Home")">
+        <div class="nav-logo-icon"></div>EduNest
+    </a>
+    <div class="nav-links">
+        <a href="@Url.Action("Index", "Home")">Home</a>
+        <a class="active" href="@Url.Action("Index", "Course")">Courses</a>
+    </div>
+    <div class="nav-right">
+        @if (Session["userId"] != null)
+        {
+            <span style="color:var(--muted);font-size:14px;margin-right:12px">Hi, @Session["userName"]</span>
+            <a class="btn btn-ghost" href="@Url.Action("Logout", "Account")">Log Out</a>
+        }
+        else
+        {
+            <a class="btn btn-ghost" href="@Url.Action("Login", "Account")">Log In</a>
+            <a class="btn btn-primary" href="@Url.Action("Registration", "Account")">Get Started Free</a>
+        }
+    </div>
+</nav>
+
+<div style="padding:48px 56px;max-width:1200px;margin:0 auto">
+    <h1 style="font-size:40px;margin-bottom:8px">Explore Courses</h1>
+    <p style="color:var(--muted);margin-bottom:32px;font-size:16px">
+        @Model.Count world-class courses available
+    </p>
+
+    @* Search form — posts to CourseController.Index with search param *@
+    <div class="search-bar" style="max-width:580px;margin-bottom:28px">
+        <span style="color:var(--muted)">&#128269;</span>
+        @using (Html.BeginForm("Index", "Course", FormMethod.Get))
+        {
+            <input name="search" id="search-input" 
+                   placeholder="Search courses..." 
+                   value="@Request.QueryString["search"]"
+                   style="border:none;outline:none;width:100%;background:transparent" />
+            <button type="submit" class="btn btn-primary" style="padding:6px 16px;font-size:13px">Search</button>
+        }
+    </div>
+
+    @if (TempData["success"] != null)
+    {
+        <div style="background:#d4edda;color:#155724;padding:12px 16px;border-radius:8px;margin-bottom:20px">
+            @TempData["success"]
+        </div>
+    }
+
+    @* Course grid *@
+    <div id="course-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px">
+        @if (Model == null || Model.Count == 0)
+        {
+            <div style="text-align:center;padding:80px 0;color:var(--muted);grid-column:1/-1">
+                <div style="font-size:52px;margin-bottom:16px">&#128269;</div>
+                <p style="font-size:16px">No courses found. Try a different search.</p>
+            </div>
+        }
+        else
+        {
+            foreach (var course in Model)
+            {
+                <div class="course-card" style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)">
+                    @if (!string.IsNullOrEmpty(course.imageUrl))
+                    {
+                        <img src="@course.imageUrl" alt="@course.courseName" 
+                             style="width:100%;height:160px;object-fit:cover" />
+                    }
+                    else
+                    {
+                        <div style="width:100%;height:160px;background:var(--muted-bg);display:flex;align-items:center;justify-content:center;font-size:40px">
+                            &#127891;
+                        </div>
+                    }
+                    <div style="padding:16px">
+                        <h3 style="font-size:16px;margin-bottom:8px">@course.courseName</h3>
+                        <p style="color:var(--muted);font-size:13px;margin-bottom:16px;line-height:1.5">
+                            @(course.courseDescription != null && course.courseDescription.Length > 100 
+                                ? course.courseDescription.Substring(0, 100) + "..." 
+                                : course.courseDescription)
+                        </p>
+                        <a href="@Url.Action("Details", "Course", new { id = course.courseId })" 
+                           class="btn btn-primary" 
+                           style="width:100%;text-align:center;display:block;padding:8px">
+                            View Course
+                        </a>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    @* Show enroll/dashboard button if logged in as student *@
+    @if (Session["role"] != null && Session["role"].ToString() == "student")
+    {
+        <div style="margin-top:32px;text-align:center">
+            <a href="@Url.Action("MyEnrollments", "Enrollment")" class="btn btn-ghost">
+                My Enrollments
+            </a>
+        </div>
+    }
+
+    @* Show create course button if instructor *@
+    @if (Session["role"] != null && Session["role"].ToString() == "instructor")
+    {
+        <div style="margin-top:32px;text-align:right">
+            <a href="@Url.Action("Create", "Course")" class="btn btn-primary">
+                + Create Course
+            </a>
+        </div>
+    }
+</div>
+
+<footer>
+    <a class="nav-logo" href="@Url.Action("Index", "Home")">
+        <div class="nav-logo-icon">&#129338;</div>EduNest
+    </a>
+    <p style="color:var(--muted);font-size:13px;font-weight:600">&copy; 2025 EduNest. All rights reserved.</p>
+    <div style="display:flex;gap:24px">
+        <span style="color:var(--muted);font-size:13px;font-weight:600">Privacy</span>
+        <span style="color:var(--muted);font-size:13px;font-weight:600">Terms</span>
+        <span style="color:var(--muted);font-size:13px;font-weight:600">Support</span>
+    </div>
+</footer>
+
+</body>
+</html>
