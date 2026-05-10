@@ -56,7 +56,8 @@ namespace WEB_APPLICATION.Controllers
 
         // POST: Create Assessment
         [HttpPost]
-        public ActionResult Create(int lessonId)
+        [ActionName("Create")]
+        public ActionResult CreatePost(int lessonId)
         {
             try
             {

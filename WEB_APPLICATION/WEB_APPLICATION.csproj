@@ -222,12 +222,12 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Course\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Account\" />
     <Folder Include="Views\Admin\" />
     <Folder Include="Views\Assessment\" />
-    <Folder Include="Views\Course\" />
     <Folder Include="Views\Enrollment\" />
     <Folder Include="Views\Forum\" />
     <Folder Include="Views\Lesson\" />
