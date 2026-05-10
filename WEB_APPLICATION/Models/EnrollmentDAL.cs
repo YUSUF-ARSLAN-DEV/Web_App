@@ -72,7 +72,7 @@ namespace WEB_APPLICATION.Models
         }
          
          // this method takes an enrollmentID and updates the compeltetion rate 
-        public bool UpdateCompletionRate  (int enrollmentId, int rate )
+        public bool UpdateCompletionRate  (int enrollmentId, float  rate )
         {
             bool success = false ; 
             try 
@@ -155,7 +155,7 @@ namespace WEB_APPLICATION.Models
             int enrollmentId ;  
             int userId  ;
             int courseId ;
-            int completionRate ; 
+            float  completionRate ; 
             DateTime enrollmentDate ;   
             bool activeStatus ;  
             try
@@ -171,7 +171,7 @@ namespace WEB_APPLICATION.Models
                             enrollmentId = UtilityDAL.returnInt(reader,"enrollmentId") ; 
                             userId = UtilityDAL.returnInt(reader,"userId") ; 
                             courseId = UtilityDAL.returnInt(reader,"courseId") ;  
-                            completionRate =  UtilityDAL.returnInt(reader,"completionRate") ;  
+                            completionRate =  UtilityDAL.returnFloat(reader,"completionRate") ;  
                             enrollmentDate =  UtilityDAL.returnDateTime(reader,"enrollmentDate") ; 
                             activeStatus = (bool)UtilityDAL.returnBit(reader,"activeStatus") ; 
                             EnrollmentRecord record = new  EnrollmentRecord(enrollmentId ,courseId , userId  , completionRate , enrollmentDate ,activeStatus) ;
@@ -230,7 +230,7 @@ namespace WEB_APPLICATION.Models
                                 UtilityDAL.returnInt(reader, "enrollmentId"),
                                 UtilityDAL.returnInt(reader, "courseId"),
                                 UtilityDAL.returnInt(reader, "userId"),
-                                UtilityDAL.returnInt(reader, "completionRate"),
+                                UtilityDAL.returnFloat(reader, "completionRate"),
                                 UtilityDAL.returnDateTime(reader, "enrollmentDate"),
                                 UtilityDAL.returnBit(reader, "activeStatus")
                             );
