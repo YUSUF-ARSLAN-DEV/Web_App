@@ -25,3 +25,16 @@ int id return  → > 0 = success, -1 = error
 List<T>        → empty list = no results, null = error
 object/Model   → null = not found or error
 ═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+    UserDAL.RegisterUser(string, string, Role, string, string)
+═══════════════════════════════════════════════════════
+Return Type: int
+
+RETURN CODES:
+───────────────────────────────────────────────────────
+ 0    → Success — user registered successfully
+ 1    → Invalid credentials — failed CheckValidCredentials
+ 2627 → Duplicate username — username already exists in DB
+ 8152 → String truncation — a column is too small for the value
+-1    → Unexpected SQL error (catch-all)
+═══════════════════════════════════════════════════════
