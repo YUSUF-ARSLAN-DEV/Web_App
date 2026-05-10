@@ -1,0 +1,145 @@
+﻿@model WEB_APPLICATION.Models.User
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduNest – Profile</title>
+    <link rel="stylesheet" href="~/Content/site.css" />
+</head>
+<body>
+
+    <div class="dashboard-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <a class="nav-logo" href="@Url.Action("Index", "Home")" style="font-size:18px">
+                    <div class="nav-logo-icon" style="width:28px;height:28px;font-size:14px">&#129338;</div>EduNest
+                </a>
+            </div>
+            <nav style="padding:8px 0">
+                <a class="sidebar-item" href="@Url.Action("MyEnrollments", "Enrollment")">
+                    <span class="sidebar-icon">&#127968;</span>Dashboard
+                </a>
+                <a class="sidebar-item" href="@Url.Action("Index", "Course")">
+                    <span class="sidebar-icon">&#128218;</span>Browse Courses
+                </a>
+                <a class="sidebar-item active" href="@Url.Action("Profile", "User")">
+                    <span class="sidebar-icon">&#128100;</span>Profile
+                </a>
+            </nav>
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:18px 16px;border-top:1px solid var(--border)">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 8px;border-radius:10px;background:var(--surface2)">
+                    <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:#080a10;font-weight:800;font-size:15px;flex-shrink:0">
+                        @(Session["userName"] != null ? Session["userName"].ToString()[0].ToString().ToUpper() : "U")
+                    </div>
+                    <div>
+                        <div style="font-size:13px;font-weight:800">@Session["userName"]</div>
+                        <div style="font-size:11px;color:var(--muted);font-weight:600">@Session["role"]</div>
+                    </div>
+                </div>
+                <a class="btn btn-ghost" href="@Url.Action("Logout", "Account")"
+                   style="width:100%;text-align:left;font-size:13px;font-weight:700;color:var(--muted);display:block">
+                    &#8592; Sign Out
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="dashboard-main">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px">
+                <div>
+                    <h1 style="font-size:32px;margin-bottom:6px">My Profile</h1>
+                    <p style="color:var(--muted);font-weight:600">Manage your account and preferences</p>
+                </div>
+                <a href="@Url.Action("EditProfile", "User")" class="btn btn-outline">Edit Profile</a>
+            </div>
+
+            @if (TempData["success"] != null)
+            {
+                <div style="background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;color:var(--teal);font-size:13px;font-weight:600">
+                    @TempData["success"]
+                </div>
+            }
+
+            <div style="display:grid;grid-template-columns:1fr 2fr;gap:24px">
+
+                <!-- LEFT -->
+                <div>
+                    <div class="card" style="padding:28px;text-align:center;margin-bottom:18px">
+                        <div style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;color:#080a10;margin:0 auto 18px;border:3px solid rgba(232,184,75,0.3)">
+                            @(Model != null ? Model.firstName[0].ToString().ToUpper() : "U")
+                        </div>
+                        <h3 style="font-family:'Cabinet Grotesk';font-weight:800;margin-bottom:5px;font-size:18px">
+                            @(Model != null ? Model.firstName + " " + Model.lastName : "Unknown")
+                        </h3>
+                        <p style="color:var(--muted);font-size:13px;margin-bottom:14px;font-weight:600">
+                            @@@(Model != null ? Model.userName : "")
+                        </p>
+                        <span class="badge badge-gold">@Session["role"]</span>
+                    </div>
+
+                    <div class="card" style="padding:22px">
+                        <h4 style="font-family:'Cabinet Grotesk';font-weight:800;margin-bottom:18px;font-size:15px">Account Info</h4>
+                        <div style="display:flex;flex-direction:column;gap:0">
+                            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px">
+                                <span style="color:var(--muted);font-weight:600">Username</span>
+                                <span style="font-weight:800">@(Model != null ? Model.userName : "-")</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px">
+                                <span style="color:var(--muted);font-weight:600">Role</span>
+                                <span style="font-weight:800">@Session["role"]</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:13px">
+                                <span style="color:var(--muted);font-weight:600">Member Since</span>
+                                <span style="font-weight:800">@(Model != null ? Model.accountCreationDate.ToString("MMM yyyy") : "-")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT -->
+                <div>
+                    <div class="card" style="padding:30px;margin-bottom:18px">
+                        <h3 style="font-family:'Cabinet Grotesk';font-weight:800;margin-bottom:22px;font-size:17px">Personal Information</h3>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+                            <div class="form-group" style="margin-bottom:0">
+                                <label class="form-label">First Name</label>
+                                <input class="form-input" value="@(Model != null ? Model.firstName : "")" disabled style="opacity:0.75" />
+                            </div>
+                            <div class="form-group" style="margin-bottom:0">
+                                <label class="form-label">Last Name</label>
+                                <input class="form-input" value="@(Model != null ? Model.lastName : "")" disabled style="opacity:0.75" />
+                            </div>
+                            <div class="form-group" style="margin-bottom:0">
+                                <label class="form-label">Username</label>
+                                <input class="form-input" value="@(Model != null ? Model.userName : "")" disabled style="opacity:0.75" />
+                            </div>
+                            <div class="form-group" style="margin-bottom:0">
+                                <label class="form-label">Role</label>
+                                <input class="form-input" value="@Session["role"]" disabled style="opacity:0.75" />
+                            </div>
+                        </div>
+                        <div style="margin-top:20px">
+                            <a href="@Url.Action("EditProfile", "User")" class="btn btn-primary">Edit Profile</a>
+                        </div>
+                    </div>
+
+                    <div class="card" style="padding:30px">
+                        <h3 style="font-family:'Cabinet Grotesk';font-weight:800;margin-bottom:22px;font-size:17px">Security</h3>
+                        <div style="display:flex;flex-direction:column;gap:12px">
+                            <a href="@Url.Action("ChangePassword", "User")" class="btn btn-outline" style="font-weight:700;text-align:center">
+                                Change Password
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

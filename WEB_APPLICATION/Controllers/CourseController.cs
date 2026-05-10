@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using WEB_APPLICATION.Models;
+using static WEB_APPLICATION.Models.User;
 
 namespace WEB_APPLICATION.Controllers
 {
@@ -22,11 +23,24 @@ namespace WEB_APPLICATION.Controllers
             Course course = new CourseDAL().GetCourseById(id);
             if (course == null)
                 return HttpNotFound();
-            
+
             RatingDAL ratingDal = new RatingDAL();
             ViewBag.AverageRating = ratingDal.GetAverageRating(id);
             ViewBag.Ratings = ratingDal.GetRatingsByCourse(id);
-            
+            ViewBag.Lessons = new LessonDAL().GetLessonsByCourse(id);
+
+            if (Session["userId"] != null && Session["role"] == "student")
+            {
+                int userId = (int)Session["userId"];
+                ViewBag.HasRated = new RatingDAL().HasUserRated(userId, id);
+                var enrollment = new EnrollmentDAL().GetEnrollment(userId, id);
+                ViewBag.EnrollmentId = enrollment != null ? enrollment.enrollmentId : 0;
+            }
+            else
+            {
+                ViewBag.IsEnrolled = false;
+            }
+
             return View(course);
         }
         [HttpGet]
