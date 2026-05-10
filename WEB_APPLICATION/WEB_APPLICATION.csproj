@@ -151,6 +151,8 @@
     </Compile>
     <Compile Include="Models\Assessment.cs" />
     <Compile Include="Models\AssessmentDAL.cs" />
+    <Compile Include="Models\RatingDAL.cs" />
+    <Compile Include="Models\Rating.cs" />
     <Compile Include="Models\SessionDAL.cs" />
     <Compile Include="Models\Course.cs" />
     <Compile Include="Models\CourseDAL.cs" />
