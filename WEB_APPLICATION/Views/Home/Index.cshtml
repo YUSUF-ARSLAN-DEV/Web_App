@@ -58,27 +58,12 @@
                 Grow Your Skills.<br>
                 <span style="color:var(--gold);font-style:italic">Shape Your Future.</span>
             </h1>
-            <p style="color:var(--muted);font-size:18px;margin-bottom:36px;line-height:1.75;font-weight:500">
-                Join 150,000+ learners mastering tech, design, data science, and more, with world-class instructors on EduNest.
-            </p>
+
             <div style="display:flex;gap:14px;margin-bottom:48px;flex-wrap:wrap">
                 <a class="btn btn-primary btn-lg" href="@Url.Action("Index", "Course")">Explore Courses</a>
                 <a class="btn btn-outline btn-lg" href="@Url.Action("Registration", "Account")">Start for Free</a>
             </div>
-            <div style="display:flex;gap:36px">
-                <div>
-                    <div style="font-family:Fraunces;font-size:26px;font-weight:700;color:var(--gold)">150K+</div>
-                    <div style="font-size:12px;color:var(--muted);margin-top:3px;font-weight:600">Active Students</div>
-                </div>
-                <div>
-                    <div style="font-family:Fraunces;font-size:26px;font-weight:700;color:var(--gold)">500+</div>
-                    <div style="font-size:12px;color:var(--muted);margin-top:3px;font-weight:600">Expert Courses</div>
-                </div>
-                <div>
-                    <div style="font-family:Fraunces;font-size:26px;font-weight:700;color:var(--gold)">98%</div>
-                    <div style="font-size:12px;color:var(--muted);margin-top:3px;font-weight:600">Satisfaction Rate</div>
-                </div>
-            </div>
+
         </div>
         <div style="position:relative">
             <div style="border-radius:20px;overflow:hidden;border:1px solid var(--border2);box-shadow:0 32px 80px rgba(0,0,0,0.7)">
@@ -99,78 +84,6 @@
         </div>
     </div>
 
-    <!-- TRUST BAR -->
-    <div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:20px 56px;display:flex;gap:48px;align-items:center;justify-content:center;background:var(--surface)">
-        <span style="color:var(--muted);font-size:13px;font-weight:700;letter-spacing:0.05em">TRUSTED BY LEARNERS AT</span>
-        <span style="color:var(--muted);font-weight:800;font-size:16px">Google</span>
-        <span style="color:var(--muted);font-weight:800;font-size:16px">Microsoft</span>
-        <span style="color:var(--muted);font-weight:800;font-size:16px">Amazon</span>
-        <span style="color:var(--muted);font-weight:800;font-size:16px">Meta</span>
-        <span style="color:var(--muted);font-weight:800;font-size:16px">Apple</span>
-    </div>
-
-    <!-- FEATURED COURSES -->
-    <div style="padding:64px 56px;max-width:1200px;margin:0 auto">
-        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:32px">
-            <div>
-                <h2 style="font-size:32px;margin-bottom:8px">Featured Courses</h2>
-                <p style="color:var(--muted);font-size:15px">Hand-picked courses to get you started</p>
-            </div>
-            <a href="@Url.Action("Index", "Course")" style="color:var(--gold);font-size:14px;font-weight:700;text-decoration:none">View all courses →</a>
-        </div>
-        <div id="featured-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px">
-            @if (Model != null && Model.Count > 0)
-            {
-                foreach (var course in Model.Take(3))
-                {
-                    <div class="course-card" style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)">
-                        @if (!string.IsNullOrEmpty(course.imageUrl))
-                        {
-                            <img src="@course.imageUrl" alt="@course.courseName" style="width:100%;height:160px;object-fit:cover" />
-                        }
-                        else
-                        {
-                            <div style="width:100%;height:160px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:40px">&#127891;</div>
-                        }
-                        <div style="padding:16px">
-                            <h3 style="font-size:16px;margin-bottom:8px">@course.courseName</h3>
-                            <p style="color:var(--muted);font-size:13px;margin-bottom:16px;line-height:1.5">
-                                @(course.courseDescription != null && course.courseDescription.Length > 100
-                                ? course.courseDescription.Substring(0, 100) + "..."
-                                : course.courseDescription)
-                            </p>
-                            <a href="@Url.Action("Details", "Course", new { id = course.courseId })"
-                               class="btn btn-primary"
-                               style="width:100%;text-align:center;display:block;padding:8px">
-                                View Course
-                            </a>
-                        </div>
-                    </div>
-                }
-            }
-            else
-            {
-                <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">
-                    No courses available yet. Check back soon!
-                </div>
-            }
-        </div>
-    </div>
-
-    <!-- WHY EDUNEST -->
-    <div style="padding:64px 56px;background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
-        <div style="max-width:1200px;margin:0 auto">
-            <div style="text-align:center;margin-bottom:52px">
-                <h2 style="font-size:36px;margin-bottom:12px">Why Choose EduNest?</h2>
-                <p style="color:var(--muted);font-size:16px;max-width:500px;margin:0 auto">Everything you need to go from beginner to professional all in one place.</p>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px">
-                <div><div class="feature-icon-wrap" style="background:var(--gold-dim)">&#127919;</div><h3 style="font-size:20px;margin-bottom:10px;font-family:'Cabinet Grotesk';font-weight:800">Expert-Led Courses</h3><p style="color:var(--muted);font-size:15px;line-height:1.7;font-weight:500">Every course is crafted by verified industry professionals with real-world experience.</p></div>
-                <div><div class="feature-icon-wrap" style="background:rgba(45,212,191,0.08)">&#127942;</div><h3 style="font-size:20px;margin-bottom:10px;font-family:'Cabinet Grotesk';font-weight:800">Earn Certificates</h3><p style="color:var(--muted);font-size:15px;line-height:1.7;font-weight:500">Get recognized certificates upon completion that employers actually value and trust.</p></div>
-                <div><div class="feature-icon-wrap" style="background:rgba(78,124,246,0.08)">&#9854;</div><h3 style="font-size:20px;margin-bottom:10px;font-family:'Cabinet Grotesk';font-weight:800">Learn at Your Pace</h3><p style="color:var(--muted);font-size:15px;line-height:1.7;font-weight:500">Access courses anytime, anywhere. No deadlines, just progress at the speed that works for you.</p></div>
-            </div>
-        </div>
-    </div>
 
     <!-- CTA BANNER -->
     <div style="margin:64px 56px 72px;border-radius:24px;overflow:hidden;position:relative">
