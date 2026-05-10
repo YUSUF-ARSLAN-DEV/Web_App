@@ -30,7 +30,7 @@ namespace WEB_APPLICATION.Models
         public int RegisterUser(string username, string password, User.Role userRole, string firstName, string lastName)
         {
             try { 
-                conn.Open();  
+               
                 if (!CheckValidCredentials(username, password)) return 1; // invalid credentials
                 string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
                 using (SqlCommand insert = new SqlCommand("INSERT INTO [User] (userName, [password], role, firstName, lastName, accountCreationDate) VALUES (@userName, @password, @role, @firstName, @lastName, @accountCreationDate)", conn))
