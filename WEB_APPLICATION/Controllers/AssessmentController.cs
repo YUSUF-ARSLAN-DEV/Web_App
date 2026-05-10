@@ -24,7 +24,7 @@ namespace WEB_APPLICATION.Controllers
 
         // POST: Submit Quiz
         [HttpPost]
-        public ActionResult SubmitQuiz(int assessmentId, FormCollection answers)
+        public ActionResult  SubmitQuiz(int assessmentId, FormCollection answers) 
         {
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
@@ -52,15 +52,20 @@ namespace WEB_APPLICATION.Controllers
         }
 
         // GET: Quiz Results
-        public ActionResult Results(int assessmentId)
-        {
-            if (Session["userId"] == null)
-                return RedirectToAction("Login", "Account");
-            Assessment assessment = new AssessmentDAL().GetAssessmentById(assessmentId);
-            if (assessment == null)
-                return HttpNotFound();
-            return View(assessment);
-        }
+            public ActionResult Results(int assessmentId)
+            {
+                if (Session["userId"] == null)
+                    return RedirectToAction("Login", "Account");
+                
+                Assessment assessment = new AssessmentDAL().GetAssessmentById(assessmentId);
+                if (assessment == null)
+                    return HttpNotFound();
+                
+                ViewBag.Score = TempData["score"]; // storing the score of the student 
+                ViewBag.Total = TempData["total"];
+                
+                return View(assessment);
+            }
 
         // GET: Create Assessment (instructor/admin)
         [HttpGet]
