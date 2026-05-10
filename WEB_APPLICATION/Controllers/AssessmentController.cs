@@ -24,12 +24,30 @@ namespace WEB_APPLICATION.Controllers
 
         // POST: Submit Quiz
         [HttpPost]
-        public ActionResult SubmitQuiz(int assessmentId)
+        public ActionResult SubmitQuiz(int assessmentId, FormCollection answers)
         {
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
-            // TODO: score calculation and storage
+
+            List<Question> questions = new QuestionDAL().GetQuestionsByAssessment(assessmentId);
+            if (questions == null || questions.Count == 0)
+                return RedirectToAction("Results", new { assessmentId });
+
+            int correct = 0;
+            int total = questions.Count;
+
+            foreach (Question q in questions)
+            {
+                string submitted = answers["q_" + q.questionId];
+                if (submitted != null && submitted.Trim().Equals(q.correctAnswer.Trim(), StringComparison.OrdinalIgnoreCase))
+                    correct++;
+            }
+
             new AssessmentDAL().IncrementAttempt(assessmentId);
+
+            TempData["score"] = correct;
+            TempData["total"] = total;
+
             return RedirectToAction("Results", new { assessmentId });
         }
 

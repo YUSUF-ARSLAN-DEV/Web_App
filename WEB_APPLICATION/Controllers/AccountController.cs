@@ -71,7 +71,7 @@ namespace WEB_APPLICATION.Controllers
             
             if (authResult == 0) // success
             {
-                User user = new UserDAL().GetUserByUsername(userName);
+               User user =  userDal.GetUserByUsername(userName);
                 if (user != null)
                 {
                     Session["userId"] = user.userId;
@@ -101,14 +101,17 @@ namespace WEB_APPLICATION.Controllers
             return View();
         }
 
-        public ActionResult Logout()
+    public ActionResult Logout()
+    {
+        if (Session["sessionId"] != null) // ensures user can not jump to login page without asession being created 
         {
             SessionDAL sessionDal = new SessionDAL();
             sessionDal.LogLogout((int)Session["sessionId"]);
-            Session.Clear();
-            TempData["success"] = "You have logged out";
-            return RedirectToAction("Index", "Home");
         }
+        Session.Clear();
+        TempData["success"] = "You have logged out";
+        return RedirectToAction("Index", "Home");
+    }
     }
 }
     
