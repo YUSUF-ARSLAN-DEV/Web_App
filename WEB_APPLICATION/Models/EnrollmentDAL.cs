@@ -100,7 +100,7 @@ namespace WEB_APPLICATION.Models
             return success ; 
         }
 
-        public List<EnrollmentRecord> GetEnrollmentByCousre (int takenCourseId )
+        public List<EnrollmentRecord> GetEnrollmentByCourse (int takenCourseId )
         {
             List<EnrollmentRecord> listOfRecords = new List<EnrollmentRecord>() ; 
             int enrollmentId ;  
