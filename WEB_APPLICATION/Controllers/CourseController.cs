@@ -16,15 +16,59 @@ namespace WEB_APPLICATION.Controllers
             return View(courses);
         }
 
-        // GET: Course Details
+        // GET: Course Details // showing the details of a course nad its rating 
         public ActionResult Details(int id)
         {
             Course course = new CourseDAL().GetCourseById(id);
             if (course == null)
                 return HttpNotFound();
+            
+            RatingDAL ratingDal = new RatingDAL();
+            ViewBag.AverageRating = ratingDal.GetAverageRating(id);
+            ViewBag.Ratings = ratingDal.GetRatingsByCourse(id);
+            
             return View(course);
         }
+        [HttpGet]
+        public ActionResult Rate(int id) //gets the rating of a course 
+        {
+            if (Session["userId"] == null)
+                return RedirectToAction("Login", "Account");
+            
+            Course course = new CourseDAL().GetCourseById(id);
+            if (course == null)
+                return HttpNotFound();
+            
+            int userId = (int)Session["userId"];
+            if (new RatingDAL().HasUserRated(userId, id))
+            {
+                TempData["Error"] = "You have already rated this course";
+                return RedirectToAction("Details", new { id });
+            }
+            
+            ViewBag.CourseId = id;
+            return View();
+        }
 
+        // POST: Rate Course
+        [HttpPost] // the students gives a rating for a course 
+        public ActionResult Rate(int courseId, int score, string comment)
+        {
+            if (Session["userId"] == null)
+                return RedirectToAction("Login", "Account");
+            
+            int userId = (int)Session["userId"];
+            bool success = new RatingDAL().AddRating(courseId, userId, score, comment);
+            
+            if (success)
+            {
+                TempData["success"] = "Rating submitted successfully";
+                return RedirectToAction("Details", new { id = courseId });
+            }
+            
+            ViewBag.Error = "Failed to submit rating";
+            return View();
+        }
         // GET: My Courses (for enrolled students)
         [HttpGet] 
         public ActionResult MyCourses()
