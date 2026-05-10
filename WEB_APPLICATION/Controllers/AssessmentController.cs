@@ -77,28 +77,25 @@ namespace WEB_APPLICATION.Controllers
             return View();
         }
 
-        // POST: Create Assessment
+        // POST: Creatomg am asses,emt for a lesson 
         [HttpPost]
         [ActionName("Create")]
-        public ActionResult CreatePost(int lessonId)
+        public ActionResult CreatePost(int lessonId) // method name is CreatePost because botht get and post version of the method both have the same parameters 
         {
-            try
+            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+                return RedirectToAction("Index", "Course");
+            
+            Assessment assessment = new Assessment(0, lessonId);
+            bool success = new AssessmentDAL().CreateAssessment(assessment);
+            if (success)
             {
-                Assessment assessment = new Assessment(0, lessonId);
-                bool success = new AssessmentDAL().CreateAssessment(assessment);
-                if (success)
-                {
-                    TempData["success"] = "Assessment created successfully";
-                    return RedirectToAction("Index");
-                }
-                ViewBag.Error = "Failed to create assessment";
-                return View();
+                Lesson lesson = new LessonDAL().GetLessonById(lessonId);
+                TempData["success"] = "Assessment created successfully";
+                return RedirectToAction("Index", "Lesson", new { courseId = lesson.courseId });
             }
-            catch
-            {
-                ViewBag.Error = "An error occurred";
-                return View();
-            }
+            ViewBag.Error = "Failed to create assessment";
+            ViewBag.LessonId = lessonId;
+            return View();
         }
 
         // GET: Add Question
