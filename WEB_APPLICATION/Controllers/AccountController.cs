@@ -18,36 +18,44 @@ namespace WEB_APPLICATION.Controllers
             return View() ; 
         }
 
-        [HttpPost] // post 
-        public ActionResult Registration(string userName , string password , string role , string firstName , string lastName   )
+        [HttpPost] // post   
+        public ActionResult Registration(string userName, string password, string role, string firstName, string lastName)
         {
-            // checking for valid credentials 
-            UserDAL userDal = new UserDAL() ; 
-            
-            User.Role  userRole = UtilityDAL.parseStringToRole(role.ToLower());
-            bool valid = userDal.CheckValidCredentials(userName , password ) ;
-           
-            if (!valid  ) // check if credentials are valid first ; 
+            UserDAL userDal = new UserDAL();
+
+            User.Role userRole = UtilityDAL.parseStringToRole(role.ToLower());
+            bool valid = userDal.CheckValidCredentials(userName, password);
+
+            if (!valid)
             {
-                ViewBag.Error = "The entered credentials are not vaild !";
+                ViewBag.Error = "The entered credentials are not valid!";
                 return View();
-            } 
+            }
+
+            int result = userDal.RegisterUser(userName, password, userRole, firstName, lastName);
+
+            if (result == 0)
+            {
+                TempData["success"] = "You have successfully registered into EduNest!";
+                return RedirectToAction("Login", "Account");
+            }
+            else if (result == 2627)
+            {
+                ViewBag.Error = "Username already exists. Please choose a different one.";
+                return View();
+            }
+            else if (result == 8152)
+            {
+                ViewBag.Error = "One of your fields is too long. Please shorten and try again.";
+                return View();
+            }
             else
-            { // then attempt to register 
-                bool success =  userDal.RegisterUser(userName , password, userRole , firstName , lastName ) ;
-                if (success )
-                {
-                    TempData["success"] = "You have successfullly Registered into Edu Nest " ;
-                    return RedirectToAction("Login","Account") ; // redirects it to the login page 
-                } 
-                else
-                {
-                    ViewBag.Error = "An issue occured while Attempting registration " ;     
-                    return View() ; // returns to the registration page 
-                }                
-            }  
+            {
+                ViewBag.Error = "Registration failed. Error code: " + result;
+                return View();
+            }
         }
-        
+
         [HttpGet]
         public ActionResult Login()
         {

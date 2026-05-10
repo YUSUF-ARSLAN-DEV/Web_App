@@ -27,26 +27,31 @@ namespace WEB_APPLICATION.Models
             return true ; 
         }
 
-        public bool RegisterUser(string username , string password , User.Role userRole , string firstName , string lastName)  
+        public int RegisterUser(string username, string password, User.Role userRole, string firstName, string lastName)
         {
-            try 
-            {
+            try { 
+                conn.Open();  
+                if (!CheckValidCredentials(username, password)) return 1; // invalid credentials
                 string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
-                using ( SqlCommand insert = new SqlCommand("INSERT INTO [User] (userName , [password],role , firstName, lastName , accountCreationDate ) VALUES (@userName , @password, @role , @firstName , @lastName , @accountCreationDate ) ", conn) ) 
+                using (SqlCommand insert = new SqlCommand("INSERT INTO [User] (userName, [password], role, firstName, lastName, accountCreationDate) VALUES (@userName, @password, @role, @firstName, @lastName, @accountCreationDate)", conn))
                 {
-                    insert.Parameters.AddWithValue("@userName" , username ) ;
-                    insert.Parameters.AddWithValue("@password",  hashedPassword ) ;
-                    insert.Parameters.AddWithValue("@role", UtilityDAL.roleToString(userRole)) ;
-                    insert.Parameters.AddWithValue("@firstName", firstName ) ;
-                    insert.Parameters.AddWithValue("@lastName",  lastName ) ;
-                    insert.Parameters.AddWithValue("@accountCreationDate", DateTime.Now) ;
+                    insert.Parameters.AddWithValue("@userName", username);
+                    insert.Parameters.AddWithValue("@password", hashedPassword);
+                    insert.Parameters.AddWithValue("@role", UtilityDAL.roleToString(userRole));
+                    insert.Parameters.AddWithValue("@firstName", firstName);
+                    insert.Parameters.AddWithValue("@lastName", lastName);
+                    insert.Parameters.AddWithValue("@accountCreationDate", DateTime.Now);
                     conn.Open();
-                    insert.ExecuteNonQuery()  ; 
-                } 
-                return true ; 
-            } 
-            catch (SqlException e ) {return false ; } 
-            finally {if (conn != null) conn.Close() ;}
+                    insert.ExecuteNonQuery();
+                }
+                return 0; // success
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.Message);
+                return e.Number; // returns SQL error number
+            }
+            finally {  conn.Close(); }
         }
 
         public int LoginAuthentication(string userName, string password)
@@ -74,7 +79,7 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                if (conn != null) conn.Close();
+                 conn.Close();
             }
         }
 
@@ -111,7 +116,7 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                if (conn != null) conn.Close();
+                 conn.Close();
             }
         }
 
@@ -145,7 +150,7 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                if (conn != null) conn.Close();
+                 conn.Close();
             }
         }
 
@@ -183,7 +188,7 @@ namespace WEB_APPLICATION.Models
             }
             finally 
             {
-                if (conn != null) conn.Close();
+                 conn.Close();
             }
         }
 
@@ -214,7 +219,7 @@ namespace WEB_APPLICATION.Models
                 return rows > 0;
             }
             catch (SqlException e) { return false; }
-            finally { if (conn != null) conn.Close(); }
+            finally {  conn.Close(); }
         }
 
         public bool UpdatePassword(int userId, string newPassword)
@@ -230,7 +235,7 @@ namespace WEB_APPLICATION.Models
                 return rows > 0;
             }
             catch (SqlException e) { return false; }
-            finally { if (conn != null) conn.Close(); }
+            finally {  conn.Close(); }
         }
 
         public bool DeleteUser(int userId) 
@@ -244,7 +249,7 @@ namespace WEB_APPLICATION.Models
                 return rows > 0;
             }
             catch (SqlException e) { return false; }
-            finally { if (conn != null) conn.Close(); }
+            finally {  conn.Close(); }
         }
     }
 }
