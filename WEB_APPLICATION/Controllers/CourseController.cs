@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using WEB_APPLICATION.Models;
-using static WEB_APPLICATION.Models.User;
+
 
 namespace WEB_APPLICATION.Controllers
 {
@@ -33,7 +33,7 @@ namespace WEB_APPLICATION.Controllers
             ViewBag.Ratings = ratingDal.GetRatingsByCourse(id);
             ViewBag.Lessons = new LessonDAL().GetLessonsByCourse(id);
 
-            if (Session["userId"] != null && Session["role"] == "student")
+            if (Session["userId"] != null && Session["role"].ToString() == "student")
             {
                 int userId = (int)Session["userId"];
                 ViewBag.HasRated = new RatingDAL().HasUserRated(userId, id);
@@ -183,7 +183,7 @@ namespace WEB_APPLICATION.Controllers
         public ActionResult Delete(int id)
         {
             if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
-                return Json(new { success = false });
+                return RedirectToAction("Index");
             bool success = new CourseDAL().DeleteCourse(id);
             if (success)
                 TempData["success"] = "Course deleted successfully";

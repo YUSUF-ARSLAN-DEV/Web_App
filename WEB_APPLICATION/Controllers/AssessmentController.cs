@@ -126,16 +126,17 @@ namespace WEB_APPLICATION.Controllers
             }
         }
 
-        // POST: Delete Assessment
+        // POST: Delete Assessment  - after the assesment is deleted we return to the  Lesson page 
         [HttpPost]
         public ActionResult Delete(int id)
         {
             if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
-                return Json(new { success = false });
-            bool success = new AssessmentDAL().DeleteAssessment(id);
-            if (success)
-                TempData["success"] = "Assessment deleted successfully";
-            return RedirectToAction("Index");
+                return RedirectToAction("Index", "Course");
+
+            Assessment assessment = new AssessmentDAL().GetAssessmentById(id);
+            new AssessmentDAL().DeleteAssessment(id);
+            TempData["success"] = "Assessment deleted successfully";
+            return RedirectToAction("Details", "Lesson", new { id = assessment.lessonId });
         }
     }
 }
