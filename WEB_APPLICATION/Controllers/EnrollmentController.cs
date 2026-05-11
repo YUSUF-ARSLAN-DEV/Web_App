@@ -36,16 +36,24 @@ namespace WEB_APPLICATION.Controllers
         public ActionResult Enroll(int courseId)
         {
             if (Session["userId"] == null)
-                return Json(new { success = false, message = "Not logged in" });
-            
+                return RedirectToAction("Login", "Account");
+
             int userId = (int)Session["userId"];
             EnrollmentDAL dal = new EnrollmentDAL();
+
             if (dal.IsEnrolled(userId, courseId))
             {
-                return Json(new { success = false, message = "Already enrolled" });
+                TempData["Error"] = "You are already enrolled in this course";
+                return RedirectToAction("Details", "Course", new { id = courseId });
             }
+
             bool success = dal.Enroll(userId, courseId);
-            return Json(new { success = success });
+            if (success)
+                TempData["success"] = "Successfully enrolled!";
+            else
+                TempData["Error"] = "Enrollment failed. Please try again.";
+
+            return RedirectToAction("Details", "Course", new { id = courseId });
         }
 
         // POST: Unenroll from Course

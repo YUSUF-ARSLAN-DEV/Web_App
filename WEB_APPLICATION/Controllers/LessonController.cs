@@ -23,6 +23,10 @@ namespace WEB_APPLICATION.Controllers
             Lesson lesson = new LessonDAL().GetLessonById(id);
             if (lesson == null)
                 return HttpNotFound();
+
+            List<Assessment> assessments = new AssessmentDAL().GetAssessmentsByLesson(id);
+            ViewBag.Assessment = assessments != null && assessments.Count > 0 ? assessments[0] : null;
+
             return View(lesson);
         }
 

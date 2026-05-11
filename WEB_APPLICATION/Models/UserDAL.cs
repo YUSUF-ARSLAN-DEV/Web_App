@@ -160,7 +160,7 @@ namespace WEB_APPLICATION.Models
             List<User> specifiedUserList = new List<User>();
             try 
             {
-                using ( SqlCommand cmd = new SqlCommand("SELECT * FROM [User] WHERE role = @wantedRole", conn ))  
+                using ( SqlCommand cmd = new SqlCommand("SELECT * FROM [User] WHERE role != admin", conn ))  
                 {
                     cmd.Parameters.AddWithValue("@wantedRole", userRole  ) ;
                     conn.Open();

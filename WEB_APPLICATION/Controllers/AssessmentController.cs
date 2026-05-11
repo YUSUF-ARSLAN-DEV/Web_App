@@ -89,9 +89,10 @@ namespace WEB_APPLICATION.Controllers
             bool success = new AssessmentDAL().CreateAssessment(assessment);
             if (success)
             {
-                Lesson lesson = new LessonDAL().GetLessonById(lessonId);
-                TempData["success"] = "Assessment created successfully";
-                return RedirectToAction("Index", "Lesson", new { courseId = lesson.courseId });
+                List<Assessment> assessments = new AssessmentDAL().GetAssessmentsByLesson(lessonId);
+                Assessment created = assessments[assessments.Count - 1];
+                TempData["success"] = "Quiz created! Now add your questions.";
+                return RedirectToAction("AddQuestion", new { assessmentId = created.assessmentId });
             }
             ViewBag.Error = "Failed to create assessment";
             ViewBag.LessonId = lessonId;

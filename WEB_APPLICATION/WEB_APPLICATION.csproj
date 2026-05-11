@@ -237,11 +237,19 @@
     <Content Include="Views\Course\Edit.cshtml" />
     <Content Include="Views\Lesson\Create.cshtml" />
     <Content Include="Views\Lesson\Index.cshtml" />
+    <Content Include="Views\Lesson\Details.cshtml" />
+    <Content Include="Views\Lesson\Edit.cshtml" />
+    <Content Include="Views\Assessment\Create.cshtml" />
+    <Content Include="Views\Assessment\AddQuestion.cshtml" />
+    <Content Include="Views\Assessment\TakeQuiz.cshtml" />
+    <Content Include="Views\Assessment\Results.cshtml" />
+    <Content Include="Views\Course\Rate.cshtml" />
+    <Content Include="Views\Admin\Dashboard.cshtml" />
+    <Content Include="Views\Admin\ManageUsers.cshtml" />
+    <Content Include="Views\Admin\ManageCourses.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Uploads\" />
-    <Folder Include="Views\Admin\" />
-    <Folder Include="Views\Assessment\" />
     <Folder Include="Views\Forum\" />
     <Folder Include="Views\Post\" />
   </ItemGroup>
