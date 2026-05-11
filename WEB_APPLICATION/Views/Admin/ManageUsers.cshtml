@@ -1,7 +1,241 @@
-﻿
+﻿﻿@model List<WEB_APPLICATION.Models.User>
 @{
-    ViewBag.Title = "ManageUsers";
+    Layout = null;
+    string selectedRole = ViewBag.SelectedRole ?? "all";
 }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduNest – Manage Users</title>
+    <link rel="stylesheet" href="~/Content/site.css" />
+</head>
+<body>
 
-<h2>ManageUsers</h2>
+    <div class="dashboard-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <a class="nav-logo" href="@Url.Action("Index", "Home")" style="font-size:18px">
+                    <div class="nav-logo-icon" style="width:28px;height:28px;font-size:14px">&#129338;</div>EduNest
+                </a>
+            </div>
+            <nav style="padding:8px 0">
+                <a class="sidebar-item" href="@Url.Action("Dashboard", "Admin")">
+                    <span class="sidebar-icon">&#127968;</span>Dashboard
+                </a>
+                <a class="sidebar-item active" href="@Url.Action("ManageUsers", "Admin")">
+                    <span class="sidebar-icon">&#128101;</span>Manage Users
+                </a>
+                <a class="sidebar-item" href="@Url.Action("ManageCourses", "Admin")">
+                    <span class="sidebar-icon">&#128218;</span>Manage Courses
+                </a>
+                <a class="sidebar-item" href="@Url.Action("Profile", "User")">
+                    <span class="sidebar-icon">&#128100;</span>My Profile
+                </a>
+            </nav>
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:18px 16px;border-top:1px solid var(--border)">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 8px;border-radius:10px;background:var(--surface2)">
+                    <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:#080a10;font-weight:800;font-size:15px;flex-shrink:0">
+                        @(Session["userName"] != null ? Session["userName"].ToString()[0].ToString().ToUpper() : "A")
+                    </div>
+                    <div>
+                        <div style="font-size:13px;font-weight:800">@Session["userName"]</div>
+                        <div style="font-size:11px;color:var(--muted);font-weight:600">Administrator</div>
+                    </div>
+                </div>
+                <a class="btn btn-ghost" href="@Url.Action("Logout", "Account")"
+                   style="width:100%;text-align:left;font-size:13px;font-weight:700;color:var(--muted);display:block">
+                    &#8592; Sign Out
+                </a>
+            </div>
+        </aside>
 
+        <!-- MAIN -->
+        <main class="dashboard-main">
+            <!-- HEADER -->
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px">
+                <div>
+                    <h1 style="font-size:32px;margin-bottom:6px">Manage Users</h1>
+                    <p style="color:var(--muted);font-weight:600">
+                        View and manage all platform users
+                    </p>
+                </div>
+                <a href="@Url.Action("Dashboard", "Admin")" class="btn btn-ghost">← Back to Dashboard</a>
+            </div>
+
+            @if (TempData["success"] != null)
+            {
+                <div style="background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;color:var(--teal);font-size:13px;font-weight:600">
+                    @TempData["success"]
+                </div>
+            }
+
+            @if (TempData["error"] != null)
+            {
+                <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;color:#f87171;font-size:13px;font-weight:600">
+                    @TempData["error"]
+                </div>
+            }
+
+            <!-- FILTER COMBO BOX -->
+            <div class="card" style="padding:18px 24px;margin-bottom:24px">
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <span style="font-weight:700;font-size:14px">Filter by role:</span>
+                        <select id="roleFilter" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:600;cursor:pointer">
+                            <option value="all" @(selectedRole == "all" ? "selected" : "")>All Users (Non-Admin)</option>
+                            <option value="student" @(selectedRole == "student" ? "selected" : "")>Students</option>
+                            <option value="instructor" @(selectedRole == "instructor" ? "selected" : "")>Instructors</option>
+                        </select>
+                    </div>
+                    <div style="font-size:13px;color:var(--muted)">
+                        @if (Model != null)
+                        {
+                            <text>Showing @Model.Count user(s)</text>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- USERS TABLE -->
+            <div class="card" style="padding:0;overflow:hidden">
+                <table style="width:100%;border-collapse:collapse">
+                    <thead>
+                        <tr style="border-bottom:1px solid var(--border);background:var(--surface2)">
+                            <th style="padding:14px 20px;text-align:left;font-size:13px;font-weight:800;color:var(--muted)">User</th>
+                            <th style="padding:14px 20px;text-align:left;font-size:13px;font-weight:800;color:var(--muted)">Username</th>
+                            <th style="padding:14px 20px;text-align:left;font-size:13px;font-weight:800;color:var(--muted)">Role</th>
+                            <th style="padding:14px 20px;text-align:left;font-size:13px;font-weight:800;color:var(--muted)">Member Since</th>
+                            <th style="padding:14px 20px;text-align:center;font-size:13px;font-weight:800;color:var(--muted)">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model == null || Model.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="5" style="padding:60px 20px;text-align:center;color:var(--muted)">
+                                    <div style="font-size:48px;margin-bottom:16px">&#128101;</div>
+                                    <p style="font-size:16px">No users found in this category.</p>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var user in Model)
+                            {
+                                <tr style="border-bottom:1px solid var(--border)">
+                                    <td style="padding:14px 20px">
+                                        <div style="display:flex;align-items:center;gap:12px">
+                                            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:#080a10;font-weight:800;font-size:14px;flex-shrink:0">
+                                                @(user.firstName != null && user.firstName.Length > 0 ? user.firstName[0].ToString().ToUpper() : "U")
+                                            </div>
+                                            <div>
+                                                <div style="font-weight:700;font-size:14px">@user.firstName @user.lastName</div>
+                                                <div style="font-size:11px;color:var(--muted)">ID: @user.userId</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="padding:14px 20px;font-size:14px;font-weight:600">@@@user.userName</td>
+                                    <td style="padding:14px 20px">
+                                        <span style="background:rgba(232,184,75,0.1);color:var(--gold);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700">
+                                            @user.role
+                                        </span>
+                                    </td>
+                                    <td style="padding:14px 20px;font-size:13px;color:var(--muted)">@user.accountCreationDate.ToString("MMM dd, yyyy")</td>
+                                    <td style="padding:14px 20px;text-align:center">
+                                        <button class="btn btn-ghost delete-user-btn"
+                                                style="font-size:12px;padding:6px 14px;color:var(--red)"
+                                                data-userid="@user.userId"
+                                                data-username="@user.userName">
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- DELETE CONFIRMATION MODAL (inline) -->
+    <div id="deleteModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center">
+        <div style="background:var(--bg);border-radius:20px;padding:28px 32px;max-width:400px;width:90%;border:1px solid var(--border)">
+            <h3 style="font-size:20px;margin-bottom:12px">Confirm Delete</h3>
+            <p id="deleteMessage" style="color:var(--muted);margin-bottom:24px">Are you sure you want to delete this user?</p>
+            <div style="display:flex;gap:12px;justify-content:flex-end">
+                <button id="cancelDeleteBtn" class="btn btn-ghost">Cancel</button>
+                <button id="confirmDeleteBtn" class="btn btn-primary" style="background:var(--red);border-color:var(--red)">Delete User</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var currentUserId = null;
+            var currentUsername = null;
+
+            // Role filter change
+            $('#roleFilter').change(function() {
+                var selectedRole = $(this).val();
+                window.location.href = '@Url.Action("ManageUsers", "Admin")?role=' + selectedRole;
+            });
+
+            // Delete button click
+            $('.delete-user-btn').click(function() {
+                currentUserId = $(this).data('userid');
+                currentUsername = $(this).data('username');
+                $('#deleteMessage').text('Are you sure you want to delete user "' + currentUsername + '"? This action cannot be undone.');
+                $('#deleteModal').css('display', 'flex');
+            });
+
+            // Confirm delete
+            $('#confirmDeleteBtn').click(function() {
+                if (currentUserId) {
+                    $.ajax({
+                        url: '@Url.Action("DeleteUser", "Admin")',
+                        type: 'POST',
+                        data: { userId: currentUserId },
+                        success: function(response) {
+                            if (response.success) {
+                                location.reload();
+                            } else if (response.message) {
+                                alert(response.message);
+                                $('#deleteModal').hide();
+                            } else {
+                                alert('Failed to delete user. Please try again.');
+                                $('#deleteModal').hide();
+                            }
+                        },
+                        error: function() {
+                            alert('An error occurred. Please try again.');
+                            $('#deleteModal').hide();
+                        }
+                    });
+                }
+            });
+
+            // Cancel delete
+            $('#cancelDeleteBtn').click(function() {
+                $('#deleteModal').hide();
+                currentUserId = null;
+                currentUsername = null;
+            });
+
+            // Click outside modal to close
+            $('#deleteModal').click(function(e) {
+                if (e.target === this) {
+                    $(this).hide();
+                    currentUserId = null;
+                    currentUsername = null;
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

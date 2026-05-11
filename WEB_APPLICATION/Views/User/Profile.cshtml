@@ -1,4 +1,4 @@
-﻿@model WEB_APPLICATION.Models.User
+﻿﻿@model WEB_APPLICATION.Models.User
 @{
     Layout = null;
 }
@@ -21,9 +21,33 @@
                 </a>
             </div>
             <nav style="padding:8px 0">
-                <a class="sidebar-item" href="@Url.Action("MyEnrollments", "Enrollment")">
-                    <span class="sidebar-icon">&#127968;</span>Dashboard
-                </a>
+                @if (Session["role"] != null)
+                {
+                    if (Session["role"].ToString() == "admin")
+                    {
+                        <a class="sidebar-item" href="@Url.Action("Dashboard", "Admin")">
+                            <span class="sidebar-icon">&#127968;</span>Dashboard
+                        </a>
+                    }
+                    else if (Session["role"].ToString() == "instructor")
+                    {
+                        <a class="sidebar-item" href="@Url.Action("Dashboard", "Instructor")">
+                            <span class="sidebar-icon">&#127968;</span>Dashboard
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="sidebar-item" href="@Url.Action("MyEnrollments", "Enrollment")">
+                            <span class="sidebar-icon">&#127968;</span>Dashboard
+                        </a>
+                    }
+                }
+                else
+                {
+                    <a class="sidebar-item" href="@Url.Action("MyEnrollments", "Enrollment")">
+                        <span class="sidebar-icon">&#127968;</span>Dashboard
+                    </a>
+                }
                 <a class="sidebar-item" href="@Url.Action("Index", "Course")">
                     <span class="sidebar-icon">&#128218;</span>Browse Courses
                 </a>
@@ -71,7 +95,7 @@
                 <div>
                     <div class="card" style="padding:28px;text-align:center;margin-bottom:18px">
                         <div style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;color:#080a10;margin:0 auto 18px;border:3px solid rgba(232,184,75,0.3)">
-                            @(Model != null ? Model.firstName[0].ToString().ToUpper() : "U")
+                            @(Model != null && Model.firstName != null && Model.firstName.Length > 0 ? Model.firstName[0].ToString().ToUpper() : "U")
                         </div>
                         <h3 style="font-family:'Cabinet Grotesk';font-weight:800;margin-bottom:5px;font-size:18px">
                             @(Model != null ? Model.firstName + " " + Model.lastName : "Unknown")

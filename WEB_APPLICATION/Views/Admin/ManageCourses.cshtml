@@ -1,7 +1,302 @@
-﻿
+﻿﻿@model List<WEB_APPLICATION.Models.Course>
 @{
-    ViewBag.Title = "ManageCourses";
+    Layout = null;
 }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduNest – Manage Courses</title>
+    <link rel="stylesheet" href="~/Content/site.css" />
+</head>
+<body>
 
-<h2>ManageCourses</h2>
+    <div class="dashboard-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <a class="nav-logo" href="@Url.Action("Index", "Home")" style="font-size:18px">
+                    <div class="nav-logo-icon" style="width:28px;height:28px;font-size:14px">&#129338;</div>EduNest
+                </a>
+            </div>
+            <nav style="padding:8px 0">
+                <a class="sidebar-item" href="@Url.Action("Dashboard", "Admin")">
+                    <span class="sidebar-icon">&#127968;</span>Dashboard
+                </a>
+                <a class="sidebar-item" href="@Url.Action("ManageUsers", "Admin")">
+                    <span class="sidebar-icon">&#128101;</span>Manage Users
+                </a>
+                <a class="sidebar-item active" href="@Url.Action("ManageCourses", "Admin")">
+                    <span class="sidebar-icon">&#128218;</span>Manage Courses
+                </a>
+                <a class="sidebar-item" href="@Url.Action("Profile", "User")">
+                    <span class="sidebar-icon">&#128100;</span>My Profile
+                </a>
+            </nav>
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:18px 16px;border-top:1px solid var(--border)">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 8px;border-radius:10px;background:var(--surface2)">
+                    <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:#080a10;font-weight:800;font-size:15px;flex-shrink:0">
+                        @(Session["userName"] != null ? Session["userName"].ToString()[0].ToString().ToUpper() : "A")
+                    </div>
+                    <div>
+                        <div style="font-size:13px;font-weight:800">@Session["userName"]</div>
+                        <div style="font-size:11px;color:var(--muted);font-weight:600">Administrator</div>
+                    </div>
+                </div>
+                <a class="btn btn-ghost" href="@Url.Action("Logout", "Account")"
+                   style="width:100%;text-align:left;font-size:13px;font-weight:700;color:var(--muted);display:block">
+                    &#8592; Sign Out
+                </a>
+            </div>
+        </aside>
 
+        <!-- MAIN -->
+        <main class="dashboard-main">
+            <!-- HEADER -->
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px">
+                <div>
+                    <h1 style="font-size:32px;margin-bottom:6px">Manage Courses</h1>
+                    <p style="color:var(--muted);font-weight:600">
+                        View all courses (active and inactive)
+                    </p>
+                </div>
+                <a href="@Url.Action("Dashboard", "Admin")" class="btn btn-ghost">← Back to Dashboard</a>
+            </div>
+
+            @if (TempData["success"] != null)
+            {
+                <div style="background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;color:var(--teal);font-size:13px;font-weight:600">
+                    @TempData["success"]
+                </div>
+            }
+
+            @if (TempData["error"] != null)
+            {
+                <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;color:#f87171;font-size:13px;font-weight:600">
+                    @TempData["error"]
+                </div>
+            }
+
+            <!-- FILTER TOGGLE -->
+            <div class="card" style="padding:18px 24px;margin-bottom:24px">
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <span style="font-weight:700;font-size:14px">Show:</span>
+                        <div style="display:flex;gap:8px">
+                            <button id="showAllBtn" class="btn-filter active" style="padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer">All Courses</button>
+                            <button id="showActiveBtn" class="btn-filter" style="padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer">Active Only</button>
+                            <button id="showInactiveBtn" class="btn-filter" style="padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer">Inactive Only</button>
+                        </div>
+                    </div>
+                    <div style="font-size:13px;color:var(--muted)">
+                        <span id="courseCountDisplay"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COURSES TABLE -->
+            <div class="card" style="padding:0;overflow:hidden">
+                <table style="width:100%;border-collapse:collapse">
+                    <thead>
+                        <tr style="border-bottom:1px solid var(--border);background:var(--surface2)">
+                            <th style="padding:14px 20px;text-align:left;font-size:13px;font-weight:800;color:var(--muted)">Course</th>
+                            <th style="padding:14px 20px;text-align:left;font-size:13px;font-weight:800;color:var(--muted)">Instructor ID</th>
+                            <th style="padding:14px 20px;text-align:center;font-size:13px;font-weight:800;color:var(--muted)">Status</th>
+                            <th style="padding:14px 20px;text-align:center;font-size:13px;font-weight:800;color:var(--muted)">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="coursesTableBody">
+                        @if (Model == null || Model.Count == 0)
+                        {
+                            <tr id="noCoursesRow">
+                                <td colspan="4" style="padding:60px 20px;text-align:center;color:var(--muted)">
+                                    <div style="font-size:48px;margin-bottom:16px">&#128218;</div>
+                                    <p style="font-size:16px">No courses found.</p>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var course in Model)
+                            {
+                                <tr class="course-row" data-active="@course.activeStatus.ToString().ToLower()" style="border-bottom:1px solid var(--border)">
+                                    <td style="padding:14px 20px">
+                                        <div style="display:flex;align-items:center;gap:12px">
+                                            @if (!string.IsNullOrEmpty(course.imageUrl))
+                                            {
+                                                <img src="@course.imageUrl" alt="@course.courseName" style="width:48px;height:48px;border-radius:8px;object-fit:cover" />
+                                            }
+                                            else
+                                            {
+                                                <div style="width:48px;height:48px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:20px">&#127891;</div>
+                                            }
+                                            <div>
+                                                <div style="font-weight:700;font-size:14px">@course.courseName</div>
+                                                <div style="font-size:11px;color:var(--muted);max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">@course.courseDescription</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="padding:14px 20px;font-size:13px;font-weight:600">ID: @course.userId</td>
+                                    <td style="padding:14px 20px;text-align:center">
+                                        @if (course.activeStatus)
+                                        {
+                                            <span style="background:rgba(45,212,191,0.1);color:var(--teal);border:1px solid rgba(45,212,191,0.3);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.3);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700">Deleted</span>
+                                        }
+                                    </td>
+                                    <td style="padding:14px 20px;text-align:center">
+                                        <div style="display:flex;gap:8px;justify-content:center">
+                                            <a href="@Url.Action("Details", "Course", new { id = course.courseId })" class="btn btn-ghost" style="font-size:12px;padding:6px 12px">View</a>
+                                            @if (course.activeStatus)
+                                            {
+                                                <button class="btn btn-ghost delete-course-btn" style="font-size:12px;padding:6px 12px;color:var(--red)" data-courseid="@course.courseId" data-coursename="@course.courseName">Delete</button>
+                                            }
+                                            else
+                                            {
+                                                <span style="font-size:11px;color:var(--muted);padding:6px 12px">—</span>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div id="deleteModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center">
+        <div style="background:var(--bg);border-radius:20px;padding:28px 32px;max-width:400px;width:90%;border:1px solid var(--border)">
+            <h3 style="font-size:20px;margin-bottom:12px">Confirm Delete</h3>
+            <p id="deleteMessage" style="color:var(--muted);margin-bottom:24px">Are you sure you want to delete this course? This action cannot be undone.</p>
+            <div style="display:flex;gap:12px;justify-content:flex-end">
+                <button id="cancelDeleteBtn" class="btn btn-ghost">Cancel</button>
+                <button id="confirmDeleteBtn" class="btn btn-primary" style="background:var(--red);border-color:var(--red)">Delete Course</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var currentCourseId = null;
+            var currentCourseName = null;
+
+            // Filter buttons styling
+            function setActiveFilter(activeId) {
+                $('.btn-filter').removeClass('active');
+                $('#' + activeId).addClass('active');
+                $('#' + activeId).css('background', 'var(--gold)');
+                $('#' + activeId).css('color', '#080a10');
+                $('.btn-filter').not('#' + activeId).css('background', 'var(--surface2)');
+                $('.btn-filter').not('#' + activeId).css('color', 'var(--muted)');
+            }
+
+            // Show All Courses
+            $('#showAllBtn').click(function() {
+                setActiveFilter('showAllBtn');
+                $('.course-row').show();
+                var visibleCount = $('.course-row:visible').length;
+                $('#courseCountDisplay').text('Showing ' + visibleCount + ' course(s)');
+            });
+
+            // Show Active Only
+            $('#showActiveBtn').click(function() {
+                setActiveFilter('showActiveBtn');
+                $('.course-row').hide();
+                $('.course-row[data-active="true"]').show();
+                var visibleCount = $('.course-row:visible').length;
+                $('#courseCountDisplay').text('Showing ' + visibleCount + ' course(s)');
+            });
+
+            // Show Inactive Only
+            $('#showInactiveBtn').click(function() {
+                setActiveFilter('showInactiveBtn');
+                $('.course-row').hide();
+                $('.course-row[data-active="false"]').show();
+                var visibleCount = $('.course-row:visible').length;
+                $('#courseCountDisplay').text('Showing ' + visibleCount + ' course(s)');
+            });
+
+            // Initial count
+            var initialCount = $('.course-row:visible').length;
+            $('#courseCountDisplay').text('Showing ' + initialCount + ' course(s)');
+
+            // Delete button click
+            $('.delete-course-btn').click(function() {
+                currentCourseId = $(this).data('courseid');
+                currentCourseName = $(this).data('coursename');
+                $('#deleteMessage').text('Are you sure you want to delete course "' + currentCourseName + '"? This will soft delete the course.');
+                $('#deleteModal').css('display', 'flex');
+            });
+
+            // Confirm delete
+            $('#confirmDeleteBtn').click(function() {
+                if (currentCourseId) {
+                    $.ajax({
+                        url: '@Url.Action("DeleteCourse", "Admin")',
+                        type: 'POST',
+                        data: { courseId: currentCourseId },
+                        success: function(response) {
+                            if (response.success) {
+                                location.reload();
+                            } else {
+                                alert('Failed to delete course. Please try again.');
+                                $('#deleteModal').hide();
+                            }
+                        },
+                        error: function() {
+                            alert('An error occurred. Please try again.');
+                            $('#deleteModal').hide();
+                        }
+                    });
+                }
+            });
+
+            // Cancel delete
+            $('#cancelDeleteBtn').click(function() {
+                $('#deleteModal').hide();
+                currentCourseId = null;
+                currentCourseName = null;
+            });
+
+            // Click outside modal to close
+            $('#deleteModal').click(function(e) {
+                if (e.target === this) {
+                    $(this).hide();
+                    currentCourseId = null;
+                    currentCourseName = null;
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .btn-filter.active {
+            background: var(--gold);
+            color: #080a10;
+            border: none;
+        }
+
+        .btn-filter {
+            background: var(--surface2);
+            color: var(--muted);
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+            .btn-filter:hover {
+                background: var(--gold);
+                color: #080a10;
+                border-color: var(--gold);
+            }
+    </style>
+
+</body>
+</html>

@@ -7,7 +7,7 @@ namespace WEB_APPLICATION.Models
 
     public class User
     {
-
+        public bool activeStatus { get; set; }
         public  int userId { get; set; }
         public  string userName  { get; set; }
         public  string password { get; set; }
@@ -35,17 +35,34 @@ namespace WEB_APPLICATION.Models
 
 
 
-// Constructor for creating new user (no userId yet)
-    public User(string userName, string password, Role role, string firstName, string lastName)
-    {
-        this.userId = 0; // will be assigned by DB
-        this.userName = userName;
-        this.password = password;
-        this.role = role;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.accountCreationDate = DateTime.Now; // so that it stores time locally in malaysian time 
-    }
+        // Constructor for reading from DB (add activeStatus at the end)
+        public User(int userId, string userName, string password, Role role, string firstName, string lastName, DateTime accountCreationDate, bool activeStatus)
+        {
+            this.userId = userId;
+            this.userName = userName;
+            this.password = password;
+            this.role = role;
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.accountCreationDate = accountCreationDate;
+            this.activeStatus = activeStatus;
+        }
 
-}
+        // Constructor for creating new user (activeStatus defaults to true)
+        public User(string userName, string password, Role role, string firstName, string lastName)
+        {
+            this.userId = 0;
+            this.userName = userName;
+            this.password = password;
+            this.role = role;
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.accountCreationDate = DateTime.Now;
+            this.activeStatus = true;
+        }
+
+        // Add property
+       
+
+    }
 }

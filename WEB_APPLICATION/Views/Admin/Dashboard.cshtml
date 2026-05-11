@@ -1,7 +1,223 @@
-﻿
-@{
-    ViewBag.Title = "Dashboard";
+﻿﻿@{
+    Layout = null;
+
+    WEB_APPLICATION.Models.UserDAL userDal = new WEB_APPLICATION.Models.UserDAL();
+    WEB_APPLICATION.Models.CourseDAL courseDal = new WEB_APPLICATION.Models.CourseDAL();
+    WEB_APPLICATION.Models.EnrollmentDAL enrollmentDal = new WEB_APPLICATION.Models.EnrollmentDAL();
+    WEB_APPLICATION.Models.LessonDAL lessonDal = new WEB_APPLICATION.Models.LessonDAL();
+
+    var students = userDal.GetUsersByRole("student");
+    var instructors = userDal.GetUsersByRole("instructor");
+    var allCourses = courseDal.GetAllCourses();
+    var activeCourses = courseDal.GetAllActiveCourses();
+
+    int totalEnrollments = 0;
+    int totalLessons = 0;
+
+    if (allCourses != null)
+    {
+        foreach (var c in allCourses)
+        {
+            var enrolls = enrollmentDal.GetEnrollmentByCourse(c.courseId);
+            if (enrolls != null)
+            {
+                totalEnrollments += enrolls.Count;
+            }
+            totalLessons += lessonDal.GetLessonCountByCourse(c.courseId);
+        }
+    }
+
+    int studentCount = (students != null) ? students.Count : 0;
+    int instructorCount = (instructors != null) ? instructors.Count : 0;
+    int totalCoursesCount = (allCourses != null) ? allCourses.Count : 0;
+    int activeCoursesCount = (activeCourses != null) ? activeCourses.Count : 0;
+    int deletedCoursesCount = totalCoursesCount - activeCoursesCount;
 }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduNest – Admin Dashboard</title>
+    <link rel="stylesheet" href="~/Content/site.css" />
+</head>
+<body>
 
-<h2>Dashboard</h2>
+    <div class="dashboard-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <a class="nav-logo" href="@Url.Action("Index", "Home")" style="font-size:18px">
+                    <div class="nav-logo-icon" style="width:28px;height:28px;font-size:14px">&#129338;</div>EduNest
+                </a>
+            </div>
+            <nav style="padding:8px 0">
+                <a class="sidebar-item active" href="@Url.Action("Dashboard", "Admin")">
+                    <span class="sidebar-icon">&#127968;</span>Dashboard
+                </a>
+                <a class="sidebar-item" href="@Url.Action("ManageUsers", "Admin")">
+                    <span class="sidebar-icon">&#128101;</span>Manage Users
+                </a>
+                <a class="sidebar-item" href="@Url.Action("ManageCourses", "Admin")">
+                    <span class="sidebar-icon">&#128218;</span>Manage Courses
+                </a>
+                <a class="sidebar-item" href="@Url.Action("Profile", "User")">
+                    <span class="sidebar-icon">&#128100;</span>My Profile
+                </a>
+            </nav>
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:18px 16px;border-top:1px solid var(--border)">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 8px;border-radius:10px;background:var(--surface2)">
+                    <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:#080a10;font-weight:800;font-size:15px;flex-shrink:0">
+                        @(Session["userName"] != null ? Session["userName"].ToString()[0].ToString().ToUpper() : "A")
+                    </div>
+                    <div>
+                        <div style="font-size:13px;font-weight:800">@Session["userName"]</div>
+                        <div style="font-size:11px;color:var(--muted);font-weight:600">Administrator</div>
+                    </div>
+                </div>
+                <a class="btn btn-ghost" href="@Url.Action("Logout", "Account")"
+                   style="width:100%;text-align:left;font-size:13px;font-weight:700;color:var(--muted);display:block">
+                    &#8592; Sign Out
+                </a>
+            </div>
+        </aside>
 
+        <!-- MAIN -->
+        <main class="dashboard-main">
+            <!-- HEADER -->
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px">
+                <div>
+                    <h1 style="font-size:32px;margin-bottom:6px">
+                        Admin Dashboard &#128081;
+                    </h1>
+                    <p style="color:var(--muted);font-weight:600">
+                        Welcome back, @Session["userName"] — here's your platform overview.
+                    </p>
+                </div>
+                <div style="display:flex;gap:12px">
+                    <a href="@Url.Action("ManageUsers", "Admin")" class="btn btn-outline">Manage Users</a>
+                    <a href="@Url.Action("ManageCourses", "Admin")" class="btn btn-primary">Manage Courses</a>
+                </div>
+            </div>
+
+            <!-- STATS CARDS -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:36px">
+                <div class="stat-card">
+                    <div class="stat-value">@studentCount</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">@instructorCount</div>
+                    <div class="stat-label">Total Instructors</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">@totalCoursesCount</div>
+                    <div class="stat-label">Total Courses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">@totalEnrollments</div>
+                    <div class="stat-label">Total Enrollments</div>
+                </div>
+            </div>
+
+            <!-- SECOND ROW STATS -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:36px">
+                <div class="stat-card">
+                    <div class="stat-value">@activeCoursesCount</div>
+                    <div class="stat-label">Active Courses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">@totalLessons</div>
+                    <div class="stat-label">Total Lessons</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">@deletedCoursesCount</div>
+                    <div class="stat-label">Deleted/Inactive</div>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px">
+                <!-- RECENT USERS TABLE -->
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                        <h2 style="font-size:18px;font-weight:800">Recent Users</h2>
+                        <a href="@Url.Action("ManageUsers", "Admin")" style="color:var(--gold);font-size:12px;font-weight:600;text-decoration:none">View All →</a>
+                    </div>
+                    <div class="card" style="padding:0;overflow:hidden">
+                        <table style="width:100%;border-collapse:collapse">
+                            <thead>
+                                <tr style="border-bottom:1px solid var(--border);background:var(--surface2)">
+                                    <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:800;color:var(--muted)">User</th>
+                                    <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:800;color:var(--muted)">Role</th>
+                                    <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:800;color:var(--muted)">Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (students != null && instructors != null)
+                                {
+                                    var allNonAdmins = new List<WEB_APPLICATION.Models.User>();
+                                    allNonAdmins.AddRange(students);
+                                    allNonAdmins.AddRange(instructors);
+                                    var recentUsers = allNonAdmins.OrderByDescending(u => u.accountCreationDate).Take(5);
+
+                                    foreach (var user in recentUsers)
+                                    {
+                                        <tr style="border-bottom:1px solid var(--border)">
+                                            <td style="padding:12px 16px">
+                                                <div style="display:flex;align-items:center;gap:10px">
+                                                    <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:#080a10;font-weight:800;font-size:12px">
+                                                        @(user.firstName != null && user.firstName.Length > 0 ? user.firstName[0].ToString().ToUpper() : "U")
+                                                    </div>
+                                                    <div>
+                                                        <div style="font-size:13px;font-weight:700">@user.userName</div>
+                                                        <div style="font-size:11px;color:var(--muted)">@user.firstName @user.lastName</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style="padding:12px 16px;font-size:13px;font-weight:600">
+                                                <span style="background:rgba(232,184,75,0.1);color:var(--gold);border-radius:20px;padding:2px 10px;font-size:11px">@user.role</span>
+                                            </td>
+                                            <td style="padding:12px 16px;font-size:12px;color:var(--muted)">@user.accountCreationDate.ToString("MMM dd, yyyy")</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- QUICK ACTIONS -->
+                <div>
+                    <h2 style="font-size:18px;font-weight:800;margin-bottom:16px">Quick Actions</h2>
+                    <div style="display:flex;flex-direction:column;gap:12px">
+                        <a href="@Url.Action("ManageUsers", "Admin")" class="card" style="padding:18px 22px;display:flex;align-items:center;gap:14px;text-decoration:none">
+                            <div style="width:44px;height:44px;border-radius:50%;background:rgba(232,184,75,0.15);display:flex;align-items:center;justify-content:center;font-size:20px">&#128101;</div>
+                            <div>
+                                <div style="font-weight:800;font-size:15px">Manage Users</div>
+                                <div style="font-size:12px;color:var(--muted)">Add, edit, or remove platform users</div>
+                            </div>
+                        </a>
+                        <a href="@Url.Action("ManageCourses", "Admin")" class="card" style="padding:18px 22px;display:flex;align-items:center;gap:14px;text-decoration:none">
+                            <div style="width:44px;height:44px;border-radius:50%;background:rgba(232,184,75,0.15);display:flex;align-items:center;justify-content:center;font-size:20px">&#128218;</div>
+                            <div>
+                                <div style="font-weight:800;font-size:15px">Manage Courses</div>
+                                <div style="font-size:12px;color:var(--muted)">View all courses and delete if needed</div>
+                            </div>
+                        </a>
+                        <div class="card" style="padding:18px 22px;display:flex;align-items:center;gap:14px">
+                            <div style="width:44px;height:44px;border-radius:50%;background:rgba(232,184,75,0.15);display:flex;align-items:center;justify-content:center;font-size:20px">&#128202;</div>
+                            <div>
+                                <div style="font-weight:800;font-size:15px">Platform Summary</div>
+                                <div style="font-size:12px;color:var(--muted)">
+                                    @studentCount Students | @instructorCount Instructors | @totalCoursesCount Courses
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

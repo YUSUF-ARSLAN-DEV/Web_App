@@ -17,12 +17,29 @@ namespace WEB_APPLICATION.Controllers
             return View();
         }
 
-        // GET: Manage Users
-        public ActionResult ManageUsers()
+        // GET: Manage Users (filter by role from combo box)
+        public ActionResult ManageUsers(string role = "all")
         {
             if (Session["userId"] == null || !IsAdmin())
                 return RedirectToAction("Login", "Account");
-            List<User> users = new UserDAL().GetAllUsers("student");
+
+            UserDAL userDal = new UserDAL();
+            List<User> users;
+
+            if (role == "student")
+            {
+                users = userDal.GetUsersByRole("student");
+            }
+            else if (role == "instructor")
+            {
+                users = userDal.GetUsersByRole("instructor");
+            }
+            else
+            {
+                users = userDal.GetAllActiveNonAdminUsers();
+            }
+
+            ViewBag.SelectedRole = role;
             return View(users);
         }
 
@@ -32,6 +49,12 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["userId"] == null || !IsAdmin())
                 return Json(new { success = false });
+
+            // Prevent admin from deleting themselves
+            int currentAdminId = (int)Session["userId"];
+            if (userId == currentAdminId)
+                return Json(new { success = false, message = "You cannot delete your own account" });
+
             bool success = new UserDAL().DeleteUser(userId);
             return Json(new { success = success });
         }

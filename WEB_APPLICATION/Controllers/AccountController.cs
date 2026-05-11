@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -61,7 +62,24 @@ namespace WEB_APPLICATION.Controllers
         {
             return View();
         }
+        public ActionResult FixAdmin()
+        {
+            string plainPassword = "Admin321@";
+            string hash = BCrypt.Net.BCrypt.HashPassword(plainPassword, 11);
 
+            string sql = "UPDATE [User] SET password = @hash WHERE userName = 'admin'";
+            using (SqlConnection conn = UtilityDAL.createConnection())
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@hash", hash);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            return Content($"Admin password reset. Hash: {hash}");
+        }
         [HttpPost]
         public ActionResult Login(string userName, string password)
         {

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Configuration;
-using System.Data.SqlClient ;
-using BCrypt.Net; 
-using System.Data ; 
+using System.Data.SqlClient;
+using BCrypt.Net;
+using System.Data;
 using System.Text.RegularExpressions;
 
 namespace WEB_APPLICATION.Models
@@ -14,26 +14,26 @@ namespace WEB_APPLICATION.Models
     {
         private SqlConnection conn = UtilityDAL.createConnection();
 
-        public bool CheckValidCredentials(string userName , string password) 
+        public bool CheckValidCredentials(string userName, string password)
         {
-            if (string.IsNullOrEmpty(userName)) {return false ; }
-            if (userName.Length <4  || userName.Length > 20 ) {return false ; }
-            if (!Regex.IsMatch(userName , @"^[a-zA-Z0-9_]+$"))  return false ; 
-            if (char.IsDigit(userName[0])) return false ; 
-            if (string.IsNullOrEmpty(password)) return false ; 
-            if (!Regex.IsMatch(password,@"[A-Z]")) return false ;
-            if (!Regex.IsMatch(password,@"[a-z]")) return false ;
-            if (!Regex.IsMatch(password,@"[0-9]")) return false ;
-            return true ; 
+            if (string.IsNullOrEmpty(userName)) { return false; }
+            if (userName.Length < 4 || userName.Length > 20) { return false; }
+            if (!Regex.IsMatch(userName, @"^[a-zA-Z0-9_]+$")) return false;
+            if (char.IsDigit(userName[0])) return false;
+            if (string.IsNullOrEmpty(password)) return false;
+            if (!Regex.IsMatch(password, @"[A-Z]")) return false;
+            if (!Regex.IsMatch(password, @"[a-z]")) return false;
+            if (!Regex.IsMatch(password, @"[0-9]")) return false;
+            return true;
         }
 
         public int RegisterUser(string username, string password, User.Role userRole, string firstName, string lastName)
         {
-            try { 
-               
-                if (!CheckValidCredentials(username, password)) return 1; // invalid credentials
+            try
+            {
+                if (!CheckValidCredentials(username, password)) return 1;
                 string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
-                using (SqlCommand insert = new SqlCommand("INSERT INTO [User] (userName, [password], role, firstName, lastName, accountCreationDate) VALUES (@userName, @password, @role, @firstName, @lastName, @accountCreationDate)", conn))
+                using (SqlCommand insert = new SqlCommand("INSERT INTO [User] (userName, [password], role, firstName, lastName, accountCreationDate, activeStatus) VALUES (@userName, @password, @role, @firstName, @lastName, @accountCreationDate, @activeStatus)", conn))
                 {
                     insert.Parameters.AddWithValue("@userName", username);
                     insert.Parameters.AddWithValue("@password", hashedPassword);
@@ -41,34 +41,41 @@ namespace WEB_APPLICATION.Models
                     insert.Parameters.AddWithValue("@firstName", firstName);
                     insert.Parameters.AddWithValue("@lastName", lastName);
                     insert.Parameters.AddWithValue("@accountCreationDate", DateTime.Now);
+                    insert.Parameters.AddWithValue("@activeStatus", true);
                     conn.Open();
                     insert.ExecuteNonQuery();
                 }
-                return 0; // success
+                return 0;
             }
             catch (SqlException e)
             {
                 Console.WriteLine(e.Message);
-                return e.Number; // returns SQL error number
+                return e.Number;
             }
-            finally {  conn.Close(); }
+            finally { conn.Close(); }
         }
 
         public int LoginAuthentication(string userName, string password)
         {
-            string passwordReturned  ;
+            string passwordReturned;
+            bool activeStatus;
             try
             {
-                using( SqlCommand cmd = new SqlCommand("SELECT [password] FROM [User] WHERE userName = @userName", conn)) 
+                using (SqlCommand cmd = new SqlCommand("SELECT [password], activeStatus FROM [User] WHERE userName = @userName", conn))
                 {
                     cmd.Parameters.AddWithValue("@userName", userName);
                     conn.Open();
-                    using (SqlDataReader reader = cmd.ExecuteReader()) 
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (!reader.Read()) { return 2; }
                         passwordReturned = reader["password"].ToString();
+                        activeStatus = UtilityDAL.returnBit(reader, "activeStatus");
                     }
                 }
+
+                // Check if account is deactivated
+                if (!activeStatus) { return 3; }
+
                 bool correctPassword = BCrypt.Net.BCrypt.Verify(password, passwordReturned);
                 if (!correctPassword) { return 1; }
                 return 0;
@@ -79,7 +86,7 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                 conn.Close();
+                conn.Close();
             }
         }
 
@@ -87,8 +94,7 @@ namespace WEB_APPLICATION.Models
         {
             try
             {
-                using (SqlCommand cmd = new SqlCommand(
-                    "SELECT * FROM [User] WHERE userId = @userId", conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT * FROM [User] WHERE userId = @userId AND activeStatus = 1", conn))
                 {
                     cmd.Parameters.AddWithValue("@userId", userId);
                     conn.Open();
@@ -105,7 +111,8 @@ namespace WEB_APPLICATION.Models
                         string firstName = UtilityDAL.returnString(reader, "firstName");
                         string lastName = UtilityDAL.returnString(reader, "lastName");
                         DateTime datetime = UtilityDAL.returnDateTime(reader, "accountCreationDate");
-                        User user = new User(id, userName, password, role, firstName, lastName, datetime);
+                        bool activeStatus = UtilityDAL.returnBit(reader, "activeStatus");
+                        User user = new User(id, userName, password, role, firstName, lastName, datetime, activeStatus);
                         return user;
                     }
                 }
@@ -116,7 +123,7 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                 conn.Close();
+                conn.Close();
             }
         }
 
@@ -124,8 +131,7 @@ namespace WEB_APPLICATION.Models
         {
             try
             {
-                using (SqlCommand cmd = new SqlCommand(
-                    "SELECT * FROM [User] WHERE userName = @userName", conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT * FROM [User] WHERE userName = @userName AND activeStatus = 1", conn))
                 {
                     cmd.Parameters.AddWithValue("@userName", userName);
                     conn.Open();
@@ -140,7 +146,8 @@ namespace WEB_APPLICATION.Models
                         string firstName = UtilityDAL.returnString(reader, "firstName");
                         string lastName = UtilityDAL.returnString(reader, "lastName");
                         DateTime datetime = UtilityDAL.returnDateTime(reader, "accountCreationDate");
-                        return new User(id, uName, password, role, firstName, lastName, datetime);
+                        bool activeStatus = UtilityDAL.returnBit(reader, "activeStatus");
+                        return new User(id, uName, password, role, firstName, lastName, datetime, activeStatus);
                     }
                 }
             }
@@ -150,63 +157,100 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                 conn.Close();
+                conn.Close();
             }
         }
 
-        public List<User> GetAllUsers(string userRole)
+        public List<User> GetUsersByRole(string userRole)
         {
-            if (userRole == null ) {userRole = "student" ;}
             List<User> specifiedUserList = new List<User>();
-            try 
+            try
             {
-                using ( SqlCommand cmd = new SqlCommand("SELECT * FROM [User] WHERE role != admin", conn ))  
+                using (SqlCommand cmd = new SqlCommand("SELECT * FROM [User] WHERE role = @role AND activeStatus = 1", conn))
                 {
-                    cmd.Parameters.AddWithValue("@wantedRole", userRole  ) ;
+                    cmd.Parameters.AddWithValue("@role", userRole);
                     conn.Open();
-                    using (SqlDataReader reader = cmd.ExecuteReader() ) 
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        while (reader.Read() ) 
+                        while (reader.Read())
                         {
-                            int id = UtilityDAL.returnInt(reader, "userId" ) ; 
-                            string userName = UtilityDAL.returnString(reader,"userName") ;
-                            string  password = UtilityDAL.returnString(reader,"password") ; 
-                            User.Role readRole  = UtilityDAL.parseStringToRole(UtilityDAL.returnString(reader,"role")) ;
-                            string firstName = UtilityDAL.returnString(reader,"firstName") ;
-                            string lastName =  UtilityDAL.returnString(reader,"lastName") ;
-                            DateTime datetime = UtilityDAL.returnDateTime(reader,"accountCreationDate");
-                            User user = new User(id , userName , password , readRole , firstName , lastName , datetime );
-                            specifiedUserList.Add(user) ;
+                            int id = UtilityDAL.returnInt(reader, "userId");
+                            string userName = UtilityDAL.returnString(reader, "userName");
+                            string password = UtilityDAL.returnString(reader, "password");
+                            User.Role readRole = UtilityDAL.parseStringToRole(UtilityDAL.returnString(reader, "role"));
+                            string firstName = UtilityDAL.returnString(reader, "firstName");
+                            string lastName = UtilityDAL.returnString(reader, "lastName");
+                            DateTime datetime = UtilityDAL.returnDateTime(reader, "accountCreationDate");
+                            bool activeStatus = UtilityDAL.returnBit(reader, "activeStatus");
+                            User user = new User(id, userName, password, readRole, firstName, lastName, datetime, activeStatus);
+                            specifiedUserList.Add(user);
                         }
                     }
                 }
-                return specifiedUserList ; 
+                return specifiedUserList;
             }
-            catch (SqlException e ) 
+            catch (SqlException e)
             {
-                return null ; 
+                return null;
             }
-            finally 
+            finally
             {
-                 conn.Close();
+                conn.Close();
+            }
+        }
+
+        public List<User> GetAllActiveNonAdminUsers()
+        {
+            List<User> userList = new List<User>();
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand("SELECT * FROM [User] WHERE role != 'admin' AND activeStatus = 1", conn))
+                {
+                    conn.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int id = UtilityDAL.returnInt(reader, "userId");
+                            string userName = UtilityDAL.returnString(reader, "userName");
+                            string password = UtilityDAL.returnString(reader, "password");
+                            User.Role readRole = UtilityDAL.parseStringToRole(UtilityDAL.returnString(reader, "role"));
+                            string firstName = UtilityDAL.returnString(reader, "firstName");
+                            string lastName = UtilityDAL.returnString(reader, "lastName");
+                            DateTime datetime = UtilityDAL.returnDateTime(reader, "accountCreationDate");
+                            bool activeStatus = UtilityDAL.returnBit(reader, "activeStatus");
+                            User user = new User(id, userName, password, readRole, firstName, lastName, datetime, activeStatus);
+                            userList.Add(user);
+                        }
+                    }
+                }
+                return userList;
+            }
+            catch (SqlException e)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
             }
         }
 
         public bool UpdateUserProfile(int userId, string firstName = "", string lastName = "")
         {
             if (firstName == "" && lastName == "") { return false; }
-            
+
             try
             {
                 string query;
                 SqlCommand cmd;
 
                 if (lastName == "")
-                    query = "UPDATE [User] SET firstName = @firstName WHERE userId = @userId";
+                    query = "UPDATE [User] SET firstName = @firstName WHERE userId = @userId AND activeStatus = 1";
                 else if (firstName == "")
-                    query = "UPDATE [User] SET lastName = @lastName WHERE userId = @userId";
+                    query = "UPDATE [User] SET lastName = @lastName WHERE userId = @userId AND activeStatus = 1";
                 else
-                    query = "UPDATE [User] SET firstName = @firstName, lastName = @lastName WHERE userId = @userId";
+                    query = "UPDATE [User] SET firstName = @firstName, lastName = @lastName WHERE userId = @userId AND activeStatus = 1";
 
                 cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@userId", userId);
@@ -219,7 +263,7 @@ namespace WEB_APPLICATION.Models
                 return rows > 0;
             }
             catch (SqlException e) { return false; }
-            finally {  conn.Close(); }
+            finally { conn.Close(); }
         }
 
         public bool UpdatePassword(int userId, string newPassword)
@@ -227,7 +271,7 @@ namespace WEB_APPLICATION.Models
             try
             {
                 string hashedPassword = BCrypt.Net.BCrypt.HashPassword(newPassword);
-                SqlCommand cmd = new SqlCommand("UPDATE [User] SET [password] = @hashedPassword WHERE userId = @userId", conn);
+                SqlCommand cmd = new SqlCommand("UPDATE [User] SET [password] = @hashedPassword WHERE userId = @userId AND activeStatus = 1", conn);
                 cmd.Parameters.AddWithValue("@hashedPassword", hashedPassword);
                 cmd.Parameters.AddWithValue("@userId", userId);
                 conn.Open();
@@ -235,21 +279,21 @@ namespace WEB_APPLICATION.Models
                 return rows > 0;
             }
             catch (SqlException e) { return false; }
-            finally {  conn.Close(); }
+            finally { conn.Close(); }
         }
 
-        public bool DeleteUser(int userId) 
+        public bool DeleteUser(int userId)
         {
             try
             {
-                SqlCommand cmd = new SqlCommand("DELETE FROM [User] WHERE userId = @userId", conn);
+                SqlCommand cmd = new SqlCommand("UPDATE [User] SET activeStatus = 0 WHERE userId = @userId AND activeStatus = 1", conn);
                 cmd.Parameters.AddWithValue("@userId", userId);
                 conn.Open();
                 int rows = cmd.ExecuteNonQuery();
                 return rows > 0;
             }
             catch (SqlException e) { return false; }
-            finally {  conn.Close(); }
+            finally { conn.Close(); }
         }
     }
 }
