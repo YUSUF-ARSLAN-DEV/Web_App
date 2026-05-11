@@ -233,12 +233,16 @@
     <Content Include="Views\User\EditProfile.cshtml" />
     <Content Include="Views\User\ChangePassword.cshtml" />
     <Content Include="Views\Instructor\Dashboard.cshtml" />
+    <Content Include="Views\Course\Create.cshtml" />
+    <Content Include="Views\Course\Edit.cshtml" />
+    <Content Include="Views\Lesson\Create.cshtml" />
+    <Content Include="Views\Lesson\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Uploads\" />
     <Folder Include="Views\Admin\" />
     <Folder Include="Views\Assessment\" />
     <Folder Include="Views\Forum\" />
-    <Folder Include="Views\Lesson\" />
     <Folder Include="Views\Post\" />
   </ItemGroup>
   <ItemGroup>

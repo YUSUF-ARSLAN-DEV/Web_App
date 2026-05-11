@@ -122,17 +122,28 @@ namespace WEB_APPLICATION.Controllers
         }
 
         // POST: Create Course
-        [HttpPost]
-        public ActionResult Create(string courseName, string courseDescription)
+        [HttpPost] // updated so that it allows iamges now 
+        public ActionResult Create(string courseName, string courseDescription, HttpPostedFileBase imageFile)
         {
             try
             {
                 int userId = (int)Session["userId"];
-                bool success = new CourseDAL().CreateCourse(userId, courseName, courseDescription, null);
+                string imageUrl = null;
+
+                if (imageFile != null && imageFile.ContentLength > 0)
+                {
+                    string fileName = System.IO.Path.GetFileName(imageFile.FileName);
+                    string uniqueName = System.Guid.NewGuid().ToString() + "_" + fileName;
+                    string savePath = Server.MapPath("~/Uploads/" + uniqueName);
+                    imageFile.SaveAs(savePath);
+                    imageUrl = "/Uploads/" + uniqueName;
+                }
+
+                bool success = new CourseDAL().CreateCourse(userId, courseName, courseDescription, imageUrl);
                 if (success)
                 {
                     TempData["success"] = "Course created successfully";
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Dashboard", "Instructor");
                 }
                 ViewBag.Error = "Failed to create course";
                 return View();

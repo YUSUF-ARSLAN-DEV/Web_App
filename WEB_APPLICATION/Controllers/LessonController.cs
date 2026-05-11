@@ -64,7 +64,7 @@ namespace WEB_APPLICATION.Controllers
         public ActionResult Edit(int id)
         {
             if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
-                return RedirectToAction("Index");
+                return RedirectToAction("Login", "Account");
             Lesson lesson = new LessonDAL().GetLessonById(id);
             if (lesson == null)
                 return HttpNotFound();
