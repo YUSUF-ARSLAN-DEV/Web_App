@@ -106,24 +106,24 @@ namespace WEB_APPLICATION.Models
             int enrollmentId ;  
             int userId  ;
             int courseId ;
-            int completionRate ; 
-            DateTime enrollmentDate ;   
-            bool activeStatus ;    
+            float completionRate ;
+            DateTime enrollmentDate ;
+            bool activeStatus ;
             try
             {
                 conn.Open();
-                using ( SqlCommand cmd = new SqlCommand("SELECT * FROM Enrollment WHERE courseId = @courseId AND  activeStatus = 1", conn)) 
+                using ( SqlCommand cmd = new SqlCommand("SELECT * FROM Enrollment WHERE courseId = @courseId AND  activeStatus = 1", conn))
                 {
                     cmd.Parameters.AddWithValue("@courseId", takenCourseId);
                     using (SqlDataReader reader = cmd.ExecuteReader() )
                     {
-                        // keep iterating while there is rows to iterate through 
+                        // keep iterating while there is rows to iterate through
                          while (reader.Read())
                         {
-                            enrollmentId = UtilityDAL.returnInt(reader,"enrollmentId") ; 
-                            userId = UtilityDAL.returnInt(reader,"userId") ; 
-                            courseId = UtilityDAL.returnInt(reader,"courseId") ;  
-                            completionRate =  UtilityDAL.returnInt(reader,"completionRate") ;  
+                            enrollmentId = UtilityDAL.returnInt(reader,"enrollmentId") ;
+                            userId = UtilityDAL.returnInt(reader,"userId") ;
+                            courseId = UtilityDAL.returnInt(reader,"courseId") ;
+                            completionRate =  UtilityDAL.returnFloat(reader,"completionRate") ;  
                             enrollmentDate =  UtilityDAL.returnDateTime(reader,"enrollmentDate") ; 
                             activeStatus = (bool)UtilityDAL.returnBit(reader,"activeStatus") ; 
                             EnrollmentRecord record = new  EnrollmentRecord(enrollmentId , courseId,  userId  , completionRate , enrollmentDate ,activeStatus) ;
@@ -211,6 +211,28 @@ namespace WEB_APPLICATION.Models
             finally { conn.Close(); }
             return count > 0;
         }
+        public void RecalculateCompletionRate(int userId, int courseId)
+        {
+            int total = new LessonDAL().GetLessonCountByCourse(courseId);
+            if (total == 0) return;
+            int completed = new LessonCompletionDAL().GetCompletedCount(userId, courseId);
+            float percentage = (float)completed / total * 100f;
+            try
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(
+                    "UPDATE Enrollment SET completionRate=@rate WHERE userId=@userId AND courseId=@courseId AND activeStatus=1", conn))
+                {
+                    cmd.Parameters.AddWithValue("@rate", percentage);
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@courseId", courseId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException e) { Console.WriteLine(e.Message); }
+            finally { conn.Close(); }
+        }
+
         public EnrollmentRecord GetEnrollment(int userId, int courseId) // returns a student specific enrollment record for a course 
         {
             EnrollmentRecord record = null;

@@ -61,11 +61,11 @@ namespace WEB_APPLICATION.Controllers
         public ActionResult Unenroll(int enrollmentId, int courseId)
         {
             if (Session["userId"] == null)
-                return Json(new { success = false, message = "Not logged in" });
-            
+                return RedirectToAction("Login", "Account");
+
             int userId = (int)Session["userId"];
-            bool success = new EnrollmentDAL().UnEnroll(userId, courseId);
-            return Json(new { success = success });
+            new EnrollmentDAL().UnEnroll(userId, courseId);
+            return RedirectToAction("MyEnrollments");
         }
     }
 }

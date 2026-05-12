@@ -71,6 +71,8 @@ namespace WEB_APPLICATION.Controllers
             try
             {
                 Post post = new PostDAL().GetPostById(postId);
+                if (post == null)
+                    return HttpNotFound();
                 post.title = title;
                 post.textContent = textContent;
                 post.imageUrl = imageUrl;

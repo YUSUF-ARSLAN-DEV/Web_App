@@ -61,7 +61,7 @@ namespace WEB_APPLICATION.Controllers
         public ActionResult Delete(int id, int courseId)
         {
             if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
-                return Json(new { success = false });
+                return RedirectToAction("Login", "Account");
             new ForumDAL().DeleteForum(id);
             TempData["success"] = "Forum deleted successfully";
             return RedirectToAction("Index", new { courseId });

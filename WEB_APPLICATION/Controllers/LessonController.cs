@@ -27,7 +27,36 @@ namespace WEB_APPLICATION.Controllers
             List<Assessment> assessments = new AssessmentDAL().GetAssessmentsByLesson(id);
             ViewBag.Assessment = assessments != null && assessments.Count > 0 ? assessments[0] : null;
 
+            if (Session["userId"] != null)
+            {
+                int userId = (int)Session["userId"];
+                LessonCompletionDAL completionDal = new LessonCompletionDAL();
+                ViewBag.IsCompleted = completionDal.IsLessonCompleted(userId, id);
+                int completed = completionDal.GetCompletedCount(userId, lesson.courseId);
+                int total = new LessonDAL().GetLessonCountByCourse(lesson.courseId);
+                ViewBag.CompletedCount = completed;
+                ViewBag.TotalLessons = total;
+                ViewBag.CompletionPercentage = total > 0 ? (int)((float)completed / total * 100) : 0;
+            }
+
             return View(lesson);
+        }
+
+        // POST: Mark Lesson Complete
+        [HttpPost]
+        public ActionResult MarkComplete(int lessonId, int courseId)
+        {
+            if (Session["userId"] == null)
+                return RedirectToAction("Login", "Account");
+
+            int userId = (int)Session["userId"];
+            LessonCompletionDAL completionDal = new LessonCompletionDAL();
+            if (!completionDal.IsLessonCompleted(userId, lessonId))
+            {
+                completionDal.MarkLessonComplete(userId, lessonId, courseId);
+                new EnrollmentDAL().RecalculateCompletionRate(userId, courseId);
+            }
+            return RedirectToAction("Details", new { id = lessonId });
         }
 
         // GET: Create Lesson (instructor/admin only)
@@ -103,7 +132,7 @@ namespace WEB_APPLICATION.Controllers
         public ActionResult Delete(int id, int courseId)
         {
             if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
-                return Json(new { success = false });
+                return RedirectToAction("Login", "Account");
             bool success = new LessonDAL().DeleteLesson(id);
             if (success)
                 TempData["success"] = "Lesson deleted successfully";

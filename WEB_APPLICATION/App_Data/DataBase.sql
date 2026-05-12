@@ -29,7 +29,7 @@ CREATE TABLE Enrollment (
     enrollmentId INT PRIMARY KEY IDENTITY(1,1) , 
     userId INT FOREIGN KEY REFERENCES [User](userId) , 
     courseId INT FOREIGN KEY REFERENCES Course(courseId) , 
-    completionRate INT  , 
+    completionRate FLOAT  , 
     enrollmentDate DATE , 
     activeStatus BIT  
 );
@@ -54,6 +54,15 @@ CREATE TABLE Question (
     questionText NVARCHAR(MAX)   , 
     questionAnswer NVARCHAR(250) , 
     correctAnswer NVARCHAR(250)  
+);
+
+CREATE TABLE LessonCompletion (
+    completionId INT PRIMARY KEY IDENTITY(1,1),
+    userId       INT NOT NULL FOREIGN KEY REFERENCES [User](userId),
+    lessonId     INT NOT NULL FOREIGN KEY REFERENCES Lesson(lessonId),
+    courseId     INT NOT NULL FOREIGN KEY REFERENCES Course(courseId),
+    completedAt  DATETIME DEFAULT GETDATE(),
+    UNIQUE (userId, lessonId)
 );
 
 CREATE TABLE Forum (

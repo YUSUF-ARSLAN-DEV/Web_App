@@ -62,24 +62,6 @@ namespace WEB_APPLICATION.Controllers
         {
             return View();
         }
-        public ActionResult FixAdmin()
-        {
-            string plainPassword = "Admin321@";
-            string hash = BCrypt.Net.BCrypt.HashPassword(plainPassword, 11);
-
-            string sql = "UPDATE [User] SET password = @hash WHERE userName = 'admin'";
-            using (SqlConnection conn = UtilityDAL.createConnection())
-            {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
-                {
-                    cmd.Parameters.AddWithValue("@hash", hash);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-
-            return Content($"Admin password reset. Hash: {hash}");
-        }
         [HttpPost]
         public ActionResult Login(string userName, string password)
         {
@@ -113,6 +95,8 @@ namespace WEB_APPLICATION.Controllers
                 ViewBag.Error = "Username not found";
             else if (authResult == 1)
                 ViewBag.Error = "Incorrect password";
+            else if (authResult == 3)
+                ViewBag.Error = "Your account has been deactivated.";
             else
                 ViewBag.Error = "Login failed";
             

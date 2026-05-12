@@ -72,7 +72,7 @@ namespace WEB_APPLICATION.Controllers
         public ActionResult Create(int lessonId)
         {
             if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
-                return RedirectToAction("Index");
+                return RedirectToAction("Login", "Account");
             ViewBag.LessonId = lessonId;
             return View();
         }
@@ -104,7 +104,7 @@ namespace WEB_APPLICATION.Controllers
         public ActionResult AddQuestion(int assessmentId)
         {
             if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
-                return RedirectToAction("Index");
+                return RedirectToAction("Login", "Account");
             ViewBag.AssessmentId = assessmentId;
             return View();
         }

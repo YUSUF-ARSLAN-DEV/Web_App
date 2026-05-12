@@ -85,6 +85,12 @@ namespace WEB_APPLICATION.Controllers
                 return View();
             }
 
+            if (!userDal.CheckValidCredentials(userName, newPassword))
+            {
+                ViewBag.Error = "New password does not meet requirements";
+                return View();
+            }
+
             int userId = (int)Session["userId"];
             bool success = userDal.UpdatePassword(userId, newPassword);
             if (success)

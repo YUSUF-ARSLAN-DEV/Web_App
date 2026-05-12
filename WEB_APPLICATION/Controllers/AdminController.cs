@@ -73,9 +73,9 @@ namespace WEB_APPLICATION.Controllers
         public ActionResult DeleteCourse(int courseId)
         {
             if (Session["userId"] == null || !IsAdmin())
-                return Json(new { success = false });
-            bool deleted = new CourseDAL().DeleteCourse(courseId);
-            return Json(new { success = deleted });
+                return RedirectToAction("Login", "Account");
+            new CourseDAL().DeleteCourse(courseId);
+            return RedirectToAction("ManageCourses");
         }
 
         private bool IsAdmin()
