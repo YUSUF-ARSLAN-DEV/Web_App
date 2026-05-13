@@ -1,7 +1,195 @@
-﻿
+﻿@model WEB_APPLICATION.Models.Forum
 @{
-    ViewBag.Title = "Details";
+    Layout = null;
+    var posts = ViewBag.Posts as List<WEB_APPLICATION.Models.Post>;
+    string role = Session["role"] != null ? Session["role"].ToString() : "";
+    int currentUserId = Session["userId"] != null ? (int)Session["userId"] : 0;
+    bool isInstructorOfThisCourse = ViewBag.IsInstructorOfThisCourse != null && (bool)ViewBag.IsInstructorOfThisCourse;
 }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduNest – @Model.title</title>
+    <link rel="stylesheet" href="~/Content/site.css" />
+</head>
+<body>
+    @if (TempData["uploadDebug"] != null)
+    {
+        <div style="background:yellow;padding:15px;margin:20px;border:2px solid red;color:black;font-weight:bold">
+            DEBUG: @TempData["uploadDebug"]
+        </div>
+    }
 
-<h2>Details</h2>
+    <div class="dashboard-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <a class="nav-logo" href="@Url.Action("Index", "Home")" style="font-size:18px">
+                    <div class="nav-logo-icon" style="width:28px;height:28px;font-size:14px">&#129338;</div>EduNest
+                </a>
+            </div>
+            <nav style="padding:8px 0">
+                @if (role == "admin")
+                {
+                    <a class="sidebar-item" href="@Url.Action("Dashboard", "Admin")">
+                        <span class="sidebar-icon">&#127968;</span>Dashboard
+                    </a>
+                }
+                else if (role == "instructor")
+                {
+                    <a class="sidebar-item" href="@Url.Action("Dashboard", "Instructor")">
+                        <span class="sidebar-icon">&#127968;</span>Dashboard
+                    </a>
+                }
+                else
+                {
+                    <a class="sidebar-item" href="@Url.Action("MyEnrollments", "Enrollment")">
+                        <span class="sidebar-icon">&#127968;</span>Dashboard
+                    </a>
+                }
+                <a class="sidebar-item" href="@Url.Action("Index", "Course")">
+                    <span class="sidebar-icon">&#128218;</span>Browse Courses
+                </a>
+                <a class="sidebar-item" href="@Url.Action("Profile", "User")">
+                    <span class="sidebar-icon">&#128100;</span>Profile
+                </a>
+            </nav>
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:18px 16px;border-top:1px solid var(--border)">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 8px;border-radius:10px;background:var(--surface2)">
+                    <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:#080a10;font-weight:800;font-size:15px;flex-shrink:0">
+                        @(Session["userName"] != null ? Session["userName"].ToString()[0].ToString().ToUpper() : "U")
+                    </div>
+                    <div>
+                        <div style="font-size:13px;font-weight:800">@Session["userName"]</div>
+                        <div style="font-size:11px;color:var(--muted);font-weight:600">@role</div>
+                    </div>
+                </div>
+                <a class="btn btn-ghost" href="@Url.Action("Logout", "Account")"
+                   style="width:100%;text-align:left;font-size:13px;font-weight:700;color:var(--muted);display:block">
+                    &#8592; Sign Out
+                </a>
+            </div>
+        </aside>
 
+        <!-- MAIN -->
+        <main class="dashboard-main">
+
+            <!-- HEADER -->
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px">
+                <div>
+                    <a href="@Url.Action("Index", "Forum", new { courseId = Model.courseId })"
+                       style="color:var(--muted);font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-bottom:10px">
+                        ← Back to Forums
+                    </a>
+                    <h1 style="font-size:32px;margin-bottom:6px">@Model.title</h1>
+                    <span style="background:rgba(232,184,75,0.1);color:var(--gold);border:1px solid rgba(232,184,75,0.3);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700">
+                        @Model.postFlair
+                    </span>
+                </div>
+
+                <div style="display:flex;gap:10px">
+                    @if (role == "student")
+                    {
+                        <a href="@Url.Action("Create", "Post", new { forumId = Model.forumId })"
+                           class="btn btn-primary">+ New Post</a>
+                    }
+                    @if (role == "instructor" || role == "admin")
+                    {
+                        using (Html.BeginForm("Delete", "Forum", FormMethod.Post, new { style = "margin:0" }))
+                        {
+                            @Html.Hidden("id", Model.forumId)
+                            @Html.Hidden("courseId", Model.courseId)
+                            <button type="submit" class="btn btn-ghost"
+                                    style="color:var(--red)"
+                                    onclick="return confirm('Delete this forum and all its posts?')">
+                                Delete Forum
+                            </button>
+                        }
+                    }
+                </div>
+            </div>
+
+            @if (TempData["success"] != null)
+            {
+                <div style="background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;color:var(--teal);font-size:13px;font-weight:600">
+                    @TempData["success"]
+                </div>
+            }
+
+            @if (TempData["error"] != null)
+            {
+                <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;color:#f87171;font-size:13px;font-weight:600">
+                    @TempData["error"]
+                </div>
+            }
+
+            <!-- POSTS  SINCE IN THE DETAILS OF A FORUM YOU CAN SEE THE POSTS IN THAT FORUM -->
+            @if (posts == null || posts.Count == 0)
+            {
+                <div style="text-align:center;padding:60px 0;color:var(--muted)">
+                    <div style="font-size:48px;margin-bottom:16px">&#128172;</div>
+                    <p style="font-size:16px;margin-bottom:20px">No posts yet. Be the first to start a discussion!</p>
+                    @if (role == "student")
+                    {
+                        <a href="@Url.Action("Create", "Post", new { forumId = Model.forumId })"
+                           class="btn btn-primary">Create First Post</a>
+                    }
+                </div>
+            }
+            else
+            {
+                <div style="display:flex;flex-direction:column;gap:16px">
+                    @foreach (var post in posts)
+                    {
+                        <div class="card" style="padding:24px">
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+                                <div>
+                                    <h3 style="font-size:17px;font-weight:800;margin-bottom:6px">@post.title</h3>
+                                    <div style="font-size:12px;color:var(--muted);font-weight:600">
+                                        User #@post.userId &nbsp;·&nbsp;
+                                        @post.postDate.ToString("MMM dd, yyyy") at @post.postTime.ToString(@"hh\:mm")
+                                    </div>
+                                </div>
+
+                                <div style="display:flex;gap:8px">
+                                    @if (post.userId == currentUserId)
+                                    {
+                                        <a href="@Url.Action("Edit", "Post", new { id = post.postId })"
+                                           class="btn btn-ghost" style="font-size:12px;padding:6px 12px">Edit</a>
+                                    }
+                                    @if (post.userId == currentUserId || role == "admin" || isInstructorOfThisCourse)
+                                    {
+                                        using (Html.BeginForm("Delete", "Post", new { id = post.postId, forumId = Model.forumId }, FormMethod.Post, new { style = "margin:0" }))
+                                        {
+                                            <button type="submit" class="btn btn-ghost"
+                                                    style="font-size:12px;padding:6px 12px;color:var(--red)"
+                                                    onclick="return confirm('Delete this post?')">
+                                                Delete
+                                            </button>
+                                        }
+                                    }
+                                </div>
+                            </div>
+
+                            <p style="font-size:14px;line-height:1.7;color:var(--text);white-space:pre-wrap">
+                                @post.textContent
+                            </p>
+
+                            @if (!string.IsNullOrEmpty(post.imageUrl))
+                            {
+                                <div style="margin-top:14px;border-radius:10px;overflow:hidden;border:1px solid var(--border)">
+                                    <img src="@post.imageUrl" alt="Post image"
+                                         style="width:100%;max-height:300px;object-fit:cover;display:block" />
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </main>
+    </div>
+
+</body>
+</html>

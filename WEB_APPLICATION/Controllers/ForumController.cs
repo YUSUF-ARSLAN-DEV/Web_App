@@ -17,14 +17,32 @@ namespace WEB_APPLICATION.Controllers
             return View(forums);
         }
 
-        // GET: Forum Details
         public ActionResult Details(int id)
         {
+            if (Session["userId"] == null)
+                return RedirectToAction("Login", "Account");
+
             Forum forum = new ForumDAL().GetForumById(id);
             if (forum == null)
                 return HttpNotFound();
+
             List<Post> posts = new PostDAL().GetPostsByForum(id);
             ViewBag.Posts = posts;
+
+            // Check if current user is instructor of this course
+            string role = Session["role"].ToString();
+            int currentUserId = (int)Session["userId"];
+            bool isInstructorOfThisCourse = false;
+
+            if (role == "instructor")
+            {
+                Course course = new CourseDAL().GetCourseById(forum.courseId);
+                if (course != null && course.userId == currentUserId)
+                    isInstructorOfThisCourse = true;
+            }
+
+            ViewBag.IsInstructorOfThisCourse = isInstructorOfThisCourse;
+
             return View(forum);
         }
 

@@ -1,0 +1,129 @@
+﻿﻿@model WEB_APPLICATION.Models.Post
+@{
+    Layout = null;
+    string role = Session["role"] != null ? Session["role"].ToString() : "";
+    int currentUserId = Session["userId"] != null ? (int)Session["userId"] : 0;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduNest – Edit Post</title>
+    <link rel="stylesheet" href="~/Content/site.css" />
+</head>
+<body>
+
+    <div class="dashboard-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <a class="nav-logo" href="@Url.Action("Index", "Home")" style="font-size:18px">
+                    <div class="nav-logo-icon" style="width:28px;height:28px;font-size:14px">&#129338;</div>EduNest
+                </a>
+            </div>
+            <nav style="padding:8px 0">
+                @if (role == "admin")
+                {
+                    <a class="sidebar-item" href="@Url.Action("Dashboard", "Admin")">
+                        <span class="sidebar-icon">&#127968;</span>Dashboard
+                    </a>
+                }
+                else if (role == "instructor")
+                {
+                    <a class="sidebar-item" href="@Url.Action("Dashboard", "Instructor")">
+                        <span class="sidebar-icon">&#127968;</span>Dashboard
+                    </a>
+                }
+                else
+                {
+                    <a class="sidebar-item" href="@Url.Action("MyEnrollments", "Enrollment")">
+                        <span class="sidebar-icon">&#127968;</span>Dashboard
+                    </a>
+                }
+                <a class="sidebar-item" href="@Url.Action("Index", "Course")">
+                    <span class="sidebar-icon">&#128218;</span>Browse Courses
+                </a>
+                <a class="sidebar-item" href="@Url.Action("Profile", "User")">
+                    <span class="sidebar-icon">&#128100;</span>Profile
+                </a>
+            </nav>
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:18px 16px;border-top:1px solid var(--border)">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 8px;border-radius:10px;background:var(--surface2)">
+                    <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:#080a10;font-weight:800;font-size:15px;flex-shrink:0">
+                        @(Session["userName"] != null ? Session["userName"].ToString()[0].ToString().ToUpper() : "U")
+                    </div>
+                    <div>
+                        <div style="font-size:13px;font-weight:800">@Session["userName"]</div>
+                        <div style="font-size:11px;color:var(--muted);font-weight:600">@role</div>
+                    </div>
+                </div>
+                <a class="btn btn-ghost" href="@Url.Action("Logout", "Account")"
+                   style="width:100%;text-align:left;font-size:13px;font-weight:700;color:var(--muted);display:block">
+                    &#8592; Sign Out
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="dashboard-main">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px">
+                <div>
+                    <h1 style="font-size:32px;margin-bottom:6px">Edit Post</h1>
+                    <p style="color:var(--muted);font-weight:600">Update your post</p>
+                </div>
+                <a href="@Url.Action("Details", "Forum", new { id = Model.forumId })" class="btn btn-ghost">← Back to Forum</a>
+            </div>
+
+            @if (ViewBag.Error != null)
+            {
+                <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;color:#f87171;font-size:13px;font-weight:600">
+                    @ViewBag.Error
+                </div>
+            }
+
+            <div class="card" style="padding:36px;max-width:700px">
+                <h3 style="font-weight:800;margin-bottom:24px;font-size:17px">Edit Post</h3>
+
+                @using (Html.BeginForm("Edit", "Post", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    @Html.Hidden("postId", Model.postId)
+                    @Html.Hidden("forumId", Model.forumId)
+
+                    <div class="form-group">
+                        <label class="form-label">Title <span style="color:var(--red)">*</span></label>
+                        <input class="form-input" name="title" value="@Model.title" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Content <span style="color:var(--red)">*</span></label>
+                        <textarea class="form-input" name="textContent" rows="8" style="resize:vertical" required>@Model.textContent</textarea>
+                    </div>
+
+                    if (!string.IsNullOrEmpty(Model.imageUrl))
+                    {
+                        <div class="form-group">
+                            <label class="form-label">Current Image</label>
+                            <div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);margin-bottom:10px">
+                                <img src="@Model.imageUrl" alt="Current image" style="max-width:100%;max-height:200px;display:block" />
+                            </div>
+                        </div>
+                    }
+
+                    <div class="form-group">
+                        <label class="form-label">Replace Image (Optional)</label>
+                        <input type="file" name="imageFile" accept="image/jpeg,image/png,image/gif,image/jpg" />
+                        <small style="color:var(--muted);font-size:12px;font-weight:600">Leave empty to keep current image.</small>
+                    </div>
+
+                    <div style="display:flex;gap:12px;margin-top:8px">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <a href="@Url.Action("Details", "Forum", new { id = Model.forumId })" class="btn btn-ghost">Cancel</a>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

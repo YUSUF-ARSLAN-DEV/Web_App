@@ -122,7 +122,7 @@ namespace WEB_APPLICATION.Controllers
         }
 
         // POST: Create Course
-        [HttpPost] // updated so that it allows iamges now 
+        [HttpPost]
         public ActionResult Create(string courseName, string courseDescription, HttpPostedFileBase imageFile)
         {
             try

@@ -165,7 +165,25 @@
                         </div>
                     }
                 }
-
+                <!-- Forums section -->
+                @if (Session["userId"] != null)
+                {
+                    <div style="margin-top:36px;margin-bottom:36px">
+                        <h2 style="font-size:22px;margin-bottom:18px">&#128172; Discussions</h2>
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border:1px solid var(--border);border-radius:12px">
+                            <div>
+                                <div style="font-weight:700;font-size:15px;margin-bottom:4px">Course Forums</div>
+                                <div style="font-size:13px;color:var(--muted);font-weight:600">
+                                    Discuss topics, ask questions, and share ideas with other learners.
+                                </div>
+                            </div>
+                            <a href="@Url.Action("Index", "Forum", new { courseId = Model.courseId })"
+                               class="btn btn-outline" style="flex-shrink:0;margin-left:16px">
+                                View Forums →
+                            </a>
+                        </div>
+                    </div>
+                }
                 <!-- Reviews section -->
                 @if (ratings != null && ratings.Count > 0)
                 {
