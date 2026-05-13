@@ -1,5 +1,7 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -88,13 +90,32 @@ namespace WEB_APPLICATION.Controllers
             return View();
         }
 
-        // POST: Create Lesson
+        // POST: Create Lesson Contoller 
         [HttpPost]
-        public ActionResult Create(int courseId, string lessonTitle, string lessonContent, string videoUrl = null)
+        public ActionResult Create(int courseId, string lessonTitle, string lessonContent, string videoUrl = null, HttpPostedFileBase attachment = null)
         {
             try
             {
                 Lesson lesson = new Lesson(0, courseId, lessonTitle, lessonContent, videoUrl);
+
+                // Handle file attachment if uploaded
+                if (attachment != null && attachment.ContentLength > 0)
+                {
+                    string fileName = Path.GetFileName(attachment.FileName);
+                    string uniqueName = Guid.NewGuid().ToString() + "_" + fileName;
+                    string courseFolder = Server.MapPath($"~/DOCUMENTS/Course_{courseId}/");
+
+                    // Create folder if it doesn't exist
+                    if (!Directory.Exists(courseFolder))
+                        Directory.CreateDirectory(courseFolder);
+
+                    string savePath = Path.Combine(courseFolder, uniqueName);
+                    attachment.SaveAs(savePath);
+
+                    lesson.attachmentUrl = $"/DOCUMENTS/Course_{courseId}/{uniqueName}";
+                    lesson.attachmentName = fileName;
+                }
+
                 bool success = new LessonDAL().CreateLesson(lesson);
                 if (success)
                 {
@@ -125,27 +146,134 @@ namespace WEB_APPLICATION.Controllers
 
         // POST: Edit Lesson
         [HttpPost]
-        public ActionResult Edit(int lessonId, int courseId, string lessonTitle, string lessonContent, string videoUrl = null)
+        public ActionResult Edit(int lessonId, int courseId, string lessonTitle, string lessonContent, string videoUrl = null, HttpPostedFileBase attachment = null, bool removeAttachment = false)
         {
             try
             {
+                LessonDAL lessonDal = new LessonDAL();
+                Lesson existingLesson = lessonDal.GetLessonById(lessonId);
+
+                if (existingLesson == null)
+                {
+                    TempData["error"] = "Lesson not found";
+                    return RedirectToAction("Index", new { courseId });
+                }
+
                 Lesson lesson = new Lesson(lessonId, courseId, lessonTitle, lessonContent, videoUrl);
-                bool success = new LessonDAL().UpdateLesson(lesson);
+
+                // Handle remove attachment checkbox
+                if (removeAttachment)
+                {
+                    // Delete the file if it exists
+                    if (!string.IsNullOrEmpty(existingLesson.attachmentUrl))
+                    {
+                        string oldPath = Server.MapPath(existingLesson.attachmentUrl);
+                        if (System.IO.File.Exists(oldPath))
+                            System.IO.File.Delete(oldPath);
+                    }
+
+                    lesson.attachmentUrl = null;
+                    lesson.attachmentName = null;
+                }
+                // Handle new file upload
+                else if (attachment != null && attachment.ContentLength > 0)
+                {
+                    string fileName = Path.GetFileName(attachment.FileName);
+                    string uniqueName = Guid.NewGuid().ToString() + "_" + fileName;
+                    string courseFolder = Server.MapPath($"~/DOCUMENTS/Course_{courseId}/");
+
+                    // Create folder if it doesn't exist
+                    if (!Directory.Exists(courseFolder))
+                        Directory.CreateDirectory(courseFolder);
+
+                    string savePath = Path.Combine(courseFolder, uniqueName);
+                    attachment.SaveAs(savePath);
+
+                    lesson.attachmentUrl = $"/DOCUMENTS/Course_{courseId}/{uniqueName}";
+                    lesson.attachmentName = fileName;
+
+                    // Delete old attachment file if it exists
+                    if (!string.IsNullOrEmpty(existingLesson.attachmentUrl))
+                    {
+                        string oldPath = Server.MapPath(existingLesson.attachmentUrl);
+                        if (System.IO.File.Exists(oldPath))
+                            System.IO.File.Delete(oldPath);
+                    }
+                }
+                else
+                {
+                    // Keep existing attachment
+                    lesson.attachmentUrl = existingLesson.attachmentUrl;
+                    lesson.attachmentName = existingLesson.attachmentName;
+                }
+
+                bool success = lessonDal.UpdateLesson(lesson);
                 if (success)
                 {
                     TempData["success"] = "Lesson updated successfully";
                     return RedirectToAction("Details", new { id = lessonId });
                 }
+
                 ViewBag.Error = "Failed to update lesson";
                 return View(lesson);
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine("Error: " + ex.Message);
                 ViewBag.Error = "An error occurred";
                 return View();
             }
         }
+        public ActionResult DownloadAttachment(int id) // a controller metod to download the uploaded attachment 
+        {
+            // Check if user is logged in
+            if (Session["userId"] == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
+            LessonDAL lessonDal = new LessonDAL();
+            Lesson lesson = lessonDal.GetLessonById(id);
+
+            if (lesson == null)
+            {
+                TempData["error"] = "Lesson not found";
+                return RedirectToAction("Index", "Home");
+            }
+
+            // Check if attachment exists
+            if (string.IsNullOrEmpty(lesson.attachmentUrl))
+            {
+                TempData["error"] = "No attachment found for this lesson";
+                return RedirectToAction("Details", new { id = id });
+            }
+
+            string filePath = Server.MapPath(lesson.attachmentUrl);
+
+            // Check if file exists on disk
+            if (!System.IO.File.Exists(filePath))
+            {
+                TempData["error"] = "Attachment file not found on server";
+                return RedirectToAction("Details", new { id = id });
+            }
+
+            // For students, check if they are enrolled
+            if (Session["role"] != null && Session["role"].ToString() == "student")
+            {
+                EnrollmentDAL enrollmentDal = new EnrollmentDAL();
+                int userId = (int)Session["userId"];
+
+                if (!enrollmentDal.IsEnrolled(userId, lesson.courseId))
+                {
+                    TempData["error"] = "You must be enrolled to download attachments";
+                    return RedirectToAction("Details", "Course", new { id = lesson.courseId });
+                }
+            }
+
+            // Return file for download
+            byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+            return File(fileBytes, "application/octet-stream", lesson.attachmentName);
+        }
         // POST: Delete Lesson
         [HttpPost]
         public ActionResult Delete(int id, int courseId)

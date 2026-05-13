@@ -104,3 +104,17 @@ CREATE TABLE Rating (
         FOREIGN KEY (courseId) REFERENCES Course(courseId),
         UNIQUE(userId, lessonId)
     );
+
+    /* latest run SQL COMMMANDS 
+
+        ALTER TABLE Lesson ADD videoUrl NVARCHAR(500) NULL;
+        -- Add attachment columns to Lesson table
+        ALTER TABLE Lesson ADD attachmentUrl NVARCHAR(500) NULL;
+        ALTER TABLE Lesson ADD attachmentName NVARCHAR(255) NULL;
+
+        -- Verify the columns were added
+        SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'Lesson' AND COLUMN_NAME IN ('attachmentUrl', 'attachmentName');
+
+    /* 

@@ -256,6 +256,7 @@
     <Content Include="Views\Post\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="DOCUMENTS\Course_1\" />
     <Folder Include="Uploads\" />
   </ItemGroup>
   <ItemGroup>

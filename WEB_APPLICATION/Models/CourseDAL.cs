@@ -8,32 +8,42 @@ namespace WEB_APPLICATION.Models
 {
     public class CourseDAL
     {
-        private SqlConnection conn = UtilityDAL.createConnection() ; 
-        
+        private SqlConnection conn = UtilityDAL.createConnection() ;
+
 
         // the method below Creates a new course 
-        public bool CreateCourse(int userId , String courseName , String courseDescription, String imageUrl  )
+        // the method below Creates a new course and creates its document folder
+        public bool CreateCourse(int userId, string courseName, string courseDescription, string imageUrl)
         {
-
-            bool success = false;
-            Course course = new Course(userId , courseName , courseDescription , imageUrl ) ;
+            bool success = true;
+            int newCourseId = 0;
+            Course course = new Course(userId, courseName, courseDescription, imageUrl);
             try
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand(
-                    "INSERT INTO Course (userId, courseDescription, courseName, activeStatus, imageUrl) VALUES (@userId, @courseDescription, @courseName, @activeStatus, @imageUrl)", conn))
+                    "INSERT INTO Course (userId, courseDescription, courseName, activeStatus, imageUrl) VALUES (@userId, @courseDescription, @courseName, @activeStatus, @imageUrl); SELECT SCOPE_IDENTITY();", conn))
                 {
                     cmd.Parameters.AddWithValue("@userId", course.userId);
                     cmd.Parameters.AddWithValue("@courseDescription", course.courseDescription);
                     cmd.Parameters.AddWithValue("@courseName", course.courseName);
                     cmd.Parameters.AddWithValue("@activeStatus", course.activeStatus);
                     cmd.Parameters.AddWithValue("@imageUrl", (object)course.imageUrl ?? DBNull.Value);
-                    if (cmd.ExecuteNonQuery() > 0)
-                        success = true;
+
+                    newCourseId = Convert.ToInt32(cmd.ExecuteScalar());
+
+                    // Create the physical folder for this course
+                    string courseFolderPath = System.Web.HttpContext.Current.Server.MapPath($"~/DOCUMENTS/Course_{newCourseId}/");
+                    if (!System.IO.Directory.Exists(courseFolderPath))
+                    {
+                        System.IO.Directory.CreateDirectory(courseFolderPath);
+                    }
                 }
             }
-            catch (SqlException e) { Console.WriteLine(e.Message); }
+            catch (SqlException e) { Console.WriteLine(e.Message); success = false; }
             finally { conn.Close(); }
+
+            if (newCourseId == 0) { success = false; }
             return success;
         }
 
@@ -79,7 +89,7 @@ namespace WEB_APPLICATION.Models
             finally { conn.Close(); }
             return success;
         }
-        
+
 
         // The method below takes an a user ID and returns all courses created by that User  - this is an instructor method 
         public List<Course> GetCoursesByUserId(int specifiedUserId)

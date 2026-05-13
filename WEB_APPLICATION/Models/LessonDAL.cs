@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -8,20 +9,20 @@ namespace WEB_APPLICATION.Models
 {
     public class LessonDAL
     {
-        private SqlConnection conn = UtilityDAL.createConnection() ; 
-        public  bool CreateLesson(Lesson lesson)
+        private SqlConnection conn = UtilityDAL.createConnection() ;
+        public bool CreateLesson(Lesson lesson)
         {
-          
             try
             {
-             
                 using (SqlCommand cmd = new SqlCommand(
-                    "INSERT INTO Lesson (courseId, lessonTitle, lessonContent, videoUrl) VALUES (@courseId, @lessonTitle, @lessonContent, @videoUrl)", conn))
+                    "INSERT INTO Lesson (courseId, lessonTitle, lessonContent, videoUrl, attachmentUrl, attachmentName) VALUES (@courseId, @lessonTitle, @lessonContent, @videoUrl, @attachmentUrl, @attachmentName)", conn))
                 {
                     cmd.Parameters.AddWithValue("@courseId", lesson.courseId);
                     cmd.Parameters.AddWithValue("@lessonTitle", lesson.lessonTitle);
                     cmd.Parameters.AddWithValue("@lessonContent", lesson.lessonContent);
                     cmd.Parameters.AddWithValue("@videoUrl", (object)lesson.videoUrl ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@attachmentUrl", (object)lesson.attachmentUrl ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@attachmentName", (object)lesson.attachmentName ?? DBNull.Value);
                     conn.Open();
                     int rows = cmd.ExecuteNonQuery();
                     return rows > 0;
@@ -33,18 +34,18 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                 conn.Close();
+                conn.Close();
             }
         }
 
-        public  List<Lesson> GetLessonsByCourse(int courseId)
+        public List<Lesson> GetLessonsByCourse(int courseId)
         {
             List<Lesson> lessons = new List<Lesson>();
-            
+
             try
             {
                 using (SqlCommand cmd = new SqlCommand(
-                    "SELECT lessonId, courseId, lessonTitle, lessonContent, videoUrl FROM Lesson WHERE courseId = @courseId", conn))
+                    "SELECT lessonId, courseId, lessonTitle, lessonContent, videoUrl, attachmentUrl, attachmentName FROM Lesson WHERE courseId = @courseId", conn))
                 {
                     cmd.Parameters.AddWithValue("@courseId", courseId);
                     conn.Open();
@@ -57,7 +58,9 @@ namespace WEB_APPLICATION.Models
                             string lessonTitle = UtilityDAL.returnString(reader, "lessonTitle");
                             string lessonContent = UtilityDAL.returnString(reader, "lessonContent");
                             string videoUrl = UtilityDAL.returnString(reader, "videoUrl");
-                            lessons.Add(new Lesson(lessonId, cId, lessonTitle, lessonContent, videoUrl));
+                            string attachmentUrl = UtilityDAL.returnString(reader, "attachmentUrl");
+                            string attachmentName = UtilityDAL.returnString(reader, "attachmentName");
+                            lessons.Add(new Lesson(lessonId, cId, lessonTitle, lessonContent, videoUrl, attachmentUrl, attachmentName));
                         }
                     }
                 }
@@ -68,19 +71,17 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                 conn.Close();
+                conn.Close();
             }
             return lessons;
         }
 
-        public  Lesson GetLessonById(int lessonId)
+        public Lesson GetLessonById(int lessonId)
         {
-            
             try
             {
-                
                 using (SqlCommand cmd = new SqlCommand(
-                    "SELECT lessonId, courseId, lessonTitle, lessonContent, videoUrl FROM Lesson WHERE lessonId = @lessonId", conn))
+                    "SELECT lessonId, courseId, lessonTitle, lessonContent, videoUrl, attachmentUrl, attachmentName FROM Lesson WHERE lessonId = @lessonId", conn))
                 {
                     cmd.Parameters.AddWithValue("@lessonId", lessonId);
                     conn.Open();
@@ -93,7 +94,9 @@ namespace WEB_APPLICATION.Models
                             string lessonTitle = UtilityDAL.returnString(reader, "lessonTitle");
                             string lessonContent = UtilityDAL.returnString(reader, "lessonContent");
                             string videoUrl = UtilityDAL.returnString(reader, "videoUrl");
-                            return new Lesson(lId, courseId, lessonTitle, lessonContent, videoUrl);
+                            string attachmentUrl = UtilityDAL.returnString(reader, "attachmentUrl");
+                            string attachmentName = UtilityDAL.returnString(reader, "attachmentName");
+                            return new Lesson(lId, courseId, lessonTitle, lessonContent, videoUrl, attachmentUrl, attachmentName);
                         }
                     }
                 }
@@ -104,23 +107,23 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                 conn.Close();
+                conn.Close();
             }
             return null;
         }
 
-        public  bool UpdateLesson(Lesson lesson)
+        public bool UpdateLesson(Lesson lesson)
         {
-           
             try
             {
-                
                 using (SqlCommand cmd = new SqlCommand(
-                    "UPDATE Lesson SET lessonTitle = @lessonTitle, lessonContent = @lessonContent, videoUrl = @videoUrl WHERE lessonId = @lessonId", conn))
+                    "UPDATE Lesson SET lessonTitle = @lessonTitle, lessonContent = @lessonContent, videoUrl = @videoUrl, attachmentUrl = @attachmentUrl, attachmentName = @attachmentName WHERE lessonId = @lessonId", conn))
                 {
                     cmd.Parameters.AddWithValue("@lessonTitle", lesson.lessonTitle);
                     cmd.Parameters.AddWithValue("@lessonContent", lesson.lessonContent);
                     cmd.Parameters.AddWithValue("@videoUrl", (object)lesson.videoUrl ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@attachmentUrl", (object)lesson.attachmentUrl ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@attachmentName", (object)lesson.attachmentName ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@lessonId", lesson.lessonId);
                     conn.Open();
                     int rows = cmd.ExecuteNonQuery();
@@ -133,7 +136,7 @@ namespace WEB_APPLICATION.Models
             }
             finally
             {
-                    conn.Close();
+                conn.Close();
             }
         }
 
