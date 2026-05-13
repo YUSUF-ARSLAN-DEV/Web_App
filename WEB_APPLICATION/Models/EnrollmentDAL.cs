@@ -38,6 +38,29 @@ namespace WEB_APPLICATION.Models
             return success;
 
         }
+        public void RecalculateCompletionRate(int userId, int courseId)
+        {
+            int total = new LessonDAL().GetLessonCountByCourse(courseId);
+            if (total == 0) return;
+
+            int completed = new LessonCompletionDAL().GetCompletedCount(userId, courseId);
+            float percentage = ((float)completed / total) * 100f;
+
+            try
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(
+                    "UPDATE Enrollment SET completionRate = @rate WHERE userId = @userId AND courseId = @courseId AND activeStatus = 1", conn))
+                {
+                    cmd.Parameters.AddWithValue("@rate", percentage);
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@courseId", courseId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException e) { Console.WriteLine(e.Message); }
+            finally { conn.Close(); }
+        }
         public bool UnEnroll(int userId , int courseId  ) // takes a user ID and removes them from the course they are enrolled too 
         {
             bool success = false ; 
@@ -213,13 +236,6 @@ namespace WEB_APPLICATION.Models
         }
         // TODO: Progress calculation feature - will be implemented when lesson completion tracking is built
         // Requires: LessonCompletionDAL and LessonCompletion table
-        public void RecalculateCompletionRate(int userId, int courseId)
-        {
-            // Method intentionally empty
-            // Will be implemented when lesson completion feature is ready
-            // This will calculate total lessons vs completed lessons
-            // Then update Enrollment.completionRate accordingly
-        }
 
         public EnrollmentRecord GetEnrollment(int userId, int courseId) // returns a student specific enrollment record for a course 
         {

@@ -2,11 +2,11 @@
 @{
     Layout = null;
     var assessment = ViewBag.Assessment as WEB_APPLICATION.Models.Assessment;
-    bool isStudent = Session["role"] == null || Session["role"].ToString() == "student";
+    bool isStudent = Session["role"] != null && Session["role"].ToString() == "student";
     bool isCompleted = isStudent && (bool)(ViewBag.IsCompleted ?? false);
     int completedCount = isStudent ? (int)(ViewBag.CompletedCount ?? 0) : 0;
     int totalLessons = isStudent ? (int)(ViewBag.TotalLessons ?? 0) : 0;
-    int pct = isStudent ? (int)(ViewBag.CompletionPercentage ?? 0) : 0;
+    int percent = isStudent && totalLessons > 0 ? (int)((double)completedCount / totalLessons * 100) : 0;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -108,16 +108,16 @@
                 </div>
             }
 
-            @* Progress bar — students only *@
+            <!-- PROGRESS BAR (Students only) -->
             @if (isStudent && Session["userId"] != null && totalLessons > 0)
             {
                 <div style="max-width:800px;margin-bottom:20px">
                     <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px">
                         <span>Course progress</span>
-                        <span>@completedCount / @totalLessons lessons completed</span>
+                        <span>@completedCount / @totalLessons lessons completed (@percent%)</span>
                     </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width:@pct%"></div>
+                    <div class="progress-bar" style="height:8px;background:var(--surface2);border-radius:10px;overflow:hidden">
+                        <div class="progress-fill" style="width:@percent%;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:10px"></div>
                     </div>
                 </div>
             }
@@ -135,24 +135,14 @@
                    class="btn btn-ghost">← All Lessons</a>
 
                 <div style="display:flex;gap:12px">
-                    @* Mark Complete / Completed badge — students only *@
+                    <!-- MARK COMPLETE / COMPLETED BADGE (Students only) -->
                     @if (isStudent && Session["userId"] != null)
                     {
                         if (isCompleted)
                         {
                             <span style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.3);color:var(--teal);font-size:13px;font-weight:700">
-                                &#10003; Completed
+                                ✓ Completed
                             </span>
-                        }
-                        else
-                        {
-                            using (Html.BeginForm("MarkComplete", "Lesson", FormMethod.Post, new { style = "margin:0" }))
-                            {
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="lessonId" value="@Model.lessonId" />
-                                <input type="hidden" name="courseId" value="@Model.courseId" />
-                                <button type="submit" class="btn btn-primary">Mark as Complete</button>
-                            }
                         }
                     }
 
@@ -173,7 +163,7 @@
                     @if (assessment != null)
                     {
                         <a href="@Url.Action("TakeQuiz", "Assessment", new { assessmentId = assessment.assessmentId })"
-                           class="btn btn-primary">Take Quiz &#8594;</a>
+                           class="btn btn-primary">Take Quiz →</a>
                     }
                 </div>
             </div>

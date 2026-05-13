@@ -47,7 +47,31 @@ namespace WEB_APPLICATION.Controllers
 
             TempData["score"] = correct;
             TempData["total"] = total;
+            // After calculating score and total
+            double percentage = (double)correct / total * 100;
+            int passingScore = 70; // 70% to pass
 
+            if (percentage >= passingScore)
+            {
+                // Get the assessment to find lessonId
+                Assessment assessment = new AssessmentDAL().GetAssessmentById(assessmentId);
+
+                // Get the lesson to find courseId
+                Lesson lesson = new LessonDAL().GetLessonById(assessment.lessonId);
+
+                // Get current user
+                int userId = (int)Session["userId"];
+
+                // Mark lesson as complete
+                LessonCompletionDAL completionDAL = new LessonCompletionDAL();
+                if (!completionDAL.IsCompleted(userId, assessment.lessonId))
+                {
+                    completionDAL.MarkComplete(userId, assessment.lessonId, lesson.courseId);
+
+                    // Recalculate course progress
+                    new EnrollmentDAL().RecalculateCompletionRate(userId, lesson.courseId);
+                }
+            }
             return RedirectToAction("Results", new { assessmentId });
         }
 

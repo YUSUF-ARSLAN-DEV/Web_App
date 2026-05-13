@@ -27,8 +27,56 @@ namespace WEB_APPLICATION.Controllers
             List<Assessment> assessments = new AssessmentDAL().GetAssessmentsByLesson(id);
             ViewBag.Assessment = assessments != null && assessments.Count > 0 ? assessments[0] : null;
 
+            // Progress tracking for students
+            if (Session["role"] != null && Session["role"].ToString() == "student")
+            {
+                int userId = (int)Session["userId"];
+                LessonCompletionDAL completionDAL = new LessonCompletionDAL();
+                ViewBag.IsCompleted = completionDAL.IsCompleted(userId, id);
+                ViewBag.CompletedCount = completionDAL.GetCompletedCount(userId, lesson.courseId);
+                ViewBag.TotalLessons = new LessonDAL().GetLessonCountByCourse(lesson.courseId);
+            }
+
             return View(lesson);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult MarkComplete(int lessonId, int courseId)
+        {
+            if (Session["userId"] == null)
+                return RedirectToAction("Login", "Account");
+
+            if (Session["role"] == null || Session["role"].ToString() != "student")
+            {
+                TempData["error"] = "Only students can mark lessons as complete";
+                return RedirectToAction("Details", new { id = lessonId });
+            }
+
+            int userId = (int)Session["userId"];
+
+            LessonCompletionDAL completionDAL = new LessonCompletionDAL();
+
+            // Check if already completed
+            if (!completionDAL.IsCompleted(userId, lessonId))
+            {
+                completionDAL.MarkComplete(userId, lessonId, courseId);
+
+                // Recalculate course completion percentage
+                EnrollmentDAL enrollmentDAL = new EnrollmentDAL();
+                enrollmentDAL.RecalculateCompletionRate(userId, courseId);
+
+                TempData["success"] = "Lesson marked as complete!";
+            }
+            else
+            {
+                TempData["success"] = "Lesson already completed";
+            }
+
+            return RedirectToAction("Details", new { id = lessonId });
+        }
+
+
 
         // GET: Create Lesson (instructor/admin only)
         [HttpGet]
