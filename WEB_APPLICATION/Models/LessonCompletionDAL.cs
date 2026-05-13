@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 
@@ -8,13 +8,13 @@ namespace WEB_APPLICATION.Models
     {
         private SqlConnection conn = UtilityDAL.createConnection();
 
-        public bool MarkLessonComplete(int userId, int lessonId, int courseId)
+        public bool MarkComplete(int userId, int lessonId, int courseId)
         {
             try
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand(
-                    "IF NOT EXISTS (SELECT 1 FROM LessonCompletion WHERE userId=@userId AND lessonId=@lessonId) " +
+                    "IF NOT EXISTS (SELECT 1 FROM LessonCompletion WHERE userId = @userId AND lessonId = @lessonId) " +
                     "INSERT INTO LessonCompletion (userId, lessonId, courseId, completedAt) " +
                     "VALUES (@userId, @lessonId, @courseId, @completedAt)", conn))
                 {
@@ -22,21 +22,20 @@ namespace WEB_APPLICATION.Models
                     cmd.Parameters.AddWithValue("@lessonId", lessonId);
                     cmd.Parameters.AddWithValue("@courseId", courseId);
                     cmd.Parameters.AddWithValue("@completedAt", DateTime.Now);
-                    cmd.ExecuteNonQuery();
-                    return true;
+                    return cmd.ExecuteNonQuery() > 0;
                 }
             }
             catch (SqlException e) { Console.WriteLine(e.Message); return false; }
             finally { conn.Close(); }
         }
 
-        public bool IsLessonCompleted(int userId, int lessonId)
+        public bool IsCompleted(int userId, int lessonId)
         {
             try
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand(
-                    "SELECT COUNT(*) FROM LessonCompletion WHERE userId=@userId AND lessonId=@lessonId", conn))
+                    "SELECT COUNT(*) FROM LessonCompletion WHERE userId = @userId AND lessonId = @lessonId", conn))
                 {
                     cmd.Parameters.AddWithValue("@userId", userId);
                     cmd.Parameters.AddWithValue("@lessonId", lessonId);
@@ -47,6 +46,23 @@ namespace WEB_APPLICATION.Models
             finally { conn.Close(); }
         }
 
+        public int GetCompletedCount(int userId, int courseId)
+        {
+            try
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT COUNT(*) FROM LessonCompletion WHERE userId = @userId AND courseId = @courseId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@courseId", courseId);
+                    return (int)cmd.ExecuteScalar();
+                }
+            }
+            catch (SqlException e) { Console.WriteLine(e.Message); return 0; }
+            finally { conn.Close(); }
+        }
+
         public List<int> GetCompletedLessonIds(int userId, int courseId)
         {
             List<int> ids = new List<int>();
@@ -54,7 +70,7 @@ namespace WEB_APPLICATION.Models
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand(
-                    "SELECT lessonId FROM LessonCompletion WHERE userId=@userId AND courseId=@courseId", conn))
+                    "SELECT lessonId FROM LessonCompletion WHERE userId = @userId AND courseId = @courseId", conn))
                 {
                     cmd.Parameters.AddWithValue("@userId", userId);
                     cmd.Parameters.AddWithValue("@courseId", courseId);
@@ -68,23 +84,6 @@ namespace WEB_APPLICATION.Models
             catch (SqlException e) { Console.WriteLine(e.Message); }
             finally { conn.Close(); }
             return ids;
-        }
-
-        public int GetCompletedCount(int userId, int courseId)
-        {
-            try
-            {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand(
-                    "SELECT COUNT(*) FROM LessonCompletion WHERE userId=@userId AND courseId=@courseId", conn))
-                {
-                    cmd.Parameters.AddWithValue("@userId", userId);
-                    cmd.Parameters.AddWithValue("@courseId", courseId);
-                    return (int)cmd.ExecuteScalar();
-                }
-            }
-            catch (SqlException e) { Console.WriteLine(e.Message); return 0; }
-            finally { conn.Close(); }
         }
     }
 }

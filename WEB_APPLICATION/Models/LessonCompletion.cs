@@ -10,7 +10,7 @@ namespace WEB_APPLICATION.Models
         public int courseId { get; set; }
         public DateTime completedAt { get; set; }
 
-        public LessonCompletion(int userId, int lessonId, int courseId)
+        public LessonCompletion(int userId, int lessonId, int courseId) // basically this class is like a book mark of completitin g alesson 
         {
             this.userId = userId;
             this.lessonId = lessonId;
