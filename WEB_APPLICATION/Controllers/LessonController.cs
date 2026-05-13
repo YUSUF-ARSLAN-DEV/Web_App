@@ -90,11 +90,11 @@ namespace WEB_APPLICATION.Controllers
 
         // POST: Create Lesson
         [HttpPost]
-        public ActionResult Create(int courseId, string lessonTitle, string lessonContent)
+        public ActionResult Create(int courseId, string lessonTitle, string lessonContent, string videoUrl = null)
         {
             try
             {
-                Lesson lesson = new Lesson(0, courseId, lessonTitle, lessonContent);
+                Lesson lesson = new Lesson(0, courseId, lessonTitle, lessonContent, videoUrl);
                 bool success = new LessonDAL().CreateLesson(lesson);
                 if (success)
                 {
@@ -125,11 +125,11 @@ namespace WEB_APPLICATION.Controllers
 
         // POST: Edit Lesson
         [HttpPost]
-        public ActionResult Edit(int lessonId, int courseId, string lessonTitle, string lessonContent)
+        public ActionResult Edit(int lessonId, int courseId, string lessonTitle, string lessonContent, string videoUrl = null)
         {
             try
             {
-                Lesson lesson = new Lesson(lessonId, courseId, lessonTitle, lessonContent);
+                Lesson lesson = new Lesson(lessonId, courseId, lessonTitle, lessonContent, videoUrl);
                 bool success = new LessonDAL().UpdateLesson(lesson);
                 if (success)
                 {
