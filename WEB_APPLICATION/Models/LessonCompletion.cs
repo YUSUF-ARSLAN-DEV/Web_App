@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace WEB_APPLICATION.Models
 {
@@ -16,6 +16,15 @@ namespace WEB_APPLICATION.Models
             this.lessonId = lessonId;
             this.courseId = courseId;
             this.completedAt = DateTime.Now;
+        }
+
+        public LessonCompletion(int completionId, int userId, int lessonId, int courseId, DateTime completedAt)
+        {
+            this.completionId = completionId;
+            this.userId = userId;
+            this.lessonId = lessonId;
+            this.courseId = courseId;
+            this.completedAt = completedAt;
         }
     }
 }

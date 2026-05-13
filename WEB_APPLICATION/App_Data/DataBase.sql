@@ -92,3 +92,15 @@ CREATE TABLE Rating (
     comment NVARCHAR(500),
     ratingDate DATE DEFAULT GETDATE()
 );
+
+    CREATE TABLE LessonCompletion (
+        completionId INT IDENTITY PRIMARY KEY,
+        userId INT NOT NULL,
+        lessonId INT NOT NULL,
+        courseId INT NOT NULL,
+        completedAt DATETIME DEFAULT GETDATE(),
+        FOREIGN KEY (userId) REFERENCES [User](userId),
+        FOREIGN KEY (lessonId) REFERENCES Lesson(lessonId),
+        FOREIGN KEY (courseId) REFERENCES Course(courseId),
+        UNIQUE(userId, lessonId)
+    );
