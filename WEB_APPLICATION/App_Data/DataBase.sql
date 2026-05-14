@@ -2,11 +2,6 @@
 -- DATABASE: EduNestDB
 -- ============================================
 
-CREATE DATABASE EduNestDB;
-GO
-
-USE EduNestDB;
-GO
 
 -- ============================================
 -- TABLE 1: User (No foreign dependencies)
