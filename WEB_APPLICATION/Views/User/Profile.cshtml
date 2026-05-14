@@ -16,7 +16,28 @@
         <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="sidebar-logo">
-                <a class="nav-logo" href="@Url.Action("Index", "Home")" style="font-size:18px">
+                @{
+                    string dashboardLink = "#";
+                    string role = Session["role"] != null ? Session["role"].ToString() : "";
+
+                    if (role == "student")
+                    {
+                        dashboardLink = Url.Action("MyEnrollments", "Enrollment");
+                    }
+                    else if (role == "instructor")
+                    {
+                        dashboardLink = Url.Action("Dashboard", "Instructor");
+                    }
+                    else if (role == "admin")
+                    {
+                        dashboardLink = Url.Action("Dashboard", "Admin");
+                    }
+                    else
+                    {
+                        dashboardLink = Url.Action("Index", "Home");
+                    }
+                }
+                <a class="nav-logo" href="@dashboardLink" style="font-size:18px">
                     <div class="nav-logo-icon" style="width:28px;height:28px;font-size:14px">&#129338;</div>EduNest
                 </a>
             </div>

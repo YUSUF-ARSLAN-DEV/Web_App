@@ -13,11 +13,33 @@
 <body>
 
     <nav class="nav">
-        <a class="nav-logo" href="@Url.Action("Index", "Home")">
+        @{
+            string homeLink = "#";
+            string role = Session["role"] != null ? Session["role"].ToString() : "";
+
+            if (role == "student")
+            {
+                homeLink = Url.Action("MyEnrollments", "Enrollment");
+            }
+            else if (role == "instructor")
+            {
+                homeLink = Url.Action("Dashboard", "Instructor");
+            }
+            else if (role == "admin")
+            {
+                homeLink = Url.Action("Dashboard", "Admin");
+            }
+            else
+            {
+                homeLink = Url.Action("Index", "Home");
+            }
+        }
+
+        <a class="nav-logo" href="@homeLink">
             <div class="nav-logo-icon"></div>EduNest
         </a>
         <div class="nav-links">
-            <a href="@Url.Action("Index", "Home")">Home</a>
+            <a href="@homeLink">Home</a>
             <a class="active" href="@Url.Action("Index", "Course")">Courses</a>
         </div>
         <div class="nav-right">
@@ -103,16 +125,6 @@
             }
         </div>
 
-        @* Show enroll/dashboard button if logged in as student *@
-        @if (Session["role"] != null && Session["role"].ToString() == "student")
-        {
-            <div style="margin-top:32px;text-align:center">
-                <a href="@Url.Action("MyEnrollments", "Enrollment")" class="btn btn-ghost">
-                    My Enrollments
-                </a>
-            </div>
-        }
-
         @* Show create course button if instructor *@
         @if (Session["role"] != null && Session["role"].ToString() == "instructor")
         {
@@ -123,9 +135,9 @@
             </div>
         }
     </div>
-
+    <!-- Adjusting the footer so that it shows the same values and that clicking the logo takes each user to the home page -->
     <footer>
-        <a class="nav-logo" href="@Url.Action("Index", "Home")">
+        <a class="nav-logo" href="@homeLink">
             <div class="nav-logo-icon">&#129338;</div>EduNest
         </a>
         <p style="color:var(--muted);font-size:13px;font-weight:600">&copy; 2025 EduNest. All rights reserved.</p>

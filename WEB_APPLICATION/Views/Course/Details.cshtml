@@ -25,15 +25,38 @@
 <body>
 
     <!-- NAV -->
+    @{
+        string dashboardLink = "#";
+        string urole = Session["role"] != null ? Session["role"].ToString() : "";
+
+        if (urole == "student")
+        {
+            dashboardLink = Url.Action("MyEnrollments", "Enrollment");
+        }
+        else if (urole == "instructor")
+        {
+            dashboardLink = Url.Action("Dashboard", "Instructor");
+        }
+        else if (urole == "admin")
+        {
+            dashboardLink = Url.Action("Dashboard", "Admin");
+        }
+        else
+        {
+            dashboardLink = Url.Action("Index", "Home");
+        }
+    }
     <nav class="nav">
-        <a class="nav-logo" href="@Url.Action("Index", "Home")">
+        <a class="nav-logo" href="@dashboardLink">
             <div class="nav-logo-icon"></div>EduNest
         </a>
 
         <div class="nav-links">
-            <a href="@Url.Action("Index", "Home")">Home</a>
+            <a href="@dashboardLink">Home</a>
             <a href="@Url.Action("Index", "Course")">Courses</a>
         </div>
+
+
 
         <div class="nav-right">
             @if (Session["userId"] != null)

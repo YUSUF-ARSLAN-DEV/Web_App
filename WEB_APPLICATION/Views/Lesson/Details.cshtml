@@ -123,20 +123,6 @@
                 </div>
             }
 
-            <!-- ===== PROGRESS BAR (Students only - from F1) ===== -->
-            @if (isStudent && Session["userId"] != null && totalLessons > 0)
-            {
-                <div style="max-width:800px;margin-bottom:20px">
-                    <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px">
-                        <span>Course progress</span>
-                        <span>@completedCount / @totalLessons lessons completed (@percent%)</span>
-                    </div>
-                    <div class="progress-bar" style="height:8px;background:var(--surface2);border-radius:10px;overflow:hidden">
-                        <div class="progress-fill" style="width:@percent%;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:10px"></div>
-                    </div>
-                </div>
-            }
-
             <!-- ===== VIDEO EMBED (from F2) ===== -->
             @if (!string.IsNullOrEmpty(Model.videoUrl))
             {
