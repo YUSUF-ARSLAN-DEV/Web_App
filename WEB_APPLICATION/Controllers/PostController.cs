@@ -19,19 +19,28 @@ namespace WEB_APPLICATION.Controllers
             return View();
         }
 
-        // POST: Create Post
+        // POST: The method used to create a post 
         [HttpPost]
         public ActionResult Create(int forumId, string title, string textContent, HttpPostedFileBase imageFile)
         {
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
-
+            if (string.IsNullOrWhiteSpace(title)) // ensuring that the user is not entering empty fields 
+            {
+                ViewBag.Error = "Post title is required.";
+                return View();
+            }
+            if (string.IsNullOrWhiteSpace(textContent))
+            {
+                ViewBag.Error = "Post content is required.";
+                return View();
+            }
             try
             {
                 int userId = (int)Session["userId"];
                 string imageUrl = null;
 
-                // DEBUG: Check if file was received
+                //  File Managment Checking if the Image file was received correctly 
                 if (imageFile != null && imageFile.ContentLength > 0)
                 {
                     TempData["uploadDebug"] = $"File received: {imageFile.FileName}, Size: {imageFile.ContentLength}";
@@ -47,7 +56,7 @@ namespace WEB_APPLICATION.Controllers
                     TempData["uploadDebug"] = "No file received - imageFile is null";
                 }
 
-                Post post = new Post(0, forumId, userId, title, textContent, imageUrl);
+                Post post = new Post( forumId, userId, title, textContent, imageUrl);
                 bool success = new PostDAL().CreatePost(post);
 
                 if (success)

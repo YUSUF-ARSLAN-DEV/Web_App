@@ -129,6 +129,16 @@ namespace WEB_APPLICATION.Controllers
             {
                 int userId = (int)Session["userId"];
                 string imageUrl = null;
+                if (string.IsNullOrWhiteSpace(courseName)) // server side validation for name and description 
+                {
+                    ViewBag.Error = "Course title is required.";
+                    return View();
+                }
+                if (string.IsNullOrWhiteSpace(courseDescription))
+                {
+                    ViewBag.Error = "Course description is required.";
+                    return View();
+                }
 
                 if (imageFile != null && imageFile.ContentLength > 0)
                 {

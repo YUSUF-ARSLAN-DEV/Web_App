@@ -13,7 +13,7 @@ namespace WEB_APPLICATION.Controllers
     {
         // GET: Account
         [HttpGet]
-        public ActionResult Registration() 
+        public ActionResult Registration()  // this returns back the registration page 
         {
             
             return View() ; 
@@ -23,7 +23,11 @@ namespace WEB_APPLICATION.Controllers
         public ActionResult Registration(string userName, string password, string role, string firstName, string lastName)
         {
             UserDAL userDal = new UserDAL();
-
+            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName)) // server side validation checking if first  name and last name are left emty or not 
+            {
+                ViewBag.Error = "First name and last name are required.";
+                return View();
+            }
             User.Role userRole = UtilityDAL.parseStringToRole(role.ToLower());
             bool valid = userDal.CheckValidCredentials(userName, password);
 

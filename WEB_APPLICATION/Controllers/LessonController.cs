@@ -97,7 +97,17 @@ namespace WEB_APPLICATION.Controllers
             try
             {
                 Lesson lesson = new Lesson(0, courseId, lessonTitle, lessonContent, videoUrl);
-
+                // server-side validation for needed fields 
+                if (string.IsNullOrWhiteSpace(lessonTitle))
+                {
+                    ViewBag.Error = "Lesson title is required.";
+                    return View();
+                }
+                if (string.IsNullOrWhiteSpace(lessonContent))
+                {
+                    ViewBag.Error = "Lesson content is required.";
+                    return View();
+                }
                 // Handle file attachment if uploaded
                 if (attachment != null && attachment.ContentLength > 0)
                 {
@@ -152,7 +162,16 @@ namespace WEB_APPLICATION.Controllers
             {
                 LessonDAL lessonDal = new LessonDAL();
                 Lesson existingLesson = lessonDal.GetLessonById(lessonId);
-
+                if (string.IsNullOrWhiteSpace(lessonTitle))
+                {
+                    ViewBag.Error = "Lesson title is required.";
+                    return View();
+                }
+                if (string.IsNullOrWhiteSpace(lessonContent))
+                {
+                    ViewBag.Error = "Lesson content is required.";
+                    return View();
+                }
                 if (existingLesson == null)
                 {
                     TempData["error"] = "Lesson not found";

@@ -13,9 +13,9 @@ namespace WEB_APPLICATION.Models
         public DateTime postDate { get; set; }
         public TimeSpan  postTime { get; set; }
         // used for creation 
-        public Post(int postId, int forumId , int userId, string title, string textContent, string imageUrl)
+        public Post( int forumId , int userId, string title, string textContent, string imageUrl)
         {
-            this.postId = postId;
+            
             this.forumId = forumId;
             this.userId = userId;
             this.title = title;
