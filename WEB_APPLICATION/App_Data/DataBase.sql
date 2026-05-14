@@ -1,120 +1,172 @@
-﻿CREATE TABLE [User] (
-    userId INT PRIMARY KEY IDENTITY(1,1),
-    userName NVARCHAR(50) UNIQUE , 
-    [password] NVARCHAR(50) , 
-    role NVARCHAR(50) , 
-    firstName NVARCHAR(50), 
-    lastName NVARCHAR(50) , 
-    accountCreationDate DATE   
+﻿-- ============================================
+-- DATABASE: EduNestDB
+-- ============================================
+
+CREATE DATABASE EduNestDB;
+GO
+
+USE EduNestDB;
+GO
+
+-- ============================================
+-- TABLE 1: User (No foreign dependencies)
+-- ============================================
+CREATE TABLE [dbo].[User] (
+    [userId]              INT            IDENTITY (1, 1) NOT NULL,
+    [userName]            NVARCHAR (50)  NULL,
+    [password]            NVARCHAR (100) NULL,
+    [role]                NVARCHAR (50)  NULL,
+    [firstName]           NVARCHAR (50)  NULL,
+    [lastName]            NVARCHAR (50)  NULL,
+    [accountCreationDate] DATE           NULL,
+    [activeStatus]        BIT            DEFAULT ((1)) NOT NULL,
+    PRIMARY KEY CLUSTERED ([userId] ASC),
+    UNIQUE NONCLUSTERED ([userName] ASC)
 );
 
-CREATE TABLE [Session] (
-    sessionId INT PRIMARY KEY IDENTITY(1,1), 
-    userId INT FOREIGN KEY REFERENCES [User](userId) , 
-    loginDate DATE , 
-    loginTime TIME , 
-    logoutTime TIME 
+-- ============================================
+-- TABLE 2: Course (Depends on User)
+-- ============================================
+CREATE TABLE [dbo].[Course] (
+    [courseId]          INT            IDENTITY (1, 1) NOT NULL,
+    [userId]            INT            NULL,
+    [courseDescription] NVARCHAR (800) NULL,
+    [courseName]        NVARCHAR (100) NULL,
+    [activeStatus]      BIT            NULL,
+    [imageUrl]          NVARCHAR (255) NULL,
+    PRIMARY KEY CLUSTERED ([courseId] ASC),
+    FOREIGN KEY ([userId]) REFERENCES [dbo].[User] ([userId])
 );
 
-CREATE TABLE Course (
-    courseId INT PRIMARY KEY IDENTITY(1,1) , 
-    userId INT FOREIGN KEY REFERENCES [User](userId) , 
-    courseDescription NVARCHAR(800)  , 
-    courseName NVARCHAR(100) , 
-    activeStatus BIT , 
-    imageUrl NVARCHAR(255) 
+-- ============================================
+-- TABLE 3: Lesson (Depends on Course)
+-- ============================================
+CREATE TABLE [dbo].[Lesson] (
+    [lessonId]       INT            IDENTITY (1, 1) NOT NULL,
+    [courseId]       INT            NULL,
+    [lessonTitle]    NVARCHAR (150) NULL,
+    [lessonContent]  NVARCHAR (MAX) NULL,
+    [videoUrl]       NVARCHAR (500) NULL,
+    [attachmentUrl]  NVARCHAR (500) NULL,
+    [attachmentName] NVARCHAR (255) NULL,
+    PRIMARY KEY CLUSTERED ([lessonId] ASC),
+    FOREIGN KEY ([courseId]) REFERENCES [dbo].[Course] ([courseId])
 );
 
-CREATE TABLE Enrollment (
-    enrollmentId INT PRIMARY KEY IDENTITY(1,1) , 
-    userId INT FOREIGN KEY REFERENCES [User](userId) , 
-    courseId INT FOREIGN KEY REFERENCES Course(courseId) , 
-    completionRate FLOAT  , 
-    enrollmentDate DATE , 
-    activeStatus BIT  
+-- ============================================
+-- TABLE 4: Assessment (Depends on Lesson)
+-- ============================================
+CREATE TABLE [dbo].[Assessment] (
+    [assessmentId]  INT IDENTITY (1, 1) NOT NULL,
+    [lessonId]      INT NULL,
+    [attemptNumber] INT NULL,
+    PRIMARY KEY CLUSTERED ([assessmentId] ASC),
+    FOREIGN KEY ([lessonId]) REFERENCES [dbo].[Lesson] ([lessonId])
 );
 
-CREATE TABLE Lesson (
-    lessonId INT PRIMARY KEY IDENTITY(1,1), 
-    courseId INT FOREIGN KEY REFERENCES Course(courseId) , 
-    lessonTitle NVARCHAR(150) , 
-    lessonContent NVARCHAR(MAX) 
-); 
-
-CREATE TABLE Assessment (
-    assessmentId INT PRIMARY KEY IDENTITY(1,1), 
-    lessonId INT  FOREIGN KEY REFERENCES Lesson(lessonId) , 
-    attemptNumber INT , 
+-- ============================================
+-- TABLE 5: Question (Depends on Assessment)
+-- ============================================
+CREATE TABLE [dbo].[Question] (
+    [questionId]     INT            IDENTITY (1, 1) NOT NULL,
+    [assessmentId]   INT            NULL,
+    [questionType]   NVARCHAR (50)  NULL,
+    [questionText]   NVARCHAR (MAX) NULL,
+    [questionAnswer] NVARCHAR (250) NULL,
+    [correctAnswer]  NVARCHAR (250) NULL,
+    PRIMARY KEY CLUSTERED ([questionId] ASC),
+    FOREIGN KEY ([assessmentId]) REFERENCES [dbo].[Assessment] ([assessmentId])
 );
 
-CREATE TABLE Question (
-    questionId INT PRIMARY KEY IDENTITY(1,1) , 
-    assessmentId INT FOREIGN KEY REFERENCES Assessment(assessmentId) , 
-    questionType NVARCHAR(50) , 
-    questionText NVARCHAR(MAX)   , 
-    questionAnswer NVARCHAR(250) , 
-    correctAnswer NVARCHAR(250)  
+-- ============================================
+-- TABLE 6: Enrollment (Depends on User, Course)
+-- ============================================
+CREATE TABLE [dbo].[Enrollment] (
+    [enrollmentId]   INT  IDENTITY (1, 1) NOT NULL,
+    [userId]         INT  NULL,
+    [courseId]       INT  NULL,
+    [completionRate] INT  NULL,
+    [enrollmentDate] DATE NULL,
+    [activeStatus]   BIT  NULL,
+    PRIMARY KEY CLUSTERED ([enrollmentId] ASC),
+    FOREIGN KEY ([userId]) REFERENCES [dbo].[User] ([userId]),
+    FOREIGN KEY ([courseId]) REFERENCES [dbo].[Course] ([courseId])
 );
 
-CREATE TABLE LessonCompletion (
-    completionId INT PRIMARY KEY IDENTITY(1,1),
-    userId       INT NOT NULL FOREIGN KEY REFERENCES [User](userId),
-    lessonId     INT NOT NULL FOREIGN KEY REFERENCES Lesson(lessonId),
-    courseId     INT NOT NULL FOREIGN KEY REFERENCES Course(courseId),
-    completedAt  DATETIME DEFAULT GETDATE(),
-    UNIQUE (userId, lessonId)
+-- ============================================
+-- TABLE 7: Forum (Depends on Course)
+-- ============================================
+CREATE TABLE [dbo].[Forum] (
+    [forumId]   INT            IDENTITY (1, 1) NOT NULL,
+    [courseId]  INT            NULL,
+    [title]     NVARCHAR (100) NULL,
+    [postFlair] NVARCHAR (250) NULL,
+    PRIMARY KEY CLUSTERED ([forumId] ASC),
+    FOREIGN KEY ([courseId]) REFERENCES [dbo].[Course] ([courseId])
 );
 
-CREATE TABLE Forum (
-    forumId  INT PRIMARY KEY  IDENTITY(1,1) , 
-    courseId INT FOREIGN KEY REFERENCES Course(courseId) , 
-    title NVARCHAR(100) , 
-    postFlair NVARCHAR(250)   
+-- ============================================
+-- TABLE 8: Post (Depends on Forum, User)
+-- ============================================
+CREATE TABLE [dbo].[Post] (
+    [postId]      INT            IDENTITY (1, 1) NOT NULL,
+    [forumId]     INT            NULL,
+    [userId]      INT            NULL,
+    [title]       NVARCHAR (100) NULL,
+    [textContent] NVARCHAR (MAX) NULL,
+    [imageUrl]    NVARCHAR (255) NULL,
+    [postDate]    DATE           NULL,
+    [postTime]    TIME (7)       NULL,
+    PRIMARY KEY CLUSTERED ([postId] ASC),
+    FOREIGN KEY ([forumId]) REFERENCES [dbo].[Forum] ([forumId]),
+    FOREIGN KEY ([userId]) REFERENCES [dbo].[User] ([userId])
 );
 
-CREATE TABLE Post(
-    postId INT PRIMARY KEY IDENTITY(1,1) , 
-    forumId INT FOREIGN KEY REFERENCES Forum(forumId) , 
-    userId INT FOREIGN KEY REFERENCES [User](userId), 
-    title NVARCHAR(100) , 
-    textContent NVARCHAR(MAX) , 
-    imageUrl NVARCHAR(255) , 
-    postDate DATE , 
-    postTime TIME 
+-- ============================================
+-- TABLE 9: Rating (Depends on Course, User)
+-- ============================================
+CREATE TABLE [dbo].[Rating] (
+    [ratingId]   INT            IDENTITY (1, 1) NOT NULL,
+    [courseId]   INT            NULL,
+    [userId]     INT            NULL,
+    [score]      INT            NOT NULL,
+    [comment]    NVARCHAR (500) NULL,
+    [ratingDate] DATE           DEFAULT (getdate()) NULL,
+    PRIMARY KEY CLUSTERED ([ratingId] ASC),
+    FOREIGN KEY ([courseId]) REFERENCES [dbo].[Course] ([courseId]),
+    FOREIGN KEY ([userId]) REFERENCES [dbo].[User] ([userId]),
+    CHECK ([score]>=(1) AND [score]<=(5))
 );
 
-
-CREATE TABLE Rating (
-    ratingId INT PRIMARY KEY IDENTITY(1,1),
-    courseId INT FOREIGN KEY REFERENCES Course(courseId),
-    userId INT FOREIGN KEY REFERENCES [User](userId),
-    score INT NOT NULL CHECK (score BETWEEN 1 AND 5),
-    comment NVARCHAR(500),
-    ratingDate DATE DEFAULT GETDATE()
+-- ============================================
+-- TABLE 10: Session (Depends on User)
+-- ============================================
+CREATE TABLE [dbo].[Session] (
+    [sessionId]  INT      IDENTITY (1, 1) NOT NULL,
+    [userId]     INT      NULL,
+    [loginDate]  DATE     NULL,
+    [loginTime]  TIME (7) NULL,
+    [logoutTime] TIME (7) NULL,
+    PRIMARY KEY CLUSTERED ([sessionId] ASC),
+    FOREIGN KEY ([userId]) REFERENCES [dbo].[User] ([userId])
 );
 
-    CREATE TABLE LessonCompletion (
-        completionId INT IDENTITY PRIMARY KEY,
-        userId INT NOT NULL,
-        lessonId INT NOT NULL,
-        courseId INT NOT NULL,
-        completedAt DATETIME DEFAULT GETDATE(),
-        FOREIGN KEY (userId) REFERENCES [User](userId),
-        FOREIGN KEY (lessonId) REFERENCES Lesson(lessonId),
-        FOREIGN KEY (courseId) REFERENCES Course(courseId),
-        UNIQUE(userId, lessonId)
-    );
+-- ============================================
+-- TABLE 11: LessonCompletion (Depends on User, Lesson, Course)
+-- ============================================
+CREATE TABLE [dbo].[LessonCompletion] (
+    [completionId] INT      IDENTITY (1, 1) NOT NULL,
+    [userId]       INT      NOT NULL,
+    [lessonId]     INT      NOT NULL,
+    [courseId]     INT      NOT NULL,
+    [completedAt]  DATETIME DEFAULT (getdate()) NULL,
+    PRIMARY KEY CLUSTERED ([completionId] ASC),
+    UNIQUE NONCLUSTERED ([userId] ASC, [lessonId] ASC),
+    FOREIGN KEY ([userId]) REFERENCES [dbo].[User] ([userId]),
+    FOREIGN KEY ([lessonId]) REFERENCES [dbo].[Lesson] ([lessonId]),
+    FOREIGN KEY ([courseId]) REFERENCES [dbo].[Course] ([courseId])
+);
 
-    /* latest run SQL COMMMANDS 
-
-        ALTER TABLE Lesson ADD videoUrl NVARCHAR(500) NULL;
-        -- Add attachment columns to Lesson table
-        ALTER TABLE Lesson ADD attachmentUrl NVARCHAR(500) NULL;
-        ALTER TABLE Lesson ADD attachmentName NVARCHAR(255) NULL;
-
-        -- Verify the columns were added
-        SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'Lesson' AND COLUMN_NAME IN ('attachmentUrl', 'attachmentName');
-
-    /* 
+-- ============================================
+-- DONE!
+-- ============================================
