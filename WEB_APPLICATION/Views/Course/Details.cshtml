@@ -31,10 +31,10 @@
 
     @{
         string dashboardLink = "#";
-        if (role == "student") dashboardLink = Url.Action("MyEnrollments", "Enrollment");
-        else if (role == "instructor") dashboardLink = Url.Action("Dashboard", "Instructor");
-        else if (role == "admin") dashboardLink = Url.Action("Dashboard", "Admin");
-        else dashboardLink = Url.Action("Index", "Home");
+        if (role == "student") { dashboardLink = Url.Action("MyEnrollments", "Enrollment"); }
+        else if (role == "instructor") { dashboardLink = Url.Action("Dashboard", "Instructor"); }
+        else if (role == "admin") { dashboardLink = Url.Action("Dashboard", "Admin"); }
+        else { dashboardLink = Url.Action("Index", "Home"); }
     }
 
     <nav class="nav">
