@@ -174,6 +174,11 @@ namespace WEB_APPLICATION.Controllers
             Course course = new CourseDAL().GetCourseById(id);
             if (course == null)
                 return HttpNotFound();
+            if (!course.activeStatus)
+            {
+                TempData["Error"] = "Archived courses cannot be edited. Reactivate the course first.";
+                return RedirectToAction("Details", new { id });
+            }
             return View(course);
         }
 
@@ -199,7 +204,7 @@ namespace WEB_APPLICATION.Controllers
             }
         }
 
-        // POST: Delete Course
+        // POST: Delete Course (soft-delete → archive)
         [HttpPost]
         public ActionResult Delete(int id)
         {
@@ -207,8 +212,32 @@ namespace WEB_APPLICATION.Controllers
                 return RedirectToAction("Index");
             bool success = new CourseDAL().DeleteCourse(id);
             if (success)
-                TempData["success"] = "Course deleted successfully";
-            return RedirectToAction("Index");
+                TempData["success"] = "Course moved to archive.";
+            return RedirectToAction("Dashboard", "Instructor");
+        }
+
+        // POST: Reactivate Course
+        [HttpPost]
+        public ActionResult Reactivate(int id)
+        {
+            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+                return RedirectToAction("Index");
+            new CourseDAL().ReactivateCourse(id);
+            TempData["success"] = "Course reactivated successfully.";
+            return RedirectToAction("ArchivedCourses");
+        }
+
+        // GET: Archived Courses
+        [HttpGet]
+        public ActionResult ArchivedCourses()
+        {
+            if (Session["userId"] == null)
+                return RedirectToAction("Login", "Account");
+            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+                return RedirectToAction("Index");
+            int userId = (int)Session["userId"];
+            List<Course> archived = new CourseDAL().GetDeletedCoursesByUserId(userId);
+            return View(archived);
         }
     }
 }

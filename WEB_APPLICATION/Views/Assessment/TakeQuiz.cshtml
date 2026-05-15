@@ -104,10 +104,30 @@
                             }
                             else
                             {
-                                <!-- multiple_choice — student types the answer -->
-                                <input class="form-input" type="text"
-                                       name="q_@q.questionId"
-                                       placeholder="Type your answer here..." required />
+                                <!-- multiple_choice — render radio buttons from pipe-separated options -->
+                                if (!string.IsNullOrEmpty(q.questionAnswer))
+                                {
+                                    string[] opts = q.questionAnswer.Split('|');
+                                    string[] labels = { "A", "B", "C", "D" };
+                                    <div style="display:flex;flex-direction:column;gap:10px">
+                                    @for (int j = 0; j < opts.Length; j++)
+                                    {
+                                        string optVal = opts[j].Trim();
+                                        string optLabel = j < labels.Length ? labels[j] : (j + 1).ToString();
+                                        <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;border:1px solid var(--border);border-radius:10px;cursor:pointer;font-weight:600">
+                                            <input type="radio" name="q_@q.questionId" value="@optVal" @(j == 0 ? "required" : "") />
+                                            <span style="color:var(--muted);font-weight:800;min-width:20px">@optLabel</span>
+                                            @optVal
+                                        </label>
+                                    }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <input class="form-input" type="text"
+                                           name="q_@q.questionId"
+                                           placeholder="Type your answer here..." required />
+                                }
                             }
                         </div>
                     }

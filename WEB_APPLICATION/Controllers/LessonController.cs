@@ -86,6 +86,12 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
                 return RedirectToAction("Index", "Course");
+            Course course = new CourseDAL().GetCourseById(courseId);
+            if (course != null && !course.activeStatus)
+            {
+                TempData["Error"] = "Cannot add lessons to an archived course.";
+                return RedirectToAction("Details", "Course", new { id = courseId });
+            }
             ViewBag.CourseId = courseId;
             return View();
         }

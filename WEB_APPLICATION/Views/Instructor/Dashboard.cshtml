@@ -1,4 +1,4 @@
-﻿@model List<WEB_APPLICATION.Models.InstructorCourseViewModel>
+@model List<WEB_APPLICATION.Models.InstructorCourseViewModel>
 @{
     Layout = null;
     int totalStudents = 0;
@@ -21,6 +21,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EduNest – Instructor Dashboard</title>
     <link rel="stylesheet" href="~/Content/site.css" />
+    <style>
+        .modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center; }
+        .modal-overlay.open { display:flex; }
+        .modal-box { background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:420px;width:90%;text-align:center; }
+        .settings-dropdown { display:none;position:absolute;right:0;top:110%;background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:180px;z-index:100;padding:6px 0; }
+        .settings-dropdown.open { display:block; }
+        .settings-dropdown a { display:block;padding:10px 16px;font-size:13px;font-weight:700;color:var(--text);text-decoration:none; }
+        .settings-dropdown a:hover { background:var(--surface2); }
+    </style>
 </head>
 <body>
 
@@ -36,7 +45,9 @@
                 <a class="sidebar-item active" href="@Url.Action("Dashboard", "Instructor")">
                     <span class="sidebar-icon">&#127968;</span>Dashboard
                 </a>
-
+                <a class="sidebar-item" href="@Url.Action("Index", "Course")">
+                    <span class="sidebar-icon">&#128218;</span>Browse Courses
+                </a>
                 <a class="sidebar-item" href="@Url.Action("Profile", "User")">
                     <span class="sidebar-icon">&#128100;</span>Profile
                 </a>
@@ -65,27 +76,35 @@
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px">
                 <div>
                     <h1 style="font-size:32px;margin-bottom:6px">
-                        Welcome back, @Session["userName"] &#128075;
+                        Welcome back, @Session["firstName"] &#128075;
                     </h1>
                     <p style="color:var(--muted);font-weight:600">
                         @if (Model != null && Model.Count > 0)
                         {
-                            <text>You have @Model.Count course(s). Keep creating!</text>
+                            <text>You have @Model.Count active course(s). Keep creating!</text>
                         }
                         else
                         {
-                            <text>You have no courses yet. Create your first one!</text>
+                            <text>You have no active courses yet. Create your first one!</text>
                         }
                     </p>
                 </div>
-                <a class="btn btn-primary" href="@Url.Action("Create", "Course")">+ New Course</a>
+                <div style="display:flex;gap:10px;align-items:center">
+                    <a class="btn btn-primary" href="@Url.Action("Create", "Course")">+ New Course</a>
+                    <div style="position:relative">
+                        <button onclick="toggleSettings()" class="btn btn-ghost" style="font-size:18px;padding:8px 12px">&#8943;</button>
+                        <div class="settings-dropdown" id="settingsDropdown">
+                            <a href="@Url.Action("ArchivedCourses", "Course")">&#128193; Archived Courses</a>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- STATS -->
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:36px">
                 <div class="stat-card">
                     <div class="stat-value">@(Model != null ? Model.Count : 0)</div>
-                    <div class="stat-label">My Courses</div>
+                    <div class="stat-label">Active Courses</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value">@totalStudents</div>
@@ -134,7 +153,6 @@
                                 <th style="padding:14px 20px;text-align:center;font-size:13px;font-weight:800;color:var(--muted)">Lessons</th>
                                 <th style="padding:14px 20px;text-align:center;font-size:13px;font-weight:800;color:var(--muted)">Students</th>
                                 <th style="padding:14px 20px;text-align:center;font-size:13px;font-weight:800;color:var(--muted)">Rating</th>
-                                <th style="padding:14px 20px;text-align:center;font-size:13px;font-weight:800;color:var(--muted)">Status</th>
                                 <th style="padding:14px 20px;text-align:center;font-size:13px;font-weight:800;color:var(--muted)">Actions</th>
                             </tr>
                         </thead>
@@ -161,30 +179,16 @@
                                         }
                                     </td>
                                     <td style="padding:16px 20px;text-align:center">
-                                        @if (item.course.activeStatus)
-                                        {
-                                            <span style="background:rgba(45,212,191,0.1);color:var(--teal);border:1px solid rgba(45,212,191,0.3);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700">Active</span>
-                                        }
-                                        else
-                                        {
-                                            <span style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.3);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700">Inactive</span>
-                                        }
-                                    </td>
-                                    <td style="padding:16px 20px;text-align:center">
                                         <div style="display:flex;gap:8px;justify-content:center">
                                             <a href="@Url.Action("Details", "Course", new { id = item.course.courseId })"
                                                class="btn btn-ghost" style="font-size:12px;padding:6px 12px">View</a>
                                             <a href="@Url.Action("Edit", "Course", new { id = item.course.courseId })"
                                                class="btn btn-outline" style="font-size:12px;padding:6px 12px">Edit</a>
-                                            @using (Html.BeginForm("Delete", "Course", FormMethod.Post, new { style = "margin:0" }))
-                                            {
-                                                <input type="hidden" name="id" value="@item.course.courseId" />
-                                                <button type="submit" class="btn btn-ghost"
-                                                        style="font-size:12px;padding:6px 12px;color:var(--red)"
-                                                        onclick="return confirm('Delete this course?')">
-                                                    Delete
-                                                </button>
-                                            }
+                                            <button type="button" class="btn btn-ghost"
+                                                    style="font-size:12px;padding:6px 12px;color:var(--red)"
+                                                    onclick="openDeleteModal(@item.course.courseId, '@Html.Raw(item.course.courseName.Replace("'", "\\'"))')">
+                                                Archive
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -195,6 +199,49 @@
             }
         </main>
     </div>
+
+    <!-- DELETE / ARCHIVE MODAL -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-box">
+            <div style="font-size:40px;margin-bottom:16px">&#128193;</div>
+            <h2 style="font-size:20px;font-weight:800;margin-bottom:10px">Archive this course?</h2>
+            <p style="color:var(--muted);font-size:14px;font-weight:600;margin-bottom:24px" id="modalCourseName"></p>
+            <p style="color:var(--muted);font-size:13px;margin-bottom:28px">
+                The course will be hidden from students. You can reactivate it anytime from Archived Courses.
+            </p>
+            <div style="display:flex;gap:12px;justify-content:center">
+                <button onclick="closeDeleteModal()" class="btn btn-ghost" style="padding:10px 24px">Cancel</button>
+                <form id="deleteForm" method="post" style="margin:0">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="deleteCourseId" />
+                    <button type="submit" class="btn btn-primary" style="padding:10px 24px;background:var(--red);border-color:var(--red)">
+                        Archive
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openDeleteModal(courseId, courseName) {
+            document.getElementById('deleteCourseId').value = courseId;
+            document.getElementById('modalCourseName').textContent = '"' + courseName + '"';
+            document.getElementById('deleteForm').action = '@Url.Action("Delete", "Course")';
+            document.getElementById('deleteModal').classList.add('open');
+        }
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('open');
+        }
+        function toggleSettings() {
+            document.getElementById('settingsDropdown').classList.toggle('open');
+        }
+        document.addEventListener('click', function(e) {
+            var dd = document.getElementById('settingsDropdown');
+            if (!e.target.closest('[onclick="toggleSettings()"]') && !e.target.closest('#settingsDropdown')) {
+                dd.classList.remove('open');
+            }
+        });
+    </script>
 
 </body>
 </html>

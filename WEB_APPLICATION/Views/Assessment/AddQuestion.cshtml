@@ -1,6 +1,7 @@
-﻿@{
+@{
     Layout = null;
     int assessmentId = ViewBag.AssessmentId != null ? (int)ViewBag.AssessmentId : 0;
+    int lessonId = ViewBag.LessonId != null ? (int)ViewBag.LessonId : 0;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -24,8 +25,8 @@
                 <a class="sidebar-item" href="@Url.Action("Dashboard", "Instructor")">
                     <span class="sidebar-icon">&#127968;</span>Dashboard
                 </a>
-                <a class="sidebar-item" href="@Url.Action("Create", "Course")">
-                    <span class="sidebar-icon">&#43;</span>Create Course
+                <a class="sidebar-item" href="@Url.Action("Index", "Course")">
+                    <span class="sidebar-icon">&#128218;</span>Browse Courses
                 </a>
                 <a class="sidebar-item" href="@Url.Action("Profile", "User")">
                     <span class="sidebar-icon">&#128100;</span>Profile
@@ -55,7 +56,7 @@
                     <h1 style="font-size:32px;margin-bottom:6px">Add Question</h1>
                     <p style="color:var(--muted);font-weight:600">Add questions to your quiz one at a time</p>
                 </div>
-                <a href="@Url.Action("Dashboard", "Instructor")" class="btn btn-ghost">← Back to Dashboard</a>
+                <a href="@Url.Action("Details", "Lesson", new { id = lessonId })" class="btn btn-ghost">← Back to Lesson</a>
             </div>
 
             @if (TempData["success"] != null)
@@ -64,7 +65,6 @@
                     @TempData["success"]
                 </div>
             }
-
             @if (ViewBag.Error != null)
             {
                 <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;color:#f87171;font-size:13px;font-weight:600">
@@ -75,13 +75,16 @@
             <div class="card" style="padding:36px;max-width:700px">
                 <h3 style="font-weight:800;margin-bottom:24px;font-size:17px">Question Details</h3>
 
-                @using (Html.BeginForm("AddQuestion", "Assessment", FormMethod.Post))
-                {
-                    @Html.Hidden("assessmentId", assessmentId)
+                <form id="questionForm" method="post" action="@Url.Action("AddQuestion", "Assessment")">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="assessmentId" value="@assessmentId" />
+                    <input type="hidden" name="correctAnswer" id="correctAnswerHidden" />
+                    <input type="hidden" name="questionAnswer" id="questionAnswerHidden" />
 
+                    <!-- Question Type -->
                     <div class="form-group">
                         <label class="form-label">Question Type <span style="color:var(--red)">*</span></label>
-                        <select class="form-input" name="questionType" required>
+                        <select class="form-input" id="questionType" name="questionType" onchange="onTypeChange()" required>
                             <option value="" disabled selected>Select question type...</option>
                             <option value="multiple_choice">Multiple Choice</option>
                             <option value="true_false">True / False</option>
@@ -89,30 +92,124 @@
                         </select>
                     </div>
 
+                    <!-- Question Text -->
                     <div class="form-group">
                         <label class="form-label">Question Text <span style="color:var(--red)">*</span></label>
                         <textarea class="form-input" name="questionText"
-                                  placeholder="e.g. Which cinematography technique involves moving the camera toward the subject?"
+                                  placeholder="e.g. Which of the following is a storage device?"
                                   rows="4" style="resize:vertical" required></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Correct Answer <span style="color:var(--red)">*</span></label>
-                        <input class="form-input" name="correctAnswer"
-                               placeholder="e.g. Dolly shot" required />
-                        <small style="color:var(--muted);font-size:12px;font-weight:600">
-                            For multiple choice — type the correct option exactly. For true/false — type True or False.
-                        </small>
+                    <!-- MCQ OPTIONS -->
+                    <div id="mcqSection" style="display:none">
+                        <div class="form-group">
+                            <label class="form-label">Answer Options <span style="color:var(--red)">*</span></label>
+                            <div style="display:flex;flex-direction:column;gap:10px">
+                                <div style="display:flex;align-items:center;gap:10px">
+                                    <span style="font-weight:700;width:20px">A</span>
+                                    <input class="form-input" id="optA" placeholder="Option A" style="flex:1" />
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px">
+                                    <span style="font-weight:700;width:20px">B</span>
+                                    <input class="form-input" id="optB" placeholder="Option B" style="flex:1" />
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px">
+                                    <span style="font-weight:700;width:20px">C</span>
+                                    <input class="form-input" id="optC" placeholder="Option C" style="flex:1" />
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px">
+                                    <span style="font-weight:700;width:20px">D</span>
+                                    <input class="form-input" id="optD" placeholder="Option D" style="flex:1" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Correct Option <span style="color:var(--red)">*</span></label>
+                            <select class="form-input" id="mcqCorrect">
+                                <option value="">Select correct answer...</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- TRUE/FALSE SECTION -->
+                    <div id="tfSection" style="display:none">
+                        <div class="form-group">
+                            <label class="form-label">Correct Answer <span style="color:var(--red)">*</span></label>
+                            <select class="form-input" id="tfCorrect">
+                                <option value="">Select correct answer...</option>
+                                <option value="True">True</option>
+                                <option value="False">False</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- SHORT ANSWER SECTION -->
+                    <div id="saSection" style="display:none">
+                        <div class="form-group">
+                            <label class="form-label">Correct Answer <span style="color:var(--red)">*</span></label>
+                            <input class="form-input" id="saCorrect" placeholder="e.g. photosynthesis" />
+                            <small style="color:var(--muted);font-size:12px;font-weight:600">The exact answer students must match.</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Accepted Keywords <span style="color:var(--muted);font-weight:500">(optional)</span></label>
+                            <input class="form-input" id="saKeywords" placeholder="e.g. photosynthesis|chlorophyll|light" />
+                            <small style="color:var(--muted);font-size:12px;font-weight:600">Pipe-separated alternative words that also count as correct.</small>
+                        </div>
                     </div>
 
                     <div style="display:flex;gap:12px;margin-top:8px">
-                        <button type="submit" class="btn btn-primary">Add Question</button>
-                        <a href="@Url.Action("Dashboard", "Instructor")" class="btn btn-ghost">Done</a>
+                        <button type="button" onclick="submitQuestion()" class="btn btn-primary">Add Question</button>
+                        <a href="@Url.Action("Details", "Lesson", new { id = lessonId })" class="btn btn-ghost">Done</a>
                     </div>
-                }
+                </form>
             </div>
         </main>
     </div>
+
+    <script>
+        function onTypeChange() {
+            var type = document.getElementById('questionType').value;
+            document.getElementById('mcqSection').style.display = type === 'multiple_choice' ? 'block' : 'none';
+            document.getElementById('tfSection').style.display  = type === 'true_false'      ? 'block' : 'none';
+            document.getElementById('saSection').style.display  = type === 'short_answer'    ? 'block' : 'none';
+        }
+
+        function submitQuestion() {
+            var type = document.getElementById('questionType').value;
+            if (!type) { alert('Please select a question type.'); return; }
+
+            if (type === 'multiple_choice') {
+                var a = document.getElementById('optA').value.trim();
+                var b = document.getElementById('optB').value.trim();
+                var c = document.getElementById('optC').value.trim();
+                var d = document.getElementById('optD').value.trim();
+                var letter = document.getElementById('mcqCorrect').value;
+                if (!a || !b || !c || !d) { alert('Please fill in all 4 options.'); return; }
+                if (!letter) { alert('Please select the correct option.'); return; }
+                var opts = [a, b, c, d];
+                var map = { A: 0, B: 1, C: 2, D: 3 };
+                document.getElementById('correctAnswerHidden').value = opts[map[letter]];
+                document.getElementById('questionAnswerHidden').value = opts.join('|');
+            } else if (type === 'true_false') {
+                var tf = document.getElementById('tfCorrect').value;
+                if (!tf) { alert('Please select True or False.'); return; }
+                document.getElementById('correctAnswerHidden').value = tf;
+                document.getElementById('questionAnswerHidden').value = '';
+            } else if (type === 'short_answer') {
+                var ans = document.getElementById('saCorrect').value.trim();
+                var kw  = document.getElementById('saKeywords').value.trim();
+                if (!ans) { alert('Please enter the correct answer.'); return; }
+                document.getElementById('correctAnswerHidden').value = ans;
+                document.getElementById('questionAnswerHidden').value = kw;
+            }
+
+            document.getElementById('questionForm').submit();
+        }
+    </script>
 
 </body>
 </html>

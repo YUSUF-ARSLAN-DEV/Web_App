@@ -14,6 +14,15 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
+
+            string role = Session["role"] != null ? Session["role"].ToString() : "";
+            if (role == "instructor" || role == "admin")
+            {
+                Assessment a = new AssessmentDAL().GetAssessmentById(assessmentId);
+                TempData["error"] = "Instructors cannot take quizzes.";
+                return RedirectToAction("Details", "Lesson", new { id = a != null ? a.lessonId : 0 });
+            }
+
             Assessment assessment = new AssessmentDAL().GetAssessmentById(assessmentId);
             if (assessment == null)
                 return HttpNotFound();
@@ -39,8 +48,38 @@ namespace WEB_APPLICATION.Controllers
             foreach (Question q in questions)
             {
                 string submitted = answers["q_" + q.questionId];
-                if (submitted != null && submitted.Trim().Equals(q.correctAnswer.Trim(), StringComparison.OrdinalIgnoreCase))
-                    correct++;
+                if (submitted == null) continue;
+
+                if (q.questionType == "multiple_choice" || q.questionType == "true_false")
+                {
+                    if (submitted.Trim().Equals(q.correctAnswer.Trim(), StringComparison.OrdinalIgnoreCase))
+                        correct++;
+                }
+                else if (q.questionType == "short_answer")
+                {
+                    System.Func<string, string> normalize = s =>
+                        System.Text.RegularExpressions.Regex.Replace(s.ToLowerInvariant(), @"[^\w\s]", "").Trim();
+
+                    string normSubmitted = normalize(submitted);
+                    string normCorrect = normalize(q.correctAnswer);
+
+                    if (normSubmitted == normCorrect)
+                    {
+                        correct++;
+                    }
+                    else if (!string.IsNullOrEmpty(q.questionAnswer))
+                    {
+                        string[] keywords = q.questionAnswer.Split('|');
+                        foreach (string kw in keywords)
+                        {
+                            if (normSubmitted.Contains(normalize(kw)))
+                            {
+                                correct++;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
 
             new AssessmentDAL().IncrementAttempt(assessmentId);
@@ -130,16 +169,19 @@ namespace WEB_APPLICATION.Controllers
             if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
                 return RedirectToAction("Login", "Account");
             ViewBag.AssessmentId = assessmentId;
+            Assessment assessment = new AssessmentDAL().GetAssessmentById(assessmentId);
+            ViewBag.LessonId = assessment != null ? assessment.lessonId : 0;
             return View();
         }
 
         // POST: Add Question
         [HttpPost]
-        public ActionResult AddQuestion(int assessmentId, string questionType, string questionText, string correctAnswer)
+        public ActionResult AddQuestion(int assessmentId, string questionType, string questionText, string correctAnswer, string questionAnswer = null)
         {
             try
             {
                 Question question = new Question(0, assessmentId, questionType, questionText, correctAnswer);
+                question.questionAnswer = questionAnswer;
                 new QuestionDAL().CreateQuestion(question);
                 TempData["success"] = "Question added successfully";
                 return RedirectToAction("AddQuestion", new { assessmentId });
@@ -147,6 +189,9 @@ namespace WEB_APPLICATION.Controllers
             catch
             {
                 ViewBag.Error = "An error occurred";
+                Assessment assessment = new AssessmentDAL().GetAssessmentById(assessmentId);
+                ViewBag.AssessmentId = assessmentId;
+                ViewBag.LessonId = assessment != null ? assessment.lessonId : 0;
                 return View();
             }
         }

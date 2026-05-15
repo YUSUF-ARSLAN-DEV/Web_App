@@ -17,7 +17,7 @@ namespace WEB_APPLICATION.Controllers
 
             int userId = (int)Session["userId"];
 
-            List<Course> courses = new CourseDAL().GetCoursesByUserId(userId);
+            List<Course> courses = new CourseDAL().GetCoursesByUserId(userId).FindAll(c => c.activeStatus);
             List<InstructorCourseViewModel> dashboardData = new List<InstructorCourseViewModel>();
 
             foreach (Course course in courses)

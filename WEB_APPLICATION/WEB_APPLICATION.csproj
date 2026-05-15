@@ -232,6 +232,7 @@
     <Content Include="Views\Enrollment\MyEnrollments.cshtml" />
     <Content Include="Views\User\Profile.cshtml" />
     <Content Include="Views\Course\Details.cshtml" />
+    <Content Include="Views\Course\ArchivedCourses.cshtml" />
     <Content Include="Views\User\EditProfile.cshtml" />
     <Content Include="Views\User\ChangePassword.cshtml" />
     <Content Include="Views\Instructor\Dashboard.cshtml" />

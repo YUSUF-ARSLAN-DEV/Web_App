@@ -96,8 +96,14 @@
 
                     <div class="form-group">
                         <label class="form-label">Post Flair <span style="color:var(--red)">*</span></label>
-                        <input class="form-input" name="postFlair"
-                               placeholder="e.g. Question, Discussion, Announcement" required />
+                        <select class="form-input" name="postFlair" required>
+                            <option value="" disabled selected>Select a flair...</option>
+                            <option value="Discussion">Discussion</option>
+                            <option value="Question">Question</option>
+                            <option value="Announcement">Announcement</option>
+                            <option value="Resource">Resource</option>
+                            <option value="Help Wanted">Help Wanted</option>
+                        </select>
                         <small style="color:var(--muted);font-size:12px;font-weight:600">
                             Flair is used to categorise posts within this forum.
                         </small>

@@ -34,17 +34,16 @@
                     <a class="sidebar-item" href="@Url.Action("Dashboard", "Instructor")">
                         <span class="sidebar-icon">&#127968;</span>Dashboard
                     </a>
-                    <a class="sidebar-item" href="@Url.Action("Create", "Course")">
-                        <span class="sidebar-icon">&#43;</span>Create Course
-                    </a>
                 }
                 else
                 {
                     <a class="sidebar-item" href="@Url.Action("MyEnrollments", "Enrollment")">
                         <span class="sidebar-icon">&#127968;</span>Dashboard
                     </a>
-
                 }
+                <a class="sidebar-item" href="@Url.Action("Index", "Course")">
+                    <span class="sidebar-icon">&#128218;</span>Browse Courses
+                </a>
                 <a class="sidebar-item" href="@Url.Action("Profile", "User")">
                     <span class="sidebar-icon">&#128100;</span>Profile
                 </a>
@@ -216,8 +215,8 @@
                         }
                     }
 
-                    <!-- Take Quiz Button (Students) -->
-                    @if (assessment != null)
+                    <!-- Take Quiz Button (Students only) -->
+                    @if (assessment != null && isStudent)
                     {
                         <a href="@Url.Action("TakeQuiz", "Assessment", new { assessmentId = assessment.assessmentId })"
                            class="btn btn-primary">Take Quiz →</a>

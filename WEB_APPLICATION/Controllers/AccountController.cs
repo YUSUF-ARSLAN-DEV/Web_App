@@ -80,6 +80,7 @@ namespace WEB_APPLICATION.Controllers
                 {
                     Session["userId"] = user.userId;
                     Session["userName"] = user.userName;
+                    Session["firstName"] = user.firstName;
                     Session["role"] = user.role.ToString().ToLower();
                    
                     int sessionId = sessoinDal.LogLogin(user.userId);

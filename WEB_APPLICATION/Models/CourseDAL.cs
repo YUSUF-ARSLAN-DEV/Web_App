@@ -227,7 +227,59 @@ namespace WEB_APPLICATION.Models
             return list ;  
         }
     
-        // the method bleow will be used to get All courses for the public catalogue of course 
+        // Reactivate a soft-deleted course
+        public bool ReactivateCourse(int courseId)
+        {
+            bool success = false;
+            try
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(
+                    "UPDATE Course SET activeStatus = 1 WHERE courseId = @courseId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@courseId", courseId);
+                    if (cmd.ExecuteNonQuery() > 0)
+                        success = true;
+                }
+            }
+            catch (SqlException e) { Console.WriteLine(e.Message); }
+            finally { conn.Close(); }
+            return success;
+        }
+
+        // Get all archived (soft-deleted) courses by instructor
+        public List<Course> GetDeletedCoursesByUserId(int userId)
+        {
+            List<Course> courseList = new List<Course>();
+            try
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT * FROM Course WHERE userId = @userId AND activeStatus = 0", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            courseList.Add(new Course(
+                                UtilityDAL.returnInt(reader, "courseId"),
+                                UtilityDAL.returnInt(reader, "userId"),
+                                UtilityDAL.returnString(reader, "courseName"),
+                                UtilityDAL.returnString(reader, "courseDescription"),
+                                UtilityDAL.returnString(reader, "imageUrl"),
+                                UtilityDAL.returnBit(reader, "activeStatus")
+                            ));
+                        }
+                    }
+                }
+            }
+            catch (SqlException e) { Console.WriteLine(e.Message); }
+            finally { conn.Close(); }
+            return courseList;
+        }
+
+        // the method bleow will be used to get All courses for the public catalogue of course
         public List<Course> GetAllActiveCourses()
         {
             List<Course> courseList = new List<Course>();
