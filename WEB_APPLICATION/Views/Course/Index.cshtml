@@ -20,7 +20,7 @@
         <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="sidebar-logo">
-                <a class="nav-logo" href="@Url.Action("Index", "Home")" style="font-size:18px">
+                <a class="nav-logo" href="@(Session["role"] != null && Session["role"].ToString() == "instructor" ? Url.Action("Dashboard", "Instructor") : Session["role"] != null && Session["role"].ToString() == "admin" ? Url.Action("Dashboard", "Admin") : Url.Action("MyEnrollments", "Enrollment"))" style="font-size:18px">
                     <div class="nav-logo-icon" style="width:28px;height:28px;font-size:14px">&#129338;</div>EduNest
                 </a>
             </div>
@@ -143,7 +143,7 @@ else
 {
     <!-- GUEST: top-nav layout -->
     <nav class="nav">
-        <a class="nav-logo" href="@Url.Action("Index", "Home")">
+        <a class="nav-logo" href="@(Session["role"] != null && Session["role"].ToString() == "instructor" ? Url.Action("Dashboard", "Instructor") : Session["role"] != null && Session["role"].ToString() == "admin" ? Url.Action("Dashboard", "Admin") : Url.Action("MyEnrollments", "Enrollment"))">
             <div class="nav-logo-icon"></div>EduNest
         </a>
         <div class="nav-links">
@@ -210,7 +210,7 @@ else
     </div>
 
     <footer>
-        <a class="nav-logo" href="@Url.Action("Index", "Home")">
+        <a class="nav-logo" href="@(Session["role"] != null && Session["role"].ToString() == "instructor" ? Url.Action("Dashboard", "Instructor") : Session["role"] != null && Session["role"].ToString() == "admin" ? Url.Action("Dashboard", "Admin") : Url.Action("MyEnrollments", "Enrollment"))">
             <div class="nav-logo-icon">&#129338;</div>EduNest
         </a>
         <p style="color:var(--muted);font-size:13px;font-weight:600">&copy; 2025 EduNest. All rights reserved.</p>
