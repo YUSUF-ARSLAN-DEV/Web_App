@@ -156,6 +156,8 @@
                     </div>
                 }
 
+
+
                 <!-- Student Reviews -->
                 @if (ratings != null && ratings.Count > 0)
                 {
@@ -173,7 +175,19 @@
                         </div>
                     }
                 }
-
+                <!-- Enroll Button (only for students who are NOT enrolled) -->
+                @if (role == "student" && !isEnrolled)
+                {
+                    <div style="margin-top:36px;margin-bottom:36px">
+                        @using (Html.BeginForm("Enroll", "Enrollment", FormMethod.Post))
+                        {
+                            @Html.Hidden("courseId", Model.courseId)
+                            <button type="submit" class="btn btn-primary" style="width:100%;padding:14px;font-size:16px;font-weight:700">
+                                Enroll in this Course
+                            </button>
+                        }
+                    </div>
+                }
                 <!-- Rate This Course Button (only for enrolled students who haven't rated) -->
                 @if (role == "student" && isEnrolled && !hasRated)
                 {
