@@ -165,3 +165,33 @@ CREATE TABLE [dbo].[LessonCompletion] (
 -- ============================================
 -- DONE!
 -- ============================================
+
+
+-- ============================================
+--  Implementing a CASCAD so that when the parent record is deleted , all the child records will be automatically deleted as well. 
+-- ============================================
+-- we first find the  constraint name then run the SQL QUERY 
+DECLARE @ConstraintName NVARCHAR(200)
+
+SELECT TOP 1 @ConstraintName = fk.name
+FROM sys.foreign_keys fk
+INNER JOIN sys.tables t ON fk.parent_object_id = t.object_id
+WHERE t.name = 'Question'
+
+IF @ConstraintName IS NOT NULL
+BEGIN
+    EXEC('ALTER TABLE Question DROP CONSTRAINT [' + @ConstraintName + ']')
+    PRINT 'Dropped constraint: ' + @ConstraintName
+END
+ELSE
+BEGIN
+    PRINT 'No foreign key constraint found on Question table'
+END
+
+-- Add new CASCADE constraint
+ALTER TABLE Question 
+ADD CONSTRAINT FK_Question_Assessment_CASCADE
+FOREIGN KEY (assessmentId) REFERENCES Assessment(assessmentId) 
+ON DELETE CASCADE
+
+PRINT 'Added CASCADE constraint successfully'

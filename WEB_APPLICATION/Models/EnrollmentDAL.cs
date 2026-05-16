@@ -232,7 +232,8 @@ namespace WEB_APPLICATION.Models
             }
             catch (SqlException e) { Console.WriteLine(e.Message); }
             finally { conn.Close(); }
-            return count > 0;
+
+             return count > 0;
         }
         // TODO: Progress calculation feature - will be implemented when lesson completion tracking is built
         // Requires: LessonCompletionDAL and LessonCompletion table

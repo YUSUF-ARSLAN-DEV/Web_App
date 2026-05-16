@@ -31,9 +31,62 @@ namespace WEB_APPLICATION.Controllers
             return View(assessment);
         }
 
+        // GET: Manage Quiz (Instructor only)
+        [HttpGet]
+        public ActionResult Manage(int lessonId)
+        {
+            if (Session["userId"] == null || Session["role"].ToString() != "instructor")
+                return RedirectToAction("Login", "Account");
+
+            Lesson lesson = new LessonDAL().GetLessonById(lessonId);
+            if (lesson == null)
+                return HttpNotFound();
+
+            // Check if instructor owns this course
+            Course course = new CourseDAL().GetCourseById(lesson.courseId);
+            if (course.userId != (int)Session["userId"] && Session["role"].ToString() != "admin")
+                return new HttpUnauthorizedResult();
+
+            ViewBag.Lesson = lesson;
+
+            var assessments = new AssessmentDAL().GetAssessmentsByLesson(lessonId);
+            ViewBag.Assessment = assessments != null && assessments.Count > 0 ? assessments[0] : null;
+
+            if (ViewBag.Assessment != null)
+            {
+                ViewBag.Questions = new QuestionDAL().GetQuestionsByAssessment(ViewBag.Assessment.assessmentId);
+            }
+
+            return View();
+        }
+
+        // POST: Delete Question
+        [HttpPost]
+        public ActionResult DeleteQuestion(int questionId, int assessmentId)
+        {
+            if (Session["role"] == null || Session["role"].ToString() != "instructor")
+                return RedirectToAction("Login", "Account");
+
+            new QuestionDAL().DeleteQuestion(questionId);
+            TempData["success"] = "Question deleted successfully";
+            return RedirectToAction("Manage", new { lessonId = new AssessmentDAL().GetAssessmentById(assessmentId).lessonId });
+        }
+
+        // POST: Delete Assessment (Entire Quiz)
+        [HttpPost]
+        public ActionResult DeleteAssessment(int id, int lessonId)
+        {
+            if (Session["role"] == null || Session["role"].ToString() != "instructor")
+                return RedirectToAction("Login", "Account");
+
+            new AssessmentDAL().DeleteAssessment(id);
+            TempData["success"] = "Quiz deleted successfully";
+            return RedirectToAction("Manage", new { lessonId = lessonId });
+        }
+
         // POST: Submit Quiz
         [HttpPost]
-        public ActionResult  SubmitQuiz(int assessmentId, FormCollection answers) 
+        public ActionResult SubmitQuiz(int assessmentId, FormCollection answers)
         {
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
@@ -86,6 +139,7 @@ namespace WEB_APPLICATION.Controllers
 
             TempData["score"] = correct;
             TempData["total"] = total;
+
             // After calculating score and total
             double percentage = (double)correct / total * 100;
             int passingScore = 70; // 70% to pass
@@ -115,20 +169,20 @@ namespace WEB_APPLICATION.Controllers
         }
 
         // GET: Quiz Results
-            public ActionResult Results(int assessmentId)
-            {
-                if (Session["userId"] == null)
-                    return RedirectToAction("Login", "Account");
-                
-                Assessment assessment = new AssessmentDAL().GetAssessmentById(assessmentId);
-                if (assessment == null)
-                    return HttpNotFound();
-                
-                ViewBag.Score = TempData["score"]; // storing the score of the student 
-                ViewBag.Total = TempData["total"];
-                
-                return View(assessment);
-            }
+        public ActionResult Results(int assessmentId)
+        {
+            if (Session["userId"] == null)
+                return RedirectToAction("Login", "Account");
+
+            Assessment assessment = new AssessmentDAL().GetAssessmentById(assessmentId);
+            if (assessment == null)
+                return HttpNotFound();
+
+            ViewBag.Score = TempData["score"];
+            ViewBag.Total = TempData["total"];
+
+            return View(assessment);
+        }
 
         // GET: Create Assessment (instructor/admin)
         [HttpGet]
@@ -140,14 +194,14 @@ namespace WEB_APPLICATION.Controllers
             return View();
         }
 
-        // POST: Creatomg am asses,emt for a lesson 
+        // POST: Create Assessment for a lesson
         [HttpPost]
         [ActionName("Create")]
-        public ActionResult CreatePost(int lessonId) // method name is CreatePost because botht get and post version of the method both have the same parameters 
+        public ActionResult CreatePost(int lessonId)
         {
             if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
                 return RedirectToAction("Index", "Course");
-            
+
             Assessment assessment = new Assessment(0, lessonId);
             bool success = new AssessmentDAL().CreateAssessment(assessment);
             if (success)
@@ -196,7 +250,7 @@ namespace WEB_APPLICATION.Controllers
             }
         }
 
-        // POST: Delete Assessment  - after the assesment is deleted we return to the  Lesson page 
+        // POST: Delete Assessment - after assessment is deleted return to Lesson page
         [HttpPost]
         public ActionResult Delete(int id)
         {

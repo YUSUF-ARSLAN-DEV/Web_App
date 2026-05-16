@@ -2,11 +2,28 @@
 @{
     Layout = null;
     var assessment = ViewBag.Assessment as WEB_APPLICATION.Models.Assessment;
-    bool isStudent = Session["role"] != null && Session["role"].ToString() == "student";
-    bool isCompleted = isStudent && (bool)(ViewBag.IsCompleted ?? false);
-    int completedCount = isStudent ? (int)(ViewBag.CompletedCount ?? 0) : 0;
-    int totalLessons = isStudent ? (int)(ViewBag.TotalLessons ?? 0) : 0;
-    int percent = isStudent && totalLessons > 0 ? (int)((double)completedCount / totalLessons * 100) : 0;
+    string role = Session["role"] != null ? Session["role"].ToString() : "";
+    bool isStudent = (role == "student");
+    bool isInstructor = (role == "instructor");
+    bool isAdmin = (role == "admin");
+    bool canEdit = isInstructor;  // Only instructors can edit/delete lessons
+    bool canTakeQuiz = (isStudent || isAdmin) && assessment != null;  // Students AND admins can take quizzes
+    bool isCompleted = false;
+    int completedCount = 0;
+    int totalLessons = 0;
+    int percent = 0;
+
+    if (isStudent)
+    {
+        isCompleted = (bool)(ViewBag.IsCompleted ?? false);
+        completedCount = (int)(ViewBag.CompletedCount ?? 0);
+        totalLessons = (int)(ViewBag.TotalLessons ?? 0);
+        percent = totalLessons > 0 ? (int)((double)completedCount / totalLessons * 100) : 0;
+    }
+
+
+
+
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -17,21 +34,26 @@
     <link rel="stylesheet" href="~/Content/site.css" />
 </head>
 <body>
-
     <div class="dashboard-layout">
         <!-- ================================================ -->
         <!-- SIDEBAR (Left Navigation)                        -->
         <!-- ================================================ -->
         <aside class="sidebar">
             <div class="sidebar-logo">
-                <a class="nav-logo" href="@(Session["role"] != null && Session["role"].ToString() == "instructor" ? Url.Action("Dashboard", "Instructor") : Session["role"] != null && Session["role"].ToString() == "admin" ? Url.Action("Dashboard", "Admin") : Url.Action("MyEnrollments", "Enrollment"))" style="font-size:18px">
+                <a class="nav-logo" href="@(isInstructor ? Url.Action("Dashboard", "Instructor") : isAdmin ? Url.Action("Dashboard", "Admin") : Url.Action("MyEnrollments", "Enrollment"))" style="font-size:18px">
                     <div class="nav-logo-icon" style="width:28px;height:28px;font-size:14px">&#129338;</div>EduNest
                 </a>
             </div>
             <nav style="padding:8px 0">
-                @if (Session["role"] != null && Session["role"].ToString() == "instructor")
+                @if (isInstructor)
                 {
                     <a class="sidebar-item" href="@Url.Action("Dashboard", "Instructor")">
+                        <span class="sidebar-icon">&#127968;</span>Dashboard
+                    </a>
+                }
+                else if (isAdmin)
+                {
+                    <a class="sidebar-item" href="@Url.Action("Dashboard", "Admin")">
                         <span class="sidebar-icon">&#127968;</span>Dashboard
                     </a>
                 }
@@ -41,9 +63,14 @@
                         <span class="sidebar-icon">&#127968;</span>Dashboard
                     </a>
                 }
-                <a class="sidebar-item" href="@Url.Action("Index", "Course")">
-                    <span class="sidebar-icon">&#128218;</span>Browse Courses
-                </a>
+
+                @if (!isInstructor && !isAdmin)
+                {
+                    <a class="sidebar-item" href="@Url.Action("Index", "Course")">
+                        <span class="sidebar-icon">&#128218;</span>Browse Courses
+                    </a>
+                }
+
                 <a class="sidebar-item" href="@Url.Action("Profile", "User")">
                     <span class="sidebar-icon">&#128100;</span>Profile
                 </a>
@@ -59,7 +86,7 @@
                     <div>
                         <div style="font-size:13px;font-weight:800">@Session["userName"]</div>
                         <div style="font-size:11px;color:var(--muted);font-weight:600">
-                            @(Session["role"] != null ? Session["role"].ToString() : "")
+                            @role
                         </div>
                     </div>
                 </div>
@@ -85,7 +112,8 @@
                     <h1 style="font-size:32px;margin-bottom:6px">@Model.lessonTitle</h1>
                 </div>
 
-                @if (Session["role"] != null && (Session["role"].ToString() == "instructor" || Session["role"].ToString() == "admin"))
+                @* Only instructors can edit/delete lessons - Admins see student view *@
+                @if (canEdit)
                 {
                     <div style="display:flex;gap:10px">
                         <a href="@Url.Action("Edit", "Lesson", new { id = Model.lessonId })"
@@ -157,7 +185,7 @@
                 </div>
             </div>
 
-            <!-- ===== ATTACHMENT DOWNLOAD CARD (NEW - from F3) ===== -->
+            <!-- ===== ATTACHMENT DOWNLOAD CARD (from F3) ===== -->
             @if (!string.IsNullOrEmpty(Model.attachmentUrl))
             {
                 <div class="card" style="padding:20px;max-width:800px;margin-top:20px;display:flex;align-items:center;gap:16px;">
@@ -180,8 +208,9 @@
                    class="btn btn-ghost">← All Lessons</a>
 
                 <div style="display:flex;gap:12px">
-                    <!-- MARK COMPLETE / COMPLETED BADGE (Students only) -->
-                    @if (isStudent && Session["userId"] != null)
+
+                    <!-- MARK COMPLETE / COMPLETED BADGE only students who are enrolled in this course can see this -->
+                    @if (isStudent && ViewBag.IsEnrolled == true && Session["userId"] != null)
                     {
                         if (isCompleted)
                         {
@@ -200,23 +229,15 @@
                         }
                     }
 
-                    <!-- Quiz Buttons (Instructor/Admin) -->
-                    @if (Session["role"] != null && Session["role"].ToString() == "instructor")
+                    <!-- Create Quiz Button (Instructors only) -->
+                    @if (isInstructor && assessment == null)
                     {
-                        if (assessment == null)
-                        {
-                            <a href="@Url.Action("Create", "Assessment", new { lessonId = Model.lessonId })"
-                               class="btn btn-primary">+ Create Quiz</a>
-                        }
-                        else
-                        {
-                            <a href="@Url.Action("AddQuestion", "Assessment", new { assessmentId = assessment.assessmentId })"
-                               class="btn btn-outline">+ Add Question</a>
-                        }
+                        <a href="@Url.Action("Create", "Assessment", new { lessonId = Model.lessonId })"
+                           class="btn btn-primary">+ Create Quiz</a>
                     }
 
-                    <!-- Take Quiz Button (Students only) -->
-                    @if (assessment != null && isStudent)
+                    <!-- Take Quiz Button (Students and Admins only) -->
+                    @if (assessment != null && (isStudent || isAdmin))
                     {
                         <a href="@Url.Action("TakeQuiz", "Assessment", new { assessmentId = assessment.assessmentId })"
                            class="btn btn-primary">Take Quiz →</a>

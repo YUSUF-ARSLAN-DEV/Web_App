@@ -133,7 +133,14 @@
                             <div style="display:flex;gap:8px;flex-shrink:0">
                                 <a href="@Url.Action("Details", "Lesson", new { id = lesson.lessonId })"
                                    class="btn btn-ghost" style="font-size:12px;padding:6px 12px">View</a>
-
+                                <!-- This button Takes the user to the Manage page where they can manage the Quiz for a lesson -->
+                                @if (Session["role"] != null && (Session["role"].ToString() == "instructor" || Session["role"].ToString() == "admin"))
+                                {
+                                    <a href="@Url.Action("Manage", "Assessment", new { lessonId = lesson.lessonId })"
+                                       class="btn btn-outline" style="font-size:12px;padding:6px 12px">
+                                        Manage Quiz
+                                    </a>
+                                }
                                 @if (Session["role"] != null && (Session["role"].ToString() == "instructor" || Session["role"].ToString() == "admin"))
                                 {
                                     <a href="@Url.Action("Edit", "Lesson", new { id = lesson.lessonId })"

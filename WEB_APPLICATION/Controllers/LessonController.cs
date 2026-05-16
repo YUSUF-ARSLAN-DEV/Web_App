@@ -29,14 +29,29 @@ namespace WEB_APPLICATION.Controllers
             List<Assessment> assessments = new AssessmentDAL().GetAssessmentsByLesson(id);
             ViewBag.Assessment = assessments != null && assessments.Count > 0 ? assessments[0] : null;
 
+
             // Progress tracking for students
             if (Session["role"] != null && Session["role"].ToString() == "student")
             {
+                ViewBag.TestMessage = "Student block entered";
+
                 int userId = (int)Session["userId"];
                 LessonCompletionDAL completionDAL = new LessonCompletionDAL();
+                EnrollmentDAL enrollmentDAL = new EnrollmentDAL();
+
+                bool isEnrolled = enrollmentDAL.IsEnrolled(userId, lesson.courseId);
+                ViewBag.IsEnrolled = isEnrolled;
+
+                ViewBag.TestMessage = $"Student block: IsEnrolled = {isEnrolled}";
+
                 ViewBag.IsCompleted = completionDAL.IsCompleted(userId, id);
                 ViewBag.CompletedCount = completionDAL.GetCompletedCount(userId, lesson.courseId);
                 ViewBag.TotalLessons = new LessonDAL().GetLessonCountByCourse(lesson.courseId);
+            }
+            else
+            {
+                ViewBag.TestMessage = "Student block NOT entered - Role = " + Session["role"];
+                ViewBag.IsEnrolled = false;
             }
 
             return View(lesson);
