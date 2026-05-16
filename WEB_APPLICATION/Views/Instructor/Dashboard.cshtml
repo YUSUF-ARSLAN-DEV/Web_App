@@ -45,9 +45,6 @@
                 <a class="sidebar-item active" href="@Url.Action("Dashboard", "Instructor")">
                     <span class="sidebar-icon">&#127968;</span>Dashboard
                 </a>
-                <a class="sidebar-item" href="@Url.Action("Index", "Course")">
-                    <span class="sidebar-icon">&#128218;</span>Browse Courses
-                </a>
                 <a class="sidebar-item" href="@Url.Action("Profile", "User")">
                     <span class="sidebar-icon">&#128100;</span>Profile
                 </a>
@@ -114,7 +111,7 @@
                     <div class="stat-value">
                         @if (overallRating > 0)
                         {
-                            @(Math.Round(overallRating, 1) + " ★")
+                            @(Math.Round(overallRating, 1) )
                         }
                         else
                         {
@@ -171,7 +168,7 @@
                                     <td style="padding:16px 20px;text-align:center">
                                         @if (item.avgRating > 0)
                                         {
-                                            <span style="color:var(--gold);font-weight:700">@Math.Round(item.avgRating, 1) ★</span>
+                                            <span style="color:var(--gold);font-weight:700">@Math.Round(item.avgRating, 1) </span>
                                         }
                                         else
                                         {
@@ -183,7 +180,10 @@
                                             <a href="@Url.Action("Details", "Course", new { id = item.course.courseId })"
                                                class="btn btn-ghost" style="font-size:12px;padding:6px 12px">View</a>
                                             <a href="@Url.Action("Edit", "Course", new { id = item.course.courseId })"
-                                               class="btn btn-outline" style="font-size:12px;padding:6px 12px">Edit</a>
+                                               class="btn btn-outline" style="font-size:12px;padding:6px 12px"
+                                               title="Edit Course Details (title, description, thumbnail)">
+                                                Edit
+                                            </a>
                                             <button type="button" class="btn btn-ghost"
                                                     style="font-size:12px;padding:6px 12px;color:var(--red)"
                                                     onclick="openDeleteModal(@item.course.courseId, '@Html.Raw(item.course.courseName.Replace("'", "\\'"))')">
