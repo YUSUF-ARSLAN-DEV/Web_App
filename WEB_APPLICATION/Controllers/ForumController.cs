@@ -22,6 +22,9 @@ namespace WEB_APPLICATION.Controllers
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
 
+            string role = Session["role"].ToString();
+            int currentUserId = (int)Session["userId"];
+
             Forum forum = new ForumDAL().GetForumById(id);
             if (forum == null)
                 return HttpNotFound();
@@ -29,9 +32,18 @@ namespace WEB_APPLICATION.Controllers
             List<Post> posts = new PostDAL().GetPostsByForum(id);
             ViewBag.Posts = posts;
 
+            // Check if the student opening this page is enrolled in this course
+            if (role == "student")
+            {
+                int userId = (int)Session["userId"];
+                ViewBag.IsEnrolled = new EnrollmentDAL().IsEnrolled(userId, forum.courseId);
+            }
+            else
+            {
+                ViewBag.IsEnrolled = false;
+            }
+
             // Check if current user is instructor of this course
-            string role = Session["role"].ToString();
-            int currentUserId = (int)Session["userId"];
             bool isInstructorOfThisCourse = false;
 
             if (role == "instructor")

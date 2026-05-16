@@ -21,11 +21,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EduNest – @(Model != null ? Model.courseName : "Course")</title>
     <link rel="stylesheet" href="~/Content/site.css" />
-    <style>
-        .modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center; }
-        .modal-overlay.open { display:flex; }
-        .modal-box { background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:420px;width:90%;text-align:center; }
-    </style>
 </head>
 <body>
 
@@ -37,14 +32,11 @@
         else { dashboardLink = Url.Action("Index", "Home"); }
     }
 
+    <!-- NAVIGATION -->
     <nav class="nav">
         <a class="nav-logo" href="@dashboardLink">
             <div class="nav-logo-icon"></div>EduNest
         </a>
-        <div class="nav-links">
-            <a href="@dashboardLink">Home</a>
-           
-        </div>
         <div class="nav-right">
             @if (Session["userId"] != null)
             {
@@ -60,16 +52,8 @@
     </nav>
 
     <div style="max-width:1140px;margin:0 auto;padding:40px 48px">
-
-        <!-- Breadcrumb -->
-        <div style="font-size:13px;color:var(--muted);margin-bottom:20px;font-weight:600">
-            <a href="@Url.Action("Index", "Home")" style="color:var(--muted);text-decoration:none">Home</a>
-            › <a href="@Url.Action("Index", "Course")" style="color:var(--muted);text-decoration:none">Courses</a>
-            › <span style="color:var(--text)">@Model.courseName</span>
-        </div>
-
-        <!-- ARCHIVED BANNER -->
-        @if (!isActive)
+        <!-- ARCHIVED BANNER (only visible to instructors/admins) -->
+        @if (!isActive && (role == "instructor" || role == "admin"))
         {
             <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between">
                 <div>
@@ -87,7 +71,7 @@
             </div>
         }
 
-        <!-- Success/Error messages -->
+        <!-- SUCCESS/ERROR MESSAGES -->
         @if (TempData["success"] != null)
         {
             <div style="background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;color:var(--teal);font-size:13px;font-weight:600">
@@ -101,21 +85,27 @@
             </div>
         }
 
-        <div style="display:grid;grid-template-columns:1fr 340px;gap:44px">
-            <!-- LEFT -->
+        <!-- MAIN CONTENT - FULL WIDTH (no sidebar for non-students) -->
+        <div style="display:grid;grid-template-columns:1fr;gap:44px">
+
+            <!-- LEFT COLUMN (Full width) -->
             <div>
+                <!-- Course Title -->
                 <h1 style="font-size:36px;line-height:1.2;margin-bottom:16px">@Model.courseName</h1>
+
+                <!-- Course Description -->
                 <p style="color:var(--muted);font-size:16px;margin-bottom:22px;line-height:1.75;font-weight:500">@Model.courseDescription</p>
 
+                <!-- Rating Display -->
                 @if (avgRating > 0)
                 {
                     <div style="display:flex;align-items:center;gap:8px;margin-bottom:22px">
-                        <span style="color:var(--gold);font-size:18px">★</span>
                         <strong>@Math.Round(avgRating, 1)</strong>
-                        <span style="color:var(--muted);font-size:13px">(@(ratings != null ? ratings.Count : 0) ratings)</span>
+                        <span style="color:var(--muted);font-size:13px">/ 5 (@(ratings != null ? ratings.Count : 0) ratings)</span>
                     </div>
                 }
 
+                <!-- Course Image -->
                 @if (!string.IsNullOrEmpty(Model.imageUrl))
                 {
                     <div style="border-radius:16px;overflow:hidden;margin-bottom:28px;border:1px solid var(--border)">
@@ -123,20 +113,7 @@
                     </div>
                 }
 
-                <!-- Instructor/Admin controls (active courses only) -->
-                @if ((role == "instructor" || role == "admin") && isActive)
-                {
-                    <div style="display:flex;gap:12px;margin-bottom:28px">
-                        <a href="@Url.Action("Edit", "Course", new { id = Model.courseId })" class="btn btn-outline">Edit Course</a>
-                        <button type="button" class="btn btn-ghost" style="color:var(--red)"
-                                onclick="openDeleteModal(@Model.courseId, '@Html.Raw(Model.courseName.Replace("'", "\\'"))')">
-                            Archive Course
-                        </button>
-                        <a href="@Url.Action("Create", "Lesson", new { courseId = Model.courseId })" class="btn btn-primary">+ Add Lesson</a>
-                    </div>
-                }
-
-                <!-- Lessons list -->
+                <!-- Lessons List -->
                 <h2 style="font-size:22px;margin-bottom:18px">Course Lessons</h2>
                 @if (lessons == null || lessons.Count == 0)
                 {
@@ -163,7 +140,7 @@
                     }
                 }
 
-                <!-- Forums -->
+                <!-- Discussions Section -->
                 @if (Session["userId"] != null)
                 {
                     <div style="margin-top:36px;margin-bottom:36px">
@@ -174,12 +151,12 @@
                                 <div style="font-size:13px;color:var(--muted);font-weight:600">Discuss topics, ask questions, and share ideas.</div>
                             </div>
                             <a href="@Url.Action("Index", "Forum", new { courseId = Model.courseId })"
-                               class="btn btn-outline" style="flex-shrink:0;margin-left:16px">View Forums &#8594;</a>
+                               class="btn btn-outline" style="flex-shrink:0;margin-left:16px">View Forums</a>
                         </div>
                     </div>
                 }
 
-                <!-- Reviews -->
+                <!-- Student Reviews -->
                 @if (ratings != null && ratings.Count > 0)
                 {
                     <h2 style="font-size:22px;margin-top:36px;margin-bottom:18px">Student Reviews</h2>
@@ -188,13 +165,16 @@
                         <div style="padding:20px 0;border-bottom:1px solid var(--border)">
                             <div style="display:flex;justify-content:space-between;margin-bottom:8px">
                                 <strong style="font-size:15px">Student #@rating.userId</strong>
-                                <span style="color:var(--gold)">@string.Concat(Enumerable.Repeat("★", rating.score))</span>
+                                <span style="color:var(--gold); font-weight:700">
+                                    @rating.score/5
+                                </span>
                             </div>
                             <p style="color:var(--muted);font-size:14px;font-weight:500">@rating.comment</p>
                         </div>
                     }
                 }
 
+                <!-- Rate This Course Button (only for enrolled students who haven't rated) -->
                 @if (role == "student" && isEnrolled && !hasRated)
                 {
                     <div style="margin-top:32px">
@@ -202,108 +182,21 @@
                     </div>
                 }
             </div>
+        </div>
 
-            <!-- RIGHT SIDEBAR -->
-            <div>
-                <div class="card" style="position:sticky;top:90px;padding:26px">
-                    @if (!string.IsNullOrEmpty(Model.imageUrl))
-                    {
-                        <div style="border-radius:12px;overflow:hidden;margin-bottom:20px">
-                            <img src="@Model.imageUrl" alt="" style="width:100%;height:160px;object-fit:cover;display:block" />
-                        </div>
-                    }
-                    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:22px">
-                        <div style="display:flex;gap:10px;font-size:13px;color:var(--muted);font-weight:600">
-                            <span>&#128218;</span>@(lessons != null ? lessons.Count : 0) Lessons
-                        </div>
-                        <div style="display:flex;gap:10px;font-size:13px;color:var(--muted);font-weight:600">
-                            <span>&#128100;</span>@(ratings != null ? ratings.Count : 0) Students Rated
-                        </div>
-                    </div>
-
-                    @if (Session["userId"] == null)
-                    {
-                        <a class="btn btn-primary btn-lg" href="@Url.Action("Registration", "Account")"
-                           style="display:block;text-align:center;margin-bottom:12px">Sign Up to Enroll</a>
-                        <a class="btn btn-ghost" href="@Url.Action("Login", "Account")"
-                           style="display:block;text-align:center">Already have an account? Log In</a>
-                    }
-                    else if (role == "student" && isActive)
-                    {
-                        if (isEnrolled)
-                        {
-                            <div style="background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.3);border-radius:10px;padding:12px;text-align:center;margin-bottom:12px;color:var(--teal);font-weight:700;font-size:14px">
-                                ✓ You are enrolled
-                            </div>
-                            <a href="@Url.Action("Index", "Lesson", new { courseId = Model.courseId })"
-                               class="btn btn-primary btn-lg" style="display:block;text-align:center;margin-bottom:12px">Continue Learning</a>
-                            using (Html.BeginForm("Unenroll", "Enrollment", FormMethod.Post))
-                            {
-                                <input type="hidden" name="courseId" value="@Model.courseId" />
-                                <input type="hidden" name="enrollmentId" value="@enrollmentId" />
-                                <button type="submit" class="btn btn-ghost" style="width:100%;color:var(--muted);font-size:13px">Unenroll</button>
-                            }
-                        }
-                        else
-                        {
-                            using (Html.BeginForm("Enroll", "Enrollment", FormMethod.Post))
-                            {
-                                <input type="hidden" name="courseId" value="@Model.courseId" />
-                                <button type="submit" class="btn btn-primary btn-lg" style="width:100%;text-align:center">Enroll Now — Free</button>
-                            }
-                        }
-                    }
-                    else if ((role == "instructor" || role == "admin") && isActive)
-                    {
-                        <a href="@Url.Action("Create", "Lesson", new { courseId = Model.courseId })"
-                           class="btn btn-primary btn-lg" style="display:block;text-align:center">+ Add Lesson</a>
-                    }
-                </div>
+        <!-- FOOTER -->
+        <footer>
+            <a class="nav-logo" href="@(role == "instructor" ? Url.Action("Dashboard", "Instructor") : role == "admin" ? Url.Action("Dashboard", "Admin") : Url.Action("MyEnrollments", "Enrollment"))">
+                <div class="nav-logo-icon">&#129338;</div>EduNest
+            </a>
+            <p style="color:var(--muted);font-size:13px;font-weight:600">&copy; 2025 EduNest. All rights reserved.</p>
+            <div style="display:flex;gap:24px">
+                <span style="color:var(--muted);font-size:13px;font-weight:600">Privacy</span>
+                <span style="color:var(--muted);font-size:13px;font-weight:600">Terms</span>
+                <span style="color:var(--muted);font-size:13px;font-weight:600">Support</span>
             </div>
-        </div>
+        </footer>
     </div>
-
-    <footer>
-        <a class="nav-logo" href="@(Session["role"] != null && Session["role"].ToString() == "instructor" ? Url.Action("Dashboard", "Instructor") : Session["role"] != null && Session["role"].ToString() == "admin" ? Url.Action("Dashboard", "Admin") : Url.Action("MyEnrollments", "Enrollment"))">
-            <div class="nav-logo-icon">&#129338;</div>EduNest
-        </a>
-        <p style="color:var(--muted);font-size:13px;font-weight:600">&copy; 2025 EduNest. All rights reserved.</p>
-        <div style="display:flex;gap:24px">
-            <span style="color:var(--muted);font-size:13px;font-weight:600">Privacy</span>
-            <span style="color:var(--muted);font-size:13px;font-weight:600">Terms</span>
-            <span style="color:var(--muted);font-size:13px;font-weight:600">Support</span>
-        </div>
-    </footer>
-
-    <!-- ARCHIVE MODAL -->
-    <div class="modal-overlay" id="deleteModal">
-        <div class="modal-box">
-            <div style="font-size:40px;margin-bottom:16px">&#128193;</div>
-            <h2 style="font-size:20px;font-weight:800;margin-bottom:10px">Archive this course?</h2>
-            <p style="color:var(--muted);font-size:14px;font-weight:600;margin-bottom:24px" id="modalCourseName"></p>
-            <p style="color:var(--muted);font-size:13px;margin-bottom:28px">Students will no longer see it. You can reactivate it anytime.</p>
-            <div style="display:flex;gap:12px;justify-content:center">
-                <button onclick="closeDeleteModal()" class="btn btn-ghost" style="padding:10px 24px">Cancel</button>
-                <form id="deleteForm" method="post" style="margin:0">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="id" id="deleteCourseId" />
-                    <button type="submit" class="btn btn-primary" style="padding:10px 24px;background:var(--red);border-color:var(--red)">Archive</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function openDeleteModal(courseId, courseName) {
-            document.getElementById('deleteCourseId').value = courseId;
-            document.getElementById('modalCourseName').textContent = '"' + courseName + '"';
-            document.getElementById('deleteForm').action = '@Url.Action("Delete", "Course")';
-            document.getElementById('deleteModal').classList.add('open');
-        }
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').classList.remove('open');
-        }
-    </script>
 
 </body>
 </html>

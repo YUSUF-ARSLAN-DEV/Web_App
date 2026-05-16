@@ -90,7 +90,7 @@
                 </div>
 
                 <div style="display:flex;gap:10px">
-                    @if (role == "student")
+                    @if (role == "student" && ViewBag.IsEnrolled == true)
                     {
                         <a href="@Url.Action("Create", "Post", new { forumId = Model.forumId })"
                            class="btn btn-primary">+ New Post</a>
@@ -131,7 +131,7 @@
                 <div style="text-align:center;padding:60px 0;color:var(--muted)">
                     <div style="font-size:48px;margin-bottom:16px">&#128172;</div>
                     <p style="font-size:16px;margin-bottom:20px">No posts yet. Be the first to start a discussion!</p>
-                    @if (role == "student")
+                    @if (role == "student" && ViewBag.IsEnrolled == true)
                     {
                         <a href="@Url.Action("Create", "Post", new { forumId = Model.forumId })"
                            class="btn btn-primary">Create First Post</a>
