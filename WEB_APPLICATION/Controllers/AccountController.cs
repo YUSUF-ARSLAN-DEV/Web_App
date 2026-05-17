@@ -116,7 +116,8 @@ namespace WEB_APPLICATION.Controllers
             sessionDal.LogLogout((int)Session["sessionId"]);
         }
         Session.Clear();
-        TempData["success"] = "You have logged out";
+            Session.Abandon(); // this abandons the session and clears all session data to ensure user is logged out 
+            TempData["success"] = "You have logged out";
         return RedirectToAction("Index", "Home");
     }
     }

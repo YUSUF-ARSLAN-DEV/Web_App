@@ -22,23 +22,35 @@ namespace WEB_APPLICATION.Controllers
         }
 
         // GET: Course Details // showing the details of a course nad its rating 
-        public ActionResult Details(int id)
+        public ActionResult Details(int? id)
         {
-            Course course = new CourseDAL().GetCourseById(id);
+            // Guard clause: convert nullable to regular int
+            int courseId = id ?? 0;
+
+            // Session check FIRST
+            if (Session["userId"] == null)
+                return RedirectToAction("Login", "Account");
+
+            // Null/invalid ID check
+            if (courseId == 0)
+                return RedirectToAction("Index");
+
+            // Now use courseId everywhere (not id)
+            Course course = new CourseDAL().GetCourseById(courseId);
             if (course == null)
                 return HttpNotFound();
 
             RatingDAL ratingDal = new RatingDAL();
-            ViewBag.AverageRating = ratingDal.GetAverageRating(id);
-            ViewBag.Ratings = ratingDal.GetRatingsByCourse(id);
-            ViewBag.Lessons = new LessonDAL().GetLessonsByCourse(id);
+            ViewBag.AverageRating = ratingDal.GetAverageRating(courseId);
+            ViewBag.Ratings = ratingDal.GetRatingsByCourse(courseId);
+            ViewBag.Lessons = new LessonDAL().GetLessonsByCourse(courseId);
 
             if (Session["userId"] != null && Session["role"].ToString() == "student")
             {
                 int userId = (int)Session["userId"];
-                ViewBag.HasRated = new RatingDAL().HasUserRated(userId, id);
-                  ViewBag.IsEnrolled = new EnrollmentDAL().IsEnrolled(userId, id); // to check if the student is enrolled or not so that he gets shown the corerct button 
-                var enrollment = new EnrollmentDAL().GetEnrollment(userId, id);
+                ViewBag.HasRated = new RatingDAL().HasUserRated(userId, courseId);
+                ViewBag.IsEnrolled = new EnrollmentDAL().IsEnrolled(userId, courseId);
+                var enrollment = new EnrollmentDAL().GetEnrollment(userId, courseId);
                 ViewBag.EnrollmentId = enrollment != null ? enrollment.enrollmentId : 0;
             }
             else
