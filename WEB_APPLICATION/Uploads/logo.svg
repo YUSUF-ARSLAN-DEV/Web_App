@@ -1,0 +1,103 @@
+<svg width="56" height="56" viewBox="0 0 680 720" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>EduNest logo</title>
+  <desc>A cute smiling baby chick with round glasses sitting in a woven nest</desc>
+
+  <defs>
+    <linearGradient id="bodyGrad" x1="0.3" y1="0" x2="0.7" y2="1">
+      <stop offset="0%" stop-color="#FFE566"/>
+      <stop offset="100%" stop-color="#F5B800"/>
+    </linearGradient>
+    <linearGradient id="headGrad" x1="0.3" y1="0" x2="0.7" y2="1">
+      <stop offset="0%" stop-color="#FFED80"/>
+      <stop offset="100%" stop-color="#FFD000"/>
+    </linearGradient>
+    <linearGradient id="nestGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#A0652A"/>
+      <stop offset="100%" stop-color="#6B3D12"/>
+    </linearGradient>
+    <linearGradient id="wingL" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFDC40"/>
+      <stop offset="100%" stop-color="#E8A800"/>
+    </linearGradient>
+    <linearGradient id="eyeGrad" x1="0.3" y1="0" x2="0.7" y2="1">
+      <stop offset="0%" stop-color="#3a3a5c"/>
+      <stop offset="100%" stop-color="#111122"/>
+    </linearGradient>
+  </defs>
+
+  <!-- NEST -->
+  <ellipse cx="340" cy="640" rx="230" ry="70" fill="url(#nestGrad)"/>
+  <ellipse cx="340" cy="630" rx="225" ry="62" fill="#7A4820" opacity="0.5"/>
+  <path d="M120 640 Q180 570 260 590 Q320 560 340 575 Q360 560 420 590 Q500 570 560 640" fill="none" stroke="#5C3010" stroke-width="9" stroke-linecap="round"/>
+  <path d="M130 650 Q200 580 290 600 Q320 575 340 585 Q360 575 390 600 Q480 580 550 650" fill="none" stroke="#8B5620" stroke-width="7" stroke-linecap="round"/>
+  <path d="M115 655 Q190 595 270 610 Q310 590 340 598 Q370 590 410 610 Q490 595 565 655" fill="none" stroke="#6B3D14" stroke-width="5" stroke-linecap="round"/>
+  <path d="M140 645 Q210 590 300 607 Q320 592 340 600 Q360 592 380 607 Q470 590 540 645" fill="none" stroke="#C48030" stroke-width="4" stroke-linecap="round"/>
+  <path d="M150 658 Q230 608 310 618 Q325 606 340 610 Q355 606 370 618 Q450 608 530 658" fill="none" stroke="#9A6228" stroke-width="3" stroke-linecap="round"/>
+  <path d="M200 660 Q240 615 280 640" fill="none" stroke="#6B3D14" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M270 655 Q310 612 350 635" fill="none" stroke="#8B5220" stroke-width="3" stroke-linecap="round"/>
+  <path d="M350 635 Q390 612 430 655" fill="none" stroke="#6B3D14" stroke-width="3" stroke-linecap="round"/>
+  <path d="M420 640 Q460 615 500 660" fill="none" stroke="#8B5220" stroke-width="3.5" stroke-linecap="round"/>
+  <ellipse cx="340" cy="575" rx="215" ry="28" fill="#C48A3A" opacity="0.4"/>
+
+  <!-- BODY -->
+  <ellipse cx="340" cy="510" rx="155" ry="140" fill="url(#bodyGrad)"/>
+  <path d="M220 520 Q240 500 265 515" fill="none" stroke="#E8A800" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+  <path d="M215 545 Q235 525 260 540" fill="none" stroke="#E8A800" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  <path d="M225 570 Q248 552 270 565" fill="none" stroke="#E8A800" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  <path d="M420 520 Q440 500 465 515" fill="none" stroke="#E8A800" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+  <path d="M425 545 Q445 525 468 540" fill="none" stroke="#E8A800" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  <path d="M418 570 Q440 552 462 565" fill="none" stroke="#E8A800" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- WINGS -->
+  <path d="M190 480 Q130 440 115 510 Q110 570 175 590 Q220 600 245 570 Q260 540 230 510 Z" fill="url(#wingL)"/>
+  <path d="M185 490 Q145 470 135 510" fill="none" stroke="#D4920A" stroke-width="2" stroke-linecap="round"/>
+  <path d="M180 515 Q142 500 138 535" fill="none" stroke="#D4920A" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M183 540 Q148 530 148 560" fill="none" stroke="#D4920A" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M490 480 Q550 440 565 510 Q570 570 505 590 Q460 600 435 570 Q420 540 450 510 Z" fill="url(#wingL)"/>
+  <path d="M495 490 Q535 470 545 510" fill="none" stroke="#D4920A" stroke-width="2" stroke-linecap="round"/>
+  <path d="M500 515 Q538 500 542 535" fill="none" stroke="#D4920A" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M497 540 Q532 530 532 560" fill="none" stroke="#D4920A" stroke-width="1.8" stroke-linecap="round"/>
+
+  <!-- HEAD -->
+  <circle cx="340" cy="300" r="175" fill="url(#headGrad)"/>
+
+  <!-- TUFTS -->
+  <path d="M285 138 Q295 80 310 130" fill="#FFE040" stroke="#D4A800" stroke-width="1.5"/>
+  <path d="M310 130 Q325 62 340 120" fill="#FFED70" stroke="#D4A800" stroke-width="1.5"/>
+  <path d="M340 120 Q355 58 368 118" fill="#FFE040" stroke="#D4A800" stroke-width="1.5"/>
+  <path d="M368 118 Q382 78 392 130" fill="#FFD820" stroke="#C49000" stroke-width="1.5"/>
+
+  <!-- BLUSH -->
+  <ellipse cx="215" cy="330" rx="48" ry="32" fill="#FF9966" opacity="0.35"/>
+  <ellipse cx="465" cy="330" rx="48" ry="32" fill="#FF9966" opacity="0.35"/>
+
+  <!-- EYES -->
+  <ellipse cx="255" cy="280" rx="58" ry="62" fill="white"/>
+  <ellipse cx="425" cy="280" rx="58" ry="62" fill="white"/>
+  <circle cx="262" cy="284" r="42" fill="#4A7FC1"/>
+  <circle cx="418" cy="284" r="42" fill="#4A7FC1"/>
+  <circle cx="265" cy="287" r="28" fill="url(#eyeGrad)"/>
+  <circle cx="415" cy="287" r="28" fill="url(#eyeGrad)"/>
+  <circle cx="252" cy="270" r="10" fill="white" opacity="0.9"/>
+  <circle cx="402" cy="270" r="10" fill="white" opacity="0.9"/>
+  <circle cx="276" cy="296" r="5" fill="white" opacity="0.5"/>
+  <circle cx="426" cy="296" r="5" fill="white" opacity="0.5"/>
+
+  <!-- GLASSES -->
+  <rect x="188" y="238" width="142" height="108" rx="28" fill="none" stroke="#2A4DB0" stroke-width="10"/>
+  <rect x="352" y="238" width="142" height="108" rx="28" fill="none" stroke="#2A4DB0" stroke-width="10"/>
+  <path d="M330 290 Q340 282 352 290" fill="none" stroke="#2A4DB0" stroke-width="8" stroke-linecap="round"/>
+  <path d="M188 268 Q155 252 132 248" fill="none" stroke="#2A4DB0" stroke-width="8" stroke-linecap="round"/>
+  <path d="M494 268 Q527 252 550 248" fill="none" stroke="#2A4DB0" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- BEAK -->
+  <path d="M300 370 Q340 360 380 370 Q360 420 340 430 Q320 420 300 370 Z" fill="#FF8C00"/>
+  <path d="M300 370 Q340 365 380 370" fill="none" stroke="#CC6A00" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- SMILE -->
+  <path d="M285 435 Q310 468 340 474 Q370 468 395 435" fill="none" stroke="#CC6A00" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- FEET -->
+  <path d="M290 678 Q285 695 270 700 M290 678 Q292 698 278 706 M290 678 Q298 696 288 710" fill="none" stroke="#FF8C00" stroke-width="5" stroke-linecap="round"/>
+  <path d="M390 678 Q395 695 410 700 M390 678 Q388 698 402 706 M390 678 Q382 696 392 710" fill="none" stroke="#FF8C00" stroke-width="5" stroke-linecap="round"/>
+</svg>
