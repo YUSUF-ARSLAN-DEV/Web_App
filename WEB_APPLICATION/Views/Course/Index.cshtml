@@ -21,7 +21,7 @@
         <aside class="sidebar">
             <div class="sidebar-logo">
                 <a class="nav-logo" href="@(Session["role"] != null && Session["role"].ToString() == "instructor" ? Url.Action("Dashboard", "Instructor") : Session["role"] != null && Session["role"].ToString() == "admin" ? Url.Action("Dashboard", "Admin") : Url.Action("MyEnrollments", "Enrollment"))" style="font-size:18px">
-                    <div class="nav-logo-icon" style="width:28px;height:28px;font-size:14px">&#129338;</div>EduNest
+                    <img src="~/Uploads/logo.svg" alt="EduNest" class="nav-logo-icon" style="width:28px;height:28px" />EduNest
                 </a>
             </div>
             <nav style="padding:8px 0">
@@ -143,8 +143,8 @@ else
 {
     <!-- GUEST: top-nav layout -->
     <nav class="nav">
-        <a class="nav-logo" href="@(Session["role"] != null && Session["role"].ToString() == "instructor" ? Url.Action("Dashboard", "Instructor") : Session["role"] != null && Session["role"].ToString() == "admin" ? Url.Action("Dashboard", "Admin") : Url.Action("MyEnrollments", "Enrollment"))">
-            <div class="nav-logo-icon"></div>EduNest
+        <a class="nav-logo" href="@(Session["role"] == null ? Url.Action("Index", "Home") : Url.Action("Index","Home"))">
+            <img class="nav-logo-icon" src="~/Uploads/logo.svg" /> EduNest 
         </a>
         <div class="nav-links">
             <a class="active" href="@Url.Action("Index", "Course")">Courses</a>
@@ -210,9 +210,6 @@ else
     </div>
 
     <footer>
-        <a class="nav-logo" href="@(Session["role"] != null && Session["role"].ToString() == "instructor" ? Url.Action("Dashboard", "Instructor") : Session["role"] != null && Session["role"].ToString() == "admin" ? Url.Action("Dashboard", "Admin") : Url.Action("MyEnrollments", "Enrollment"))">
-            <div class="nav-logo-icon">&#129338;</div>EduNest
-        </a>
         <p style="color:var(--muted);font-size:13px;font-weight:600">&copy; 2025 EduNest. All rights reserved.</p>
         <div style="display:flex;gap:24px">
             <span style="color:var(--muted);font-size:13px;font-weight:600">Privacy</span>
