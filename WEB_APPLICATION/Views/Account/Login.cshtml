@@ -1,4 +1,5 @@
-﻿@{
+@using System.Configuration
+@{
     Layout = null;
 }
 <!DOCTYPE html>
@@ -36,19 +37,25 @@
         <!-- RIGHT PANEL -->
         <div style="width:500px;display:flex;flex-direction:column;justify-content:center;padding:64px 52px;background:var(--bg)">
             <h2 style="font-size:30px;margin-bottom:6px">Welcome back</h2>
-            <p style="color:var(--muted);margin-bottom:34px;font-size:14px;font-weight:600">
+            <p style="color:var(--muted);margin-bottom:28px;font-size:14px;font-weight:600">
                 Don't have an account? <a href="@Url.Action("Registration", "Account")" style="color:var(--gold);text-decoration:none">Sign up free</a>
             </p>
 
-            @* Error message *@
+            @* Error messages *@
             @if (ViewBag.Error != null)
             {
                 <div style="background:rgba(240,107,107,0.1);border:1px solid rgba(240,107,107,0.3);border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:var(--red);font-weight:600">
                     @ViewBag.Error
                 </div>
             }
+            @if (TempData["GoogleError"] != null)
+            {
+                <div style="background:rgba(240,107,107,0.1);border:1px solid rgba(240,107,107,0.3);border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:var(--red);font-weight:600">
+                    @TempData["GoogleError"]
+                </div>
+            }
 
-            @* Success message from registration *@
+            @* Success message from registration or logout *@
             @if (TempData["success"] != null)
             {
                 <div style="background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.3);border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:var(--teal);font-weight:600">
@@ -73,6 +80,16 @@
                 </button>
             }
 
+            <!-- Divider -->
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+                <div style="flex:1;height:1px;background:var(--border)"></div>
+                <span style="color:var(--muted);font-size:12px;font-weight:700;white-space:nowrap">or continue with</span>
+                <div style="flex:1;height:1px;background:var(--border)"></div>
+            </div>
+
+            <!-- Google Sign-In Button -->
+            <div id="google-signin-btn" style="display:flex;justify-content:center;margin-bottom:20px"></div>
+
             <p style="color:var(--muted);font-size:12px;text-align:center;font-weight:600">
                 By signing in you agree to our
                 <span style="color:var(--gold);cursor:pointer">Terms</span> and
@@ -80,6 +97,33 @@
             </p>
         </div>
     </div>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        window.onload = function () {
+            if (typeof google === 'undefined') return;
+            google.accounts.id.initialize({
+                client_id: '@ConfigurationManager.AppSettings["Google:ClientId"]',
+                callback: handleGoogleSignIn,
+                context: 'signin'
+            });
+            google.accounts.id.renderButton(
+                document.getElementById('google-signin-btn'),
+                { theme: 'filled_black', size: 'large', width: 396, text: 'signin_with' }
+            );
+        };
+
+        function handleGoogleSignIn(response) {
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '@Url.Action("GoogleCallback", "Account")';
+            var inp = document.createElement('input');
+            inp.type = 'hidden'; inp.name = 'credential'; inp.value = response.credential;
+            form.appendChild(inp);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
 
 </body>
 </html>

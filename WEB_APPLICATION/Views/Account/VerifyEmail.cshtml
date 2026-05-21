@@ -1,0 +1,116 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduNest – Verify Your Email</title>
+    <link rel="stylesheet" href="~/Content/site.css" />
+    <style>
+        .code-input {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 10px;
+            background: var(--surface2);
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            color: var(--text);
+            padding: 18px 24px;
+            width: 100%;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .code-input:focus { border-color: var(--gold); }
+    </style>
+</head>
+<body>
+
+    <div style="display:flex;min-height:100vh">
+
+        <!-- LEFT PANEL -->
+        <div style="flex:1;position:relative;overflow:hidden">
+            <img src="https://images.unsplash.com/photo-1606761568499-6d2451b23c66?w=800&q=80" alt="Verify"
+                 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+            <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(8,10,16,0.94),rgba(8,10,16,0.72))"></div>
+            <div style="position:relative;display:flex;flex-direction:column;justify-content:center;height:100%;padding:64px">
+                <a class="nav-logo" href="@Url.Action("Index", "Home")" style="font-size:28px">
+                    <img src="~/Uploads/logo.svg" alt="EduNest" class="nav-logo-icon" style="width:56px;height:56px" />EduNest
+                </a>
+                <div style="margin-top:52px">
+                    <div style="font-size:56px;margin-bottom:20px">&#128231;</div>
+                    <h2 style="font-size:36px;margin-bottom:16px;line-height:1.25">
+                        Check your<br><span style="color:var(--gold);font-style:italic">inbox.</span>
+                    </h2>
+                    <p style="color:var(--muted);font-size:15px;max-width:360px;line-height:1.75;font-weight:500">
+                        We sent a 6-digit code to verify your email address. It expires in 10 minutes.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div style="width:500px;display:flex;flex-direction:column;justify-content:center;padding:64px 52px;background:var(--bg)">
+            <h2 style="font-size:28px;margin-bottom:6px">Verify your email</h2>
+            <p style="color:var(--muted);margin-bottom:30px;font-size:14px;font-weight:600">
+                We sent a code to
+                <span style="color:var(--gold)">@ViewBag.Email</span>
+            </p>
+
+            @* Error *@
+            @if (ViewBag.Error != null)
+            {
+                <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;color:#f87171;font-size:13px;font-weight:600">
+                    @ViewBag.Error
+                </div>
+            }
+
+            @* Resend success *@
+            @if (ViewBag.ResendSuccess != null)
+            {
+                <div style="background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;color:var(--teal);font-size:13px;font-weight:600">
+                    @ViewBag.ResendSuccess
+                </div>
+            }
+
+            @using (Html.BeginForm("VerifyEmail", "Account", FormMethod.Post))
+            {
+                <div class="form-group">
+                    <label class="form-label" style="text-align:center;display:block;margin-bottom:12px">Enter the 6-digit code</label>
+                    <input class="code-input" type="text" name="code"
+                           maxlength="6" pattern="[0-9]{6}" inputmode="numeric"
+                           placeholder="000000" autocomplete="one-time-code" required />
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg btn-block" style="width:100%;margin-top:8px">
+                    Verify & Create Account
+                </button>
+            }
+
+            <div style="margin-top:24px;text-align:center">
+                <p style="color:var(--muted);font-size:13px;font-weight:600;margin-bottom:10px">
+                    Didn't receive it? Check your spam folder, or&nbsp;
+                </p>
+                @using (Html.BeginForm("ResendCode", "Account", FormMethod.Post, new { style = "display:inline" }))
+                {
+                    <button type="submit"
+                            style="background:none;border:none;color:var(--gold);font-size:13px;font-weight:700;cursor:pointer;padding:0;text-decoration:underline">
+                        send a new code
+                    </button>
+                }
+            </div>
+
+            <div style="margin-top:32px;text-align:center">
+                <a href="@Url.Action("Registration", "Account")"
+                   style="color:var(--muted);font-size:13px;font-weight:600;text-decoration:none">
+                    ← Back to registration
+                </a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
