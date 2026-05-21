@@ -144,7 +144,7 @@ else
     <!-- GUEST: top-nav layout -->
     <nav class="nav">
         <a class="nav-logo" href="@(Session["role"] == null ? Url.Action("Index", "Home") : Url.Action("Index","Home"))">
-            <img class="nav-logo-icon" src="~/Uploads/logo.svg" /> EduNest 
+            <img src="~/Uploads/logo.svg" alt="EduNest" class="nav-logo-icon" style="width:56px;height:56px" />EduNest
         </a>
         <div class="nav-links">
             <a class="active" href="@Url.Action("Index", "Course")">Courses</a>
