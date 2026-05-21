@@ -350,6 +350,10 @@ namespace WEB_APPLICATION.Controllers
             Session.Remove("GoogleFirstName");
             Session.Remove("GoogleLastName");
 
+            // Send welcome email (best-effort — don't block login if it fails)
+            try { EmailService.SendWelcomeEmail(email, firstName, role ?? "student"); }
+            catch (Exception) { }
+
             // Log the new user straight in
             User newUser = userDal.GetUserById(newUserId);
             if (newUser != null)
