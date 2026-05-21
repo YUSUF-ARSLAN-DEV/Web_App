@@ -395,11 +395,11 @@ namespace WEB_APPLICATION.Controllers
             Session["sessionId"] = sessionId;
         }
 
-        private ActionResult RedirectByRole(User.Role role)
+        private ActionResult RedirectByRole(Models.User.Role role)
         {
-            if (role == User.Role.Admin)
+            if (role == Models.User.Role.Admin)
                 return RedirectToAction("Dashboard", "Admin");
-            if (role == User.Role.Instructor)
+            if (role == Models.User.Role.Instructor)
                 return RedirectToAction("Dashboard", "Instructor");
             return RedirectToAction("MyEnrollments", "Enrollment");
         }
