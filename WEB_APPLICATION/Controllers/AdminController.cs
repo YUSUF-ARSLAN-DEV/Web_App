@@ -83,15 +83,22 @@ namespace WEB_APPLICATION.Controllers
         public ActionResult DeleteUser(int userId)
         {
             if (Session["userId"] == null || !IsAdmin())
-                return Json(new { success = false });
+                return RedirectToAction("Login", "Account");
 
-            // Prevent admin from deleting themselves
             int currentAdminId = (int)Session["userId"];
             if (userId == currentAdminId)
-                return Json(new { success = false, message = "You cannot delete your own account" });
+            {
+                TempData["Error"] = "You cannot delete your own account";
+                return RedirectToAction("ManageUsers");
+            }
 
             bool success = new UserDAL().DeleteUser(userId);
-            return Json(new { success = success });
+            if (success)
+                TempData["success"] = "User deleted successfully";
+            else
+                TempData["Error"] = "Failed to delete user";
+
+            return RedirectToAction("ManageUsers");
         }
 
         // GET: Manage Courses
