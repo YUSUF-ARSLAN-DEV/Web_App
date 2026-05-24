@@ -78,7 +78,7 @@ namespace WEB_APPLICATION.Controllers
             return View(users);
         }
 
-        // POST: Delete User
+        // POST: Deleting a user 
         [HttpPost]
         public ActionResult DeleteUser(int userId)
         {
@@ -101,7 +101,7 @@ namespace WEB_APPLICATION.Controllers
             return RedirectToAction("ManageUsers");
         }
 
-        // GET: Manage Courses
+        // GET: Managing courses basically allowing the admin to view all existing courses in the platform , and deleteing which courses that he thinks is unappropriate 
         public ActionResult ManageCourses()
         {
             if (Session["userId"] == null || !IsAdmin())
