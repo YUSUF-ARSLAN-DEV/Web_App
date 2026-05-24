@@ -13,8 +13,10 @@ namespace WEB_APPLICATION.Controllers
         public ActionResult MyEnrollments()
         {
             int userId = (int)Session["userId"];
+            if (Session["userId"] == null) // authorization check to protect the page from unauthorized access 
+                return RedirectToAction("Login", "Account");
 
-            // Force recalculate for all courses
+            // recalculating the prgress for every single course that the studnet is enrolled in 
             var enrollments = new EnrollmentDAL().GetEnrollmentByUser(userId);
             foreach (var e in enrollments)
             {
@@ -53,9 +55,9 @@ namespace WEB_APPLICATION.Controllers
             return RedirectToAction("Details", "Course", new { id = courseId });
         }
 
-        // POST: Unenroll from Course
+        // POST: The method that unenrolls a student from a course when he clicks on the unenrollment button 
         [HttpPost]
-        public ActionResult Unenroll(int enrollmentId, int courseId)
+        public ActionResult Unenroll( int courseId)
         {
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");

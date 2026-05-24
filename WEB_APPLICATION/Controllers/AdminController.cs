@@ -9,11 +9,46 @@ namespace WEB_APPLICATION.Controllers
 {
     public class AdminController : Controller
     {
-        // GET: Admin Dashboard
+        // GET: Admin Dashboard loads the admin Dashboard Page 
         public ActionResult Dashboard()
         {
             if (Session["userId"] == null || !IsAdmin())
                 return RedirectToAction("Login", "Account");
+
+            UserDAL userDal = new UserDAL();
+            CourseDAL courseDal = new CourseDAL();
+            EnrollmentDAL enrollmentDal = new EnrollmentDAL();
+            LessonDAL lessonDal = new LessonDAL();
+
+            var students = userDal.GetUsersByRole("student");
+            var instructors = userDal.GetUsersByRole("instructor");
+            var allCourses = courseDal.GetAllCourses();
+            var activeCourses = courseDal.GetAllActiveCourses();
+
+            int totalEnrollments = 0;
+            int totalLessons = 0;
+
+            if (allCourses != null)
+            {
+                foreach (var c in allCourses)
+                {
+                    var enrolls = enrollmentDal.GetEnrollmentByCourse(c.courseId);
+                    if (enrolls != null)
+                        totalEnrollments += enrolls.Count;
+                    totalLessons += lessonDal.GetLessonCountByCourse(c.courseId);
+                }
+            }
+
+            ViewBag.StudentCount = students != null ? students.Count : 0;
+            ViewBag.InstructorCount = instructors != null ? instructors.Count : 0;
+            ViewBag.TotalCoursesCount = allCourses != null ? allCourses.Count : 0;
+            ViewBag.ActiveCoursesCount = activeCourses != null ? activeCourses.Count : 0;
+            ViewBag.DeletedCoursesCount = (allCourses != null ? allCourses.Count : 0) - (activeCourses != null ? activeCourses.Count : 0);
+            ViewBag.TotalEnrollments = totalEnrollments;
+            ViewBag.TotalLessons = totalLessons;
+            ViewBag.Students = students;
+            ViewBag.Instructors = instructors;
+
             return View();
         }
 

@@ -61,7 +61,8 @@ namespace WEB_APPLICATION.Models
             catch (SqlException e) { Console.WriteLine(e.Message); }
             finally { conn.Close(); }
         }
-        public bool UnEnroll(int userId , int courseId  ) // takes a user ID and removes them from the course they are enrolled too 
+        public bool UnEnroll(int userId , int courseId) // takes a user ID and a courseID and sets the activeStatus to false - soft delete
+                                                        // - record still exists in the database but it is not active anymore 
         {
             bool success = false ; 
             try { 
@@ -80,17 +81,8 @@ namespace WEB_APPLICATION.Models
                 
                     success = false ;    
                 }
-               
             }
-            } 
-            catch (SqlException e ) 
-            {
-                
-            }
-            finally
-            {
-                conn.Close() ;     
-            }
+            }  catch (SqlException e ) { } finally {conn.Close() ; }
              return success ;  
         }
          
