@@ -222,7 +222,7 @@ namespace WEB_APPLICATION.Controllers
         [HttpPost]
         public ActionResult Delete(int id)
         {
-            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+            if (Session["role"] == null || ( Session["role"].ToString() != "instructor"))
                 return RedirectToAction("Index");
             bool success = new CourseDAL().DeleteCourse(id);
             if (success)
