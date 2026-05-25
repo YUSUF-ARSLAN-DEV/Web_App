@@ -129,7 +129,7 @@ namespace WEB_APPLICATION.Controllers
         [HttpGet]
         public ActionResult Create()
         {
-            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+           if (Session["role"] == null ||  Session["role"].ToString() != "instructor")
                 return RedirectToAction("Index");
             return View();
         }
@@ -183,7 +183,7 @@ namespace WEB_APPLICATION.Controllers
         [HttpGet]
         public ActionResult Edit(int id)
         {
-            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+            if (Session["role"] == null || Session["role"].ToString() != "instructor")
                 return RedirectToAction("Index");
             Course course = new CourseDAL().GetCourseById(id);
             if (course == null)
