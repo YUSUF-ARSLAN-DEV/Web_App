@@ -124,7 +124,8 @@ namespace WEB_APPLICATION.Controllers
             return View(courses);
         }
 
-        // GET: Create Course (admin/instructor only)
+        // GET: Create Course - retrives the Coruse Creation Page where the instructor can create a course by filling the form
+        // and uploading an image for the course 
         [HttpGet]
         public ActionResult Create()
         {
@@ -177,7 +178,8 @@ namespace WEB_APPLICATION.Controllers
             }
         }
 
-        // GET: Edit Course
+        // GET: Edit Course - Loads the course details into the edit form for instructors to update the course information. It also 
+        // checks if the course is archived and prevents editing if it is.
         [HttpGet]
         public ActionResult Edit(int id)
         {

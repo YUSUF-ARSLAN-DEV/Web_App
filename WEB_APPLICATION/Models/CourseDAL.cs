@@ -228,7 +228,8 @@ namespace WEB_APPLICATION.Models
             return list ;  
         }
     
-        // Reactivate a soft-deleted course - when this method executes in essence the Admin won't see it as an active course and the student won't even find it int he public page where all courses are displayed 
+        // Reactivate a soft-deleted course - when this method executes in essence the Admin won't see
+        // it as an active course and the student won't even find it int he public page where all courses are displayed 
         public bool ReactivateCourse(int courseId)
         {
             bool success = false;
