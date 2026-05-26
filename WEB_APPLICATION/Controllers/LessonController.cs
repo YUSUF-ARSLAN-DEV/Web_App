@@ -111,14 +111,13 @@ namespace WEB_APPLICATION.Controllers
             return View();
         }
 
-        // POST: Create Lesson Contoller 
+        // POST: Create Lesson Controller
         [HttpPost]
         public ActionResult Create(int courseId, string lessonTitle, string lessonContent, string videoUrl = null, HttpPostedFileBase attachment = null)
         {
             try
             {
                 Lesson lesson = new Lesson(0, courseId, lessonTitle, lessonContent, videoUrl);
-                // server-side validation for needed fields 
                 if (string.IsNullOrWhiteSpace(lessonTitle))
                 {
                     ViewBag.Error = "Lesson title is required.";
@@ -129,24 +128,13 @@ namespace WEB_APPLICATION.Controllers
                     ViewBag.Error = "Lesson content is required.";
                     return View();
                 }
-                // Handle file attachment if uploaded
                 if (attachment != null && attachment.ContentLength > 0)
                 {
                     string fileName = Path.GetFileName(attachment.FileName);
                     string uniqueName = Guid.NewGuid().ToString() + "_" + fileName;
-                    string courseFolder = Server.MapPath($"~/DOCUMENTS/Course_{courseId}/");
-
-                    // Create folder if it doesn't exist
-                    if (!Directory.Exists(courseFolder))
-                        Directory.CreateDirectory(courseFolder);
-
-                    string savePath = Path.Combine(courseFolder, uniqueName);
-                    attachment.SaveAs(savePath);
-
-                    lesson.attachmentUrl = $"/DOCUMENTS/Course_{courseId}/{uniqueName}";
+                    lesson.attachmentUrl = BlobStorageHelper.UploadFile(attachment.InputStream, uniqueName, "documents");
                     lesson.attachmentName = fileName;
                 }
-
                 bool success = new LessonDAL().CreateLesson(lesson);
                 if (success)
                 {
@@ -198,62 +186,41 @@ namespace WEB_APPLICATION.Controllers
                     TempData["error"] = "Lesson not found";
                     return RedirectToAction("Index", new { courseId });
                 }
-
                 Lesson lesson = new Lesson(lessonId, courseId, lessonTitle, lessonContent, videoUrl);
-
-                // Handle remove attachment checkbox
                 if (removeAttachment)
                 {
-                    // Delete the file if it exists
                     if (!string.IsNullOrEmpty(existingLesson.attachmentUrl))
                     {
-                        string oldPath = Server.MapPath(existingLesson.attachmentUrl);
-                        if (System.IO.File.Exists(oldPath))
-                            System.IO.File.Delete(oldPath);
+                        string oldFileName = Path.GetFileName(existingLesson.attachmentUrl);
+                        BlobStorageHelper.DeleteFile(oldFileName, "documents");
                     }
-
                     lesson.attachmentUrl = null;
                     lesson.attachmentName = null;
                 }
-                // Handle new file upload
                 else if (attachment != null && attachment.ContentLength > 0)
                 {
-                    string fileName = Path.GetFileName(attachment.FileName);
-                    string uniqueName = Guid.NewGuid().ToString() + "_" + fileName;
-                    string courseFolder = Server.MapPath($"~/DOCUMENTS/Course_{courseId}/");
-
-                    // Create folder if it doesn't exist
-                    if (!Directory.Exists(courseFolder))
-                        Directory.CreateDirectory(courseFolder);
-
-                    string savePath = Path.Combine(courseFolder, uniqueName);
-                    attachment.SaveAs(savePath);
-
-                    lesson.attachmentUrl = $"/DOCUMENTS/Course_{courseId}/{uniqueName}";
-                    lesson.attachmentName = fileName;
-
-                    // Delete old attachment file if it exists
+                    // Delete old attachment if exists
                     if (!string.IsNullOrEmpty(existingLesson.attachmentUrl))
                     {
-                        string oldPath = Server.MapPath(existingLesson.attachmentUrl);
-                        if (System.IO.File.Exists(oldPath))
-                            System.IO.File.Delete(oldPath);
+                        string oldFileName = Path.GetFileName(existingLesson.attachmentUrl);
+                        BlobStorageHelper.DeleteFile(oldFileName, "documents");
                     }
+                    string fileName = Path.GetFileName(attachment.FileName);
+                    string uniqueName = Guid.NewGuid().ToString() + "_" + fileName;
+                    lesson.attachmentUrl = BlobStorageHelper.UploadFile(attachment.InputStream, uniqueName, "documents");
+                    lesson.attachmentName = fileName;
                 }
                 else
                 {
-                    // Keep existing attachment
                     lesson.attachmentUrl = existingLesson.attachmentUrl;
                     lesson.attachmentName = existingLesson.attachmentName;
                 }
-
                 bool success = lessonDal.UpdateLesson(lesson);
                 if (success)
                 {
                     TempData["success"] = "Lesson updated successfully";
                     return RedirectToAction("Details", new { id = lessonId });
                 }
-
                 ViewBag.Error = "Failed to update lesson";
                 return View(lesson);
             }
