@@ -19,13 +19,15 @@ namespace WEB_APPLICATION.Controllers
             return View();
         }
 
-        // POST: The method used to create a post 
+        // This is the updated method that is used to create  a post now it uses the BlobStorage helper class to upload the image to Azure Blob Storage and
+        // get the URL of the uploaded image. The URL is then stored in the database along with the post details. 
+        // POST: The method used to create a post
         [HttpPost]
         public ActionResult Create(int forumId, string title, string textContent, HttpPostedFileBase imageFile)
         {
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
-            if (string.IsNullOrWhiteSpace(title)) // ensuring that the user is not entering empty fields 
+            if (string.IsNullOrWhiteSpace(title))
             {
                 ViewBag.Error = "Post title is required.";
                 return View();
@@ -39,38 +41,25 @@ namespace WEB_APPLICATION.Controllers
             {
                 int userId = (int)Session["userId"];
                 string imageUrl = null;
-
-                //  File Managment Checking if the Image file was received correctly 
                 if (imageFile != null && imageFile.ContentLength > 0)
                 {
-                    TempData["uploadDebug"] = $"File received: {imageFile.FileName}, Size: {imageFile.ContentLength}";
-
                     string fileName = System.IO.Path.GetFileName(imageFile.FileName);
                     string uniqueName = System.Guid.NewGuid().ToString() + "_" + fileName;
-                    string savePath = Server.MapPath("~/Uploads/" + uniqueName);
-                    imageFile.SaveAs(savePath);
-                    imageUrl = "/Uploads/" + uniqueName;
+                    imageUrl = BlobStorageHelper.UploadFile(imageFile.InputStream, uniqueName, "uploads");
                 }
-                else
-                {
-                    TempData["uploadDebug"] = "No file received - imageFile is null";
-                }
-
-                Post post = new Post( forumId, userId, title, textContent, imageUrl);
+                Post post = new Post(forumId, userId, title, textContent, imageUrl);
                 bool success = new PostDAL().CreatePost(post);
-
                 if (success)
                 {
                     TempData["success"] = "Post created successfully";
                     return RedirectToAction("Details", "Forum", new { id = forumId });
                 }
-
                 ViewBag.Error = "Failed to create post";
                 return View();
             }
             catch (Exception ex)
             {
-                TempData["uploadDebug"] = $"Error: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine("Error: " + ex.Message);
                 ViewBag.Error = "An error occurred";
                 return View();
             }
