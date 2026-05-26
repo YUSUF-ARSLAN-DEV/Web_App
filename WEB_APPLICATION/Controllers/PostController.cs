@@ -118,7 +118,6 @@ namespace WEB_APPLICATION.Controllers
                 return View();
             }
         }
-
         // POST: Delete Post
         public ActionResult Delete(int id, int forumId)
         {
@@ -128,17 +127,15 @@ namespace WEB_APPLICATION.Controllers
 
             string role = Session["role"].ToString();
             int currentUserId = (int)Session["userId"];
-            Post post = new PostDAL().GetPostById(id);
 
+            Post post = new PostDAL().GetPostById(id);
             if (post == null)
             {
                 TempData["error"] = "Post not found";
                 return RedirectToAction("Details", "Forum", new { id = forumId });
             }
 
-            // Get the forum to check instructor ownership
             Forum forum = new ForumDAL().GetForumById(forumId);
-
             bool isOwner = (post.userId == currentUserId);
             bool isAdmin = (role == "admin");
             bool isInstructorOfThisForum = (role == "instructor" && forum != null && forum.courseId == new CourseDAL().GetCourseById(forum.courseId).userId);
@@ -149,12 +146,11 @@ namespace WEB_APPLICATION.Controllers
                 return RedirectToAction("Details", "Forum", new { id = forumId });
             }
 
-            // Delete image file if exists
+            // Delete  the specific image of the post if the image actually exists lol //. long live the blob storage system
             if (!string.IsNullOrEmpty(post.imageUrl))
             {
-                string filePath = Server.MapPath(post.imageUrl);
-                if (System.IO.File.Exists(filePath))
-                    System.IO.File.Delete(filePath);
+                string oldFileName = Path.GetFileName(post.imageUrl);
+                BlobStorageHelper.DeleteFile(oldFileName, "uploads");
             }
 
             new PostDAL().DeletePost(id);
