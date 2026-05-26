@@ -25,9 +25,12 @@ public class BlobStorageHelper
         return blob.Uri.ToString();
     }
 
-    public static void DeleteFile(string fileName)
+    public static void DeleteFile(string fileName, string containerName)
     {
-        CloudBlobContainer container = GetContainer();
+        string connectionString = ConfigurationManager.AppSettings["AzureStorageConnectionString"];
+        CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+        CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+        CloudBlobContainer container = blobClient.GetContainerReference(containerName);
         CloudBlockBlob blob = container.GetBlockBlobReference(fileName);
         blob.DeleteIfExists();
     }
