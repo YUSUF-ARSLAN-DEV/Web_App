@@ -18,9 +18,9 @@ jobs:
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1.0.5
       - name: Restore NuGet packages
-        run: nuget restore WEB_APPLICATION/WEB_APPLICATION.sln
+        run: nuget restore WEB_APPLICATION\WEB_APPLICATION.sln
       - name: Publish to folder
-        run: msbuild WEB_APPLICATION/WEB_APPLICATION.sln /nologo /verbosity:m /t:Build /t:pipelinePreDeployCopyAllFilesToOneFolder /p:_PackageTempDir="\published\"
+        run: msbuild WEB_APPLICATION\WEB_APPLICATION.sln /nologo /verbosity:m /t:Build /t:pipelinePreDeployCopyAllFilesToOneFolder /p:_PackageTempDir="\published\"
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
