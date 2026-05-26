@@ -8,6 +8,7 @@ namespace WEB_APPLICATION.Models
     {
         private SqlConnection conn = UtilityDAL.createConnection();
 
+        // The method that allows the students to add their ratings and comments for the courses they have taken 
         public bool AddRating(int courseId, int userId, int score, string comment)
         {
             bool success = false;
@@ -82,6 +83,8 @@ namespace WEB_APPLICATION.Models
             return average;
         }
 
+        // This method is the logical checks that ensures that the student has not actually rated the course before
+        // since duplicate ratings from the same student for the same course should not be allowed 
         public bool HasUserRated(int userId, int courseId)
         {
             int count = 0;

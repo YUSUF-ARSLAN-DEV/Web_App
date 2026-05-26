@@ -1,37 +1,14 @@
-﻿﻿@{
+﻿@{
     Layout = null;
-
-    WEB_APPLICATION.Models.UserDAL userDal = new WEB_APPLICATION.Models.UserDAL();
-    WEB_APPLICATION.Models.CourseDAL courseDal = new WEB_APPLICATION.Models.CourseDAL();
-    WEB_APPLICATION.Models.EnrollmentDAL enrollmentDal = new WEB_APPLICATION.Models.EnrollmentDAL();
-    WEB_APPLICATION.Models.LessonDAL lessonDal = new WEB_APPLICATION.Models.LessonDAL();
-
-    var students = userDal.GetUsersByRole("student");
-    var instructors = userDal.GetUsersByRole("instructor");
-    var allCourses = courseDal.GetAllCourses();
-    var activeCourses = courseDal.GetAllActiveCourses();
-
-    int totalEnrollments = 0;
-    int totalLessons = 0;
-
-    if (allCourses != null)
-    {
-        foreach (var c in allCourses)
-        {
-            var enrolls = enrollmentDal.GetEnrollmentByCourse(c.courseId);
-            if (enrolls != null)
-            {
-                totalEnrollments += enrolls.Count;
-            }
-            totalLessons += lessonDal.GetLessonCountByCourse(c.courseId);
-        }
-    }
-
-    int studentCount = (students != null) ? students.Count : 0;
-    int instructorCount = (instructors != null) ? instructors.Count : 0;
-    int totalCoursesCount = (allCourses != null) ? allCourses.Count : 0;
-    int activeCoursesCount = (activeCourses != null) ? activeCourses.Count : 0;
-    int deletedCoursesCount = totalCoursesCount - activeCoursesCount;
+    var studentCount = ViewBag.StudentCount;
+    var instructorCount = ViewBag.InstructorCount;
+    var totalCoursesCount = ViewBag.TotalCoursesCount;
+    var activeCoursesCount = ViewBag.ActiveCoursesCount;
+    var deletedCoursesCount = ViewBag.DeletedCoursesCount;
+    var totalEnrollments = ViewBag.TotalEnrollments;
+    var totalLessons = ViewBag.TotalLessons;
+    var students = ViewBag.Students as List<WEB_APPLICATION.Models.User>;
+    var instructors = ViewBag.Instructors as List<WEB_APPLICATION.Models.User>;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -48,7 +25,7 @@
         <aside class="sidebar">
             <div class="sidebar-logo">
                 <a class="nav-logo" href="@(Session["role"] != null && Session["role"].ToString() == "instructor" ? Url.Action("Dashboard", "Instructor") : Session["role"] != null && Session["role"].ToString() == "admin" ? Url.Action("Dashboard", "Admin") : Url.Action("MyEnrollments", "Enrollment"))" style="font-size:18px">
-                    <div class="nav-logo-icon" style="width:28px;height:28px;font-size:14px">&#129338;</div>EduNest
+                    <img src="~/Uploads/logo.svg" alt="EduNest" class="nav-logo-icon" style="width:56px;height:56px" />EduNest
                 </a>
             </div>
             <nav style="padding:8px 0">
@@ -88,7 +65,7 @@
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px">
                 <div>
                     <h1 style="font-size:32px;margin-bottom:6px">
-                        Admin Dashboard &#128081;
+                        Admin Dashboard;
                     </h1>
                     <p style="color:var(--muted);font-weight:600">
                         Welcome back, @Session["userName"] — here's your platform overview.

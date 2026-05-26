@@ -124,11 +124,12 @@ namespace WEB_APPLICATION.Controllers
             return View(courses);
         }
 
-        // GET: Create Course (admin/instructor only)
+        // GET: Create Course - retrives the Coruse Creation Page where the instructor can create a course by filling the form
+        // and uploading an image for the course 
         [HttpGet]
         public ActionResult Create()
         {
-            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+           if (Session["role"] == null ||  Session["role"].ToString() != "instructor")
                 return RedirectToAction("Index");
             return View();
         }
@@ -177,11 +178,12 @@ namespace WEB_APPLICATION.Controllers
             }
         }
 
-        // GET: Edit Course
+        // GET: Edit Course - Loads the course details into the edit form for instructors to update the course information. It also 
+        // checks if the course is archived and prevents editing if it is.
         [HttpGet]
         public ActionResult Edit(int id)
         {
-            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+            if (Session["role"] == null || Session["role"].ToString() != "instructor")
                 return RedirectToAction("Index");
             Course course = new CourseDAL().GetCourseById(id);
             if (course == null)
@@ -220,7 +222,7 @@ namespace WEB_APPLICATION.Controllers
         [HttpPost]
         public ActionResult Delete(int id)
         {
-            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+            if (Session["role"] == null || ( Session["role"].ToString() != "instructor"))
                 return RedirectToAction("Index");
             bool success = new CourseDAL().DeleteCourse(id);
             if (success)
@@ -232,7 +234,7 @@ namespace WEB_APPLICATION.Controllers
         [HttpPost]
         public ActionResult Reactivate(int id)
         {
-            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+            if (Session["role"] == null ||  Session["role"].ToString() != "instructor")
                 return RedirectToAction("Index");
             new CourseDAL().ReactivateCourse(id);
             TempData["success"] = "Course reactivated successfully.";
@@ -245,7 +247,7 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
-            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+            if (Session["role"] == null ||  Session["role"].ToString() != "instructor")
                 return RedirectToAction("Index");
             int userId = (int)Session["userId"];
             List<Course> archived = new CourseDAL().GetDeletedCoursesByUserId(userId);

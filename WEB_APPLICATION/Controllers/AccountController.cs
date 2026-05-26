@@ -12,7 +12,7 @@ namespace WEB_APPLICATION.Controllers
     public class AccountController : Controller
     {
         // ================================================================
-        // REGISTRATION — Step 1: fill form
+        // REGISTRATION — Step 1: fill form - the form basically takes the data from the field and then it does the server side validation and then it checks if the email is already registered and then it checks if the username is valid and then it checks if the username is already taken and then it stores the pending registration in the session until the email is verified and then it generates and sends the verification code and then it redirects to the VerifyEmail action
         // ================================================================
 
         [HttpGet]

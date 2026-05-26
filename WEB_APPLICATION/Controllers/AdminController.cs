@@ -9,11 +9,46 @@ namespace WEB_APPLICATION.Controllers
 {
     public class AdminController : Controller
     {
-        // GET: Admin Dashboard
+        // GET: Admin Dashboard loads the admin Dashboard Page 
         public ActionResult Dashboard()
         {
             if (Session["userId"] == null || !IsAdmin())
                 return RedirectToAction("Login", "Account");
+
+            UserDAL userDal = new UserDAL();
+            CourseDAL courseDal = new CourseDAL();
+            EnrollmentDAL enrollmentDal = new EnrollmentDAL();
+            LessonDAL lessonDal = new LessonDAL();
+
+            var students = userDal.GetUsersByRole("student");
+            var instructors = userDal.GetUsersByRole("instructor");
+            var allCourses = courseDal.GetAllCourses();
+            var activeCourses = courseDal.GetAllActiveCourses();
+
+            int totalEnrollments = 0;
+            int totalLessons = 0;
+
+            if (allCourses != null)
+            {
+                foreach (var c in allCourses)
+                {
+                    var enrolls = enrollmentDal.GetEnrollmentByCourse(c.courseId);
+                    if (enrolls != null)
+                        totalEnrollments += enrolls.Count;
+                    totalLessons += lessonDal.GetLessonCountByCourse(c.courseId);
+                }
+            }
+
+            ViewBag.StudentCount = students != null ? students.Count : 0;
+            ViewBag.InstructorCount = instructors != null ? instructors.Count : 0;
+            ViewBag.TotalCoursesCount = allCourses != null ? allCourses.Count : 0;
+            ViewBag.ActiveCoursesCount = activeCourses != null ? activeCourses.Count : 0;
+            ViewBag.DeletedCoursesCount = (allCourses != null ? allCourses.Count : 0) - (activeCourses != null ? activeCourses.Count : 0);
+            ViewBag.TotalEnrollments = totalEnrollments;
+            ViewBag.TotalLessons = totalLessons;
+            ViewBag.Students = students;
+            ViewBag.Instructors = instructors;
+
             return View();
         }
 
@@ -43,23 +78,30 @@ namespace WEB_APPLICATION.Controllers
             return View(users);
         }
 
-        // POST: Delete User
+        // POST: Deleting a user 
         [HttpPost]
         public ActionResult DeleteUser(int userId)
         {
             if (Session["userId"] == null || !IsAdmin())
-                return Json(new { success = false });
+                return RedirectToAction("Login", "Account");
 
-            // Prevent admin from deleting themselves
             int currentAdminId = (int)Session["userId"];
             if (userId == currentAdminId)
-                return Json(new { success = false, message = "You cannot delete your own account" });
+            {
+                TempData["Error"] = "You cannot delete your own account";
+                return RedirectToAction("ManageUsers");
+            }
 
             bool success = new UserDAL().DeleteUser(userId);
-            return Json(new { success = success });
+            if (success)
+                TempData["success"] = "User deleted successfully";
+            else
+                TempData["Error"] = "Failed to delete user";
+
+            return RedirectToAction("ManageUsers");
         }
 
-        // GET: Manage Courses
+        // GET: Managing courses basically allowing the admin to view all existing courses in the platform , and deleteing which courses that he thinks is unappropriate 
         public ActionResult ManageCourses()
         {
             if (Session["userId"] == null || !IsAdmin())

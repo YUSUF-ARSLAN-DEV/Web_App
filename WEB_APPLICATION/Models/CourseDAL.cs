@@ -22,7 +22,8 @@ namespace WEB_APPLICATION.Models
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand(
-                    "INSERT INTO Course (userId, courseDescription, courseName, activeStatus, imageUrl) VALUES (@userId, @courseDescription, @courseName, @activeStatus, @imageUrl); SELECT SCOPE_IDENTITY();", conn))
+                    "INSERT INTO Course (userId, courseDescription, courseName, activeStatus, imageUrl) VALUES (@userId, @courseDescription, " +
+                    "@courseName, @activeStatus, @imageUrl); SELECT SCOPE_IDENTITY();", conn))
                 {
                     cmd.Parameters.AddWithValue("@userId", course.userId);
                     cmd.Parameters.AddWithValue("@courseDescription", course.courseDescription);
@@ -227,7 +228,8 @@ namespace WEB_APPLICATION.Models
             return list ;  
         }
     
-        // Reactivate a soft-deleted course
+        // Reactivate a soft-deleted course - when this method executes in essence the Admin won't see
+        // it as an active course and the student won't even find it int he public page where all courses are displayed 
         public bool ReactivateCourse(int courseId)
         {
             bool success = false;

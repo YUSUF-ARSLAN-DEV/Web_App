@@ -12,7 +12,9 @@ namespace WEB_APPLICATION.Models
             try
             {
                 using (SqlCommand cmd = new SqlCommand(
-                    "INSERT INTO Question (assessmentId, questionType, questionText, correctAnswer, questionAnswer) VALUES (@assessmentId, @questionType, @questionText, @correctAnswer, @questionAnswer)", conn))
+                    "INSERT INTO Question (assessmentId, questionType, questionText, " +
+                    "correctAnswer, questionAnswer) VALUES (@assessmentId, @questionType, " +
+                    "@questionText, @correctAnswer, @questionAnswer)", conn))
                 {
                     cmd.Parameters.AddWithValue("@assessmentId", question.assessmentId);
                     cmd.Parameters.AddWithValue("@questionType", question.questionType);

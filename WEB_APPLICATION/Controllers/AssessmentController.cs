@@ -184,11 +184,11 @@ namespace WEB_APPLICATION.Controllers
             return View(assessment);
         }
 
-        // GET: Create Assessment (instructor/admin)
+        // GET: Retrives the View ( form ) inside which an Assessment will be created for a specific lesson 
         [HttpGet]
         public ActionResult Create(int lessonId)
         {
-            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+            if (Session["role"] == null || Session["role"].ToString() != "instructor")
                 return RedirectToAction("Login", "Account");
             ViewBag.LessonId = lessonId;
             return View();
@@ -199,10 +199,10 @@ namespace WEB_APPLICATION.Controllers
         [ActionName("Create")]
         public ActionResult CreatePost(int lessonId)
         {
-            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+            if (Session["role"] == null ||  Session["role"].ToString() != "instructor")
                 return RedirectToAction("Index", "Course");
 
-            Assessment assessment = new Assessment(0, lessonId);
+            Assessment assessment = new Assessment( lessonId);
             bool success = new AssessmentDAL().CreateAssessment(assessment);
             if (success)
             {
@@ -220,7 +220,7 @@ namespace WEB_APPLICATION.Controllers
         [HttpGet]
         public ActionResult AddQuestion(int assessmentId)
         {
-            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+            if (Session["role"] == null || Session["role"].ToString() != "instructor")
                 return RedirectToAction("Login", "Account");
             ViewBag.AssessmentId = assessmentId;
             Assessment assessment = new AssessmentDAL().GetAssessmentById(assessmentId);
@@ -228,13 +228,13 @@ namespace WEB_APPLICATION.Controllers
             return View();
         }
 
-        // POST: Add Question
+        // POST: Add Question - Uses form collection to get question details and adds question to the database
         [HttpPost]
         public ActionResult AddQuestion(int assessmentId, string questionType, string questionText, string correctAnswer, string questionAnswer = null)
         {
             try
             {
-                Question question = new Question(0, assessmentId, questionType, questionText, correctAnswer);
+                Question question = new Question(assessmentId, questionType, questionText, correctAnswer);
                 question.questionAnswer = questionAnswer;
                 new QuestionDAL().CreateQuestion(question);
                 TempData["success"] = "Question added successfully";
