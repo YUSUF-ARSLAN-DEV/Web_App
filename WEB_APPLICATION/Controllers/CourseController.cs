@@ -142,7 +142,7 @@ namespace WEB_APPLICATION.Controllers
             {
                 int userId = (int)Session["userId"];
                 string imageUrl = null;
-                if (string.IsNullOrWhiteSpace(courseName)) // server side validation for name and description 
+                if (string.IsNullOrWhiteSpace(courseName))
                 {
                     ViewBag.Error = "Course title is required.";
                     return View();
@@ -152,16 +152,12 @@ namespace WEB_APPLICATION.Controllers
                     ViewBag.Error = "Course description is required.";
                     return View();
                 }
-
                 if (imageFile != null && imageFile.ContentLength > 0)
                 {
                     string fileName = System.IO.Path.GetFileName(imageFile.FileName);
                     string uniqueName = System.Guid.NewGuid().ToString() + "_" + fileName;
-                    string savePath = Server.MapPath("~/Uploads/" + uniqueName);
-                    imageFile.SaveAs(savePath);
-                    imageUrl = "/Uploads/" + uniqueName;
+                    imageUrl = BlobStorageHelper.UploadFile(imageFile.InputStream, uniqueName, "uploads");
                 }
-
                 bool success = new CourseDAL().CreateCourse(userId, courseName, courseDescription, imageUrl);
                 if (success)
                 {
