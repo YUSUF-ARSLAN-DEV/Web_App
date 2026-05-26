@@ -30,20 +30,11 @@ namespace WEB_APPLICATION.Models
                     cmd.Parameters.AddWithValue("@courseName", course.courseName);
                     cmd.Parameters.AddWithValue("@activeStatus", course.activeStatus);
                     cmd.Parameters.AddWithValue("@imageUrl", (object)course.imageUrl ?? DBNull.Value);
-
                     newCourseId = Convert.ToInt32(cmd.ExecuteScalar());
-
-                    // Create the physical folder for this course
-                    string courseFolderPath = System.Web.HttpContext.Current.Server.MapPath($"~/DOCUMENTS/Course_{newCourseId}/");
-                    if (!System.IO.Directory.Exists(courseFolderPath))
-                    {
-                        System.IO.Directory.CreateDirectory(courseFolderPath);
-                    }
                 }
             }
             catch (SqlException e) { Console.WriteLine(e.Message); success = false; }
             finally { conn.Close(); }
-
             if (newCourseId == 0) { success = false; }
             return success;
         }
