@@ -12,7 +12,7 @@ namespace WEB_APPLICATION.Models
         private SqlConnection conn = UtilityDAL.createConnection();
 
         // -------------------------------------------------------
-        // Helpers
+        // Helpers - basically this makes our life a crap ton easier by centralizing all the logic for validating credentials and mapping DB rows to User objects, so we don't have to repeat it in every method
         // -------------------------------------------------------
 
         public bool CheckValidCredentials(string userName, string password)
@@ -50,10 +50,7 @@ namespace WEB_APPLICATION.Models
         // Registration
         // -------------------------------------------------------
 
-        /// <summary>
-        /// Registers a standard (email+password) user.
-        /// Returns 0 on success, SQL error number on failure (2627 = duplicate username).
-        /// </summary>
+
         public int RegisterUser(string username, string password, User.Role userRole,
                                 string firstName, string lastName, string email)
         {

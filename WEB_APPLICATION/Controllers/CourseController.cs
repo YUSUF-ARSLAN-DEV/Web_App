@@ -234,7 +234,7 @@ namespace WEB_APPLICATION.Controllers
         [HttpPost]
         public ActionResult Reactivate(int id)
         {
-            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+            if (Session["role"] == null ||  Session["role"].ToString() != "instructor")
                 return RedirectToAction("Index");
             new CourseDAL().ReactivateCourse(id);
             TempData["success"] = "Course reactivated successfully.";
@@ -247,7 +247,7 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
-            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+            if (Session["role"] == null ||  Session["role"].ToString() != "instructor")
                 return RedirectToAction("Index");
             int userId = (int)Session["userId"];
             List<Course> archived = new CourseDAL().GetDeletedCoursesByUserId(userId);
