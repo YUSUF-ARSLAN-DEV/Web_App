@@ -166,7 +166,7 @@ CREATE TABLE [dbo].[LessonCompletion] (
 -- DONE!
 -- ============================================
 
-
+-- yusuf hamada
 -- ============================================
 --  Implementing a CASCAD so that when the parent record is deleted , all the child records will be automatically deleted as well. 
 -- ============================================
