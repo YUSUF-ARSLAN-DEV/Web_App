@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -85,7 +86,6 @@ namespace WEB_APPLICATION.Controllers
         {
             if (Session["userId"] == null)
                 return RedirectToAction("Login", "Account");
-
             try
             {
                 Post post = new PostDAL().GetPostById(postId);
@@ -95,23 +95,17 @@ namespace WEB_APPLICATION.Controllers
                 post.title = title;
                 post.textContent = textContent;
 
-                // Handle image upload if a new file is provided
                 if (imageFile != null && imageFile.ContentLength > 0)
                 {
-                    // Delete old image if exists
+                    // Delete old image from Blob if exists
                     if (!string.IsNullOrEmpty(post.imageUrl))
                     {
-                        string oldPath = Server.MapPath(post.imageUrl);
-                        if (System.IO.File.Exists(oldPath))
-                            System.IO.File.Delete(oldPath);
+                        string oldFileName = Path.GetFileName(post.imageUrl);
+                        BlobStorageHelper.DeleteFile(oldFileName, "uploads");
                     }
-
-                    // Save new image
                     string fileName = System.IO.Path.GetFileName(imageFile.FileName);
                     string uniqueName = System.Guid.NewGuid().ToString() + "_" + fileName;
-                    string savePath = Server.MapPath("~/Uploads/" + uniqueName);
-                    imageFile.SaveAs(savePath);
-                    post.imageUrl = "/Uploads/" + uniqueName;
+                    post.imageUrl = BlobStorageHelper.UploadFile(imageFile.InputStream, uniqueName, "uploads");
                 }
 
                 new PostDAL().UpdatePost(post);
