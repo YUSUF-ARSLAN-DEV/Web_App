@@ -231,13 +231,11 @@ namespace WEB_APPLICATION.Controllers
                 return View();
             }
         }
-        public ActionResult DownloadAttachment(int id) // a controller metod to download the uploaded attachment 
+
+        public ActionResult DownloadAttachment(int id)
         {
-            // Check if user is logged in
             if (Session["userId"] == null)
-            {
                 return RedirectToAction("Login", "Account");
-            }
 
             LessonDAL lessonDal = new LessonDAL();
             Lesson lesson = lessonDal.GetLessonById(id);
@@ -248,28 +246,16 @@ namespace WEB_APPLICATION.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // Check if attachment exists
             if (string.IsNullOrEmpty(lesson.attachmentUrl))
             {
                 TempData["error"] = "No attachment found for this lesson";
                 return RedirectToAction("Details", new { id = id });
             }
 
-            string filePath = Server.MapPath(lesson.attachmentUrl);
-
-            // Check if file exists on disk
-            if (!System.IO.File.Exists(filePath))
-            {
-                TempData["error"] = "Attachment file not found on server";
-                return RedirectToAction("Details", new { id = id });
-            }
-
-            // For students, check if they are enrolled
             if (Session["role"] != null && Session["role"].ToString() == "student")
             {
                 EnrollmentDAL enrollmentDal = new EnrollmentDAL();
                 int userId = (int)Session["userId"];
-
                 if (!enrollmentDal.IsEnrolled(userId, lesson.courseId))
                 {
                     TempData["error"] = "You must be enrolled to download attachments";
@@ -277,10 +263,12 @@ namespace WEB_APPLICATION.Controllers
                 }
             }
 
-            // Return file for download
-            byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
-            return File(fileBytes, "application/octet-stream", lesson.attachmentName);
+            return Redirect(lesson.attachmentUrl);
         }
+
+
+
+
         // POST: Delete Lesson
         [HttpPost]
         public ActionResult Delete(int id, int courseId)
