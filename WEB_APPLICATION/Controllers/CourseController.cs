@@ -192,13 +192,23 @@ namespace WEB_APPLICATION.Controllers
             return View(course);
         }
 
-        // POST: Edit Course
         [HttpPost]
-        public ActionResult Edit(int id, string courseTitle, string courseDescription)
+        public ActionResult Edit(int id, string courseTitle, string courseDescription, HttpPostedFileBase imageFile)
         {
             try
             {
-                bool success = new CourseDAL().UpdateCourse(id, courseTitle, courseDescription);
+                string imageUrl = null;
+
+                if (imageFile != null && imageFile.ContentLength > 0)
+                {
+                    string fileName = System.IO.Path.GetFileName(imageFile.FileName);
+                    string uniqueName = System.Guid.NewGuid().ToString() + "_" + fileName;
+                    string savePath = Server.MapPath("~/Uploads/" + uniqueName);
+                    imageFile.SaveAs(savePath);
+                    imageUrl = "/Uploads/" + uniqueName;
+                }
+
+                bool success = new CourseDAL().UpdateCourse(id, courseTitle, courseDescription, imageUrl);
                 if (success)
                 {
                     TempData["success"] = "Course updated successfully";

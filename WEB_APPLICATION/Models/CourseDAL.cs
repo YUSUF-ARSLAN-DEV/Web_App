@@ -57,22 +57,27 @@ namespace WEB_APPLICATION.Models
             catch (SqlException e) { Console.WriteLine(e.Message); }
             finally { conn.Close(); }
             return success;
-        } 
-        
+        }
+
 
         // the method below takes courseName and description and updates these fields using the courseID 
-        public bool UpdateCourse(int courseId, string courseName, string courseDescription)
+        public bool UpdateCourse(int courseId, string courseName, string courseDescription, string imageUrl = null)
         {
             bool success = false;
             try
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand(
-                    "UPDATE Course SET courseName = @courseName, courseDescription = @courseDescription WHERE courseId = @courseId", conn))
+                string query = imageUrl != null
+                    ? "UPDATE Course SET courseName = @courseName, courseDescription = @courseDescription, imageUrl = @imageUrl WHERE courseId = @courseId"
+                    : "UPDATE Course SET courseName = @courseName, courseDescription = @courseDescription WHERE courseId = @courseId";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@courseId", courseId);
                     cmd.Parameters.AddWithValue("@courseName", courseName);
                     cmd.Parameters.AddWithValue("@courseDescription", courseDescription);
+                    if (imageUrl != null)
+                        cmd.Parameters.AddWithValue("@imageUrl", imageUrl);
                     if (cmd.ExecuteNonQuery() > 0)
                         success = true;
                 }
