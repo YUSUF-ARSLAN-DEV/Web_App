@@ -72,43 +72,49 @@
                 </div>
             }
 
-            <div class="card" style="padding:36px;max-width:700px">
-                <h3 style="font-weight:800;margin-bottom:24px;font-size:17px">Course Information</h3>
+        <div class="card" style="padding:36px;max-width:700px">
+            <h3 style="font-weight:800;margin-bottom:24px;font-size:17px">Course Information</h3>
 
-                @using (Html.BeginForm("Edit", "Course", FormMethod.Post))
+            @using (Html.BeginForm("Edit", "Course", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @Html.Hidden("id", Model.courseId)
+
+                <div class="form-group">
+                    <label class="form-label">Course Title <span style="color:var(--red)">*</span></label>
+                    <input class="form-input" name="courseTitle"
+                           value="@Model.courseName"
+                           placeholder="e.g. Introduction to Film Theory" required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Course Description <span style="color:var(--red)">*</span></label>
+                    <textarea class="form-input" name="courseDescription"
+                              rows="5" style="resize:vertical;min-height:120px" required>@Model.courseDescription</textarea>
+                </div>
+
+                if (!string.IsNullOrEmpty(Model.imageUrl))
                 {
-                    @Html.Hidden("id", Model.courseId)
-
                     <div class="form-group">
-                        <label class="form-label">Course Title <span style="color:var(--red)">*</span></label>
-                        <input class="form-input" name="courseTitle"
-                               value="@Model.courseName"
-                               placeholder="e.g. Introduction to Film Theory" required />
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Course Description <span style="color:var(--red)">*</span></label>
-                        <textarea class="form-input" name="courseDescription"
-                                  rows="5" style="resize:vertical;min-height:120px" required>@Model.courseDescription</textarea>
-                    </div>
-
-                    if (!string.IsNullOrEmpty(Model.imageUrl))
-                    {
-                        <div class="form-group">
-                            <label class="form-label">Current Thumbnail</label>
-                            <div style="border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:10px">
-                                <img src="@Model.imageUrl" alt="Current thumbnail"
-                                     style="width:100%;height:180px;object-fit:cover;display:block" />
-                            </div>
+                        <label class="form-label">Current Thumbnail</label>
+                        <div style="border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:10px">
+                            <img src="@Model.imageUrl" alt="Current thumbnail"
+                                 style="width:100%;height:180px;object-fit:cover;display:block" />
                         </div>
-                    }
-
-                    <div style="display:flex;gap:12px;margin-top:8px">
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                        <a href="@Url.Action("Details", "Course", new { id = Model.courseId })" class="btn btn-ghost">Cancel</a>
                     </div>
                 }
-            </div>
+
+                <div class="form-group">
+                    <label class="form-label">Update Thumbnail <span style="color:var(--muted);font-weight:500">(optional)</span></label>
+                    <input class="form-input" type="file" name="imageFile" accept="image/*" />
+                    <small style="color:var(--muted);font-size:12px;font-weight:600">Leave empty to keep the current thumbnail.</small>
+                </div>
+
+                <div style="display:flex;gap:12px;margin-top:8px">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a href="@Url.Action("Details", "Course", new { id = Model.courseId })" class="btn btn-ghost">Cancel</a>
+                </div>
+            }
+        </div>
         </main>
     </div>
 
