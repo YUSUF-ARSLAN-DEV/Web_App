@@ -269,6 +269,7 @@
     <Content Include="Views\Post\Create.cshtml" />
     <Content Include="Views\Post\Edit.cshtml" />
     <Content Include="Views\Assessment\Manage.cshtml" />
+    <Content Include="Views\Assessment\EditQuestion.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DOCUMENTS\Course_1\" />

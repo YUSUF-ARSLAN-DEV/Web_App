@@ -30,6 +30,44 @@ namespace WEB_APPLICATION.Controllers
             ViewBag.Questions = questions;
             return View(assessment);
         }
+        
+        [HttpGet]
+        public ActionResult EditQuestion(int questionId)
+        {
+            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+                return RedirectToAction("Login", "Account");
+
+            Question question = new QuestionDAL().GetQuestionById(questionId);
+            if (question == null)
+                return HttpNotFound();
+
+            ViewBag.AssessmentId = question.assessmentId;
+            ViewBag.LessonId = new AssessmentDAL().GetAssessmentById(question.assessmentId).lessonId;
+            return View(question);
+        }
+        [HttpPost]
+        public ActionResult EditQuestion(int questionId, int assessmentId, string questionType, string questionText, string correctAnswer, string questionAnswer = null)
+        {
+            if (Session["role"] == null || (Session["role"].ToString() != "admin" && Session["role"].ToString() != "instructor"))
+                return RedirectToAction("Login", "Account");
+
+            try
+            {
+                Question question = new Question(questionId, assessmentId, questionType, questionText, correctAnswer);
+                question.questionAnswer = questionAnswer;
+                new QuestionDAL().UpdateQuestion(question);
+                TempData["success"] = "Question updated successfully";
+                return RedirectToAction("Manage", new { lessonId = new AssessmentDAL().GetAssessmentById(assessmentId).lessonId });
+            }
+            catch
+            {
+                ViewBag.Error = "An error occurred";
+                Question question = new QuestionDAL().GetQuestionById(questionId);
+                ViewBag.AssessmentId = assessmentId;
+                ViewBag.LessonId = new AssessmentDAL().GetAssessmentById(assessmentId).lessonId;
+                return View(question);
+            }
+        }
 
         // GET: Manage Quiz (Instructor only)
         [HttpGet]

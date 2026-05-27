@@ -38,7 +38,36 @@ namespace WEB_APPLICATION.Models
                 conn.Close();
             }
         }
-
+        public Question GetQuestionById(int questionId)
+        {
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT questionId, assessmentId, questionType, questionText, correctAnswer, questionAnswer FROM Question WHERE questionId = @questionId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@questionId", questionId);
+                    conn.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            Question question = new Question(
+                                UtilityDAL.returnInt(reader, "questionId"),
+                                UtilityDAL.returnInt(reader, "assessmentId"),
+                                UtilityDAL.returnString(reader, "questionType"),
+                                UtilityDAL.returnString(reader, "questionText"),
+                                UtilityDAL.returnString(reader, "correctAnswer")
+                            );
+                            question.questionAnswer = UtilityDAL.returnString(reader, "questionAnswer");
+                            return question;
+                        }
+                    }
+                }
+            }
+            catch (SqlException) { return null; }
+            finally { conn.Close(); }
+            return null;
+        }
         public List<Question> GetQuestionsByAssessment(int assessmentId)
         {
             List<Question> questions = new List<Question>();

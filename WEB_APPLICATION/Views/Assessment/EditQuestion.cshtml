@@ -1,0 +1,231 @@
+﻿@model WEB_APPLICATION.Models.Question
+@{
+    Layout = null;
+    int assessmentId = ViewBag.AssessmentId != null ? (int)ViewBag.AssessmentId : 0;
+    int lessonId = ViewBag.LessonId != null ? (int)ViewBag.LessonId : 0;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduNest – Edit Question</title>
+    <link rel="stylesheet" href="~/Content/site.css" />
+</head>
+<body>
+
+    <div class="dashboard-layout">
+        <!-- SIDEBAR (same as AddQuestion) -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <a class="nav-logo" href="@(Session["role"] != null && Session["role"].ToString() == "instructor" ? Url.Action("Dashboard", "Instructor") : Session["role"] != null && Session["role"].ToString() == "admin" ? Url.Action("Dashboard", "Admin") : Url.Action("MyEnrollments", "Enrollment"))" style="font-size:18px">
+                    <div class="nav-logo-icon" style="width:28px;height:28px;font-size:14px">&#129338;</div>EduNest
+                </a>
+            </div>
+            <nav style="padding:8px 0">
+                <a class="sidebar-item" href="@Url.Action("Dashboard", "Instructor")">
+                    <span class="sidebar-icon">&#127968;</span>Dashboard
+                </a>
+                <a class="sidebar-item" href="@Url.Action("Index", "Course")">
+                    <span class="sidebar-icon">&#128218;</span>Browse Courses
+                </a>
+                <a class="sidebar-item" href="@Url.Action("Profile", "User")">
+                    <span class="sidebar-icon">&#128100;</span>Profile
+                </a>
+            </nav>
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:18px 16px;border-top:1px solid var(--border)">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 8px;border-radius:10px;background:var(--surface2)">
+                    <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:#080a10;font-weight:800;font-size:15px;flex-shrink:0">
+                        @(Session["userName"] != null ? Session["userName"].ToString()[0].ToString().ToUpper() : "I")
+                    </div>
+                    <div>
+                        <div style="font-size:13px;font-weight:800">@Session["userName"]</div>
+                        <div style="font-size:11px;color:var(--muted);font-weight:600">Instructor</div>
+                    </div>
+                </div>
+                <a class="btn btn-ghost" href="@Url.Action("Logout", "Account")"
+                   style="width:100%;text-align:left;font-size:13px;font-weight:700;color:var(--muted);display:block">
+                    &#8592; Sign Out
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="dashboard-main">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px">
+                <div>
+                    <h1 style="font-size:32px;margin-bottom:6px">Edit Question</h1>
+                    <p style="color:var(--muted);font-weight:600">Update the question details</p>
+                </div>
+                <a href="@Url.Action("Manage", "Assessment", new { lessonId = lessonId })" class="btn btn-ghost">← Back to Quiz Manager</a>
+            </div>
+
+            @if (TempData["success"] != null)
+            {
+                <div style="background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;color:var(--teal);font-size:13px;font-weight:600">
+                    @TempData["success"]
+                </div>
+            }
+            @if (ViewBag.Error != null)
+            {
+                <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;color:#f87171;font-size:13px;font-weight:600">
+                    @ViewBag.Error
+                </div>
+            }
+
+            <div class="card" style="padding:36px;max-width:700px">
+                <h3 style="font-weight:800;margin-bottom:24px;font-size:17px">Question Details</h3>
+
+                <form id="editQuestionForm" method="post" action="@Url.Action("EditQuestion", "Assessment")">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="questionId" value="@Model.questionId" />
+                    <input type="hidden" name="assessmentId" value="@assessmentId" />
+                    <input type="hidden" name="correctAnswer" id="correctAnswerHidden" />
+                    <input type="hidden" name="questionAnswer" id="questionAnswerHidden" />
+
+                    <!-- Question Type -->
+                    <div class="form-group">
+                        <label class="form-label">Question Type <span style="color:var(--red)">*</span></label>
+                        <select class="form-input" id="questionType" name="questionType" onchange="onTypeChange()" required>
+                            <option value="multiple_choice" @(Model.questionType == "multiple_choice" ? "selected" : "")>Multiple Choice</option>
+                            <option value="true_false" @(Model.questionType == "true_false" ? "selected" : "")>True / False</option>
+                            <option value="short_answer" @(Model.questionType == "short_answer" ? "selected" : "")>Short Answer</option>
+                        </select>
+                    </div>
+
+                    <!-- Question Text -->
+                    <div class="form-group">
+                        <label class="form-label">Question Text <span style="color:var(--red)">*</span></label>
+                        <textarea class="form-input" name="questionText" rows="4" style="resize:vertical" required>@Model.questionText</textarea>
+                    </div>
+
+                    <!-- MCQ SECTION -->
+                    <div id="mcqSection" style="display:none">
+                        <div class="form-group">
+                            <label class="form-label">Answer Options <span style="color:var(--red)">*</span></label>
+                            <div style="display:flex;flex-direction:column;gap:10px">
+                                @{
+                                    string[] opts = !string.IsNullOrEmpty(Model.questionAnswer) ? Model.questionAnswer.Split('|') : new string[] { "", "", "", "" };
+                                }
+                                <div style="display:flex;align-items:center;gap:10px">
+                                    <span style="font-weight:700;width:20px">A</span>
+                                    <input class="form-input" id="optA" placeholder="Option A" style="flex:1" value="@(opts.Length > 0 ? opts[0] : "")" />
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px">
+                                    <span style="font-weight:700;width:20px">B</span>
+                                    <input class="form-input" id="optB" placeholder="Option B" style="flex:1" value="@(opts.Length > 1 ? opts[1] : "")" />
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px">
+                                    <span style="font-weight:700;width:20px">C</span>
+                                    <input class="form-input" id="optC" placeholder="Option C" style:flex:1" value="@(opts.Length > 2 ? opts[2] : "")" />
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px">
+                                    <span style="font-weight:700;width:20px">D</span>
+                                    <input class="form-input" id="optD" placeholder="Option D" style="flex:1" value="@(opts.Length > 3 ? opts[3] : "")" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Correct Option <span style="color:var(--red)">*</span></label>
+                            <select class="form-input" id="mcqCorrect">
+                                <option value="">Select correct answer...</option>
+                                @{
+                                    string selectedLetter = "";
+                                    if (!string.IsNullOrEmpty(Model.correctAnswer) && opts.Length > 0)
+                                    {
+                                        for (int i = 0; i < opts.Length; i++)
+                                        {
+                                            if (opts[i] == Model.correctAnswer)
+                                            {
+                                                selectedLetter = new[] { "A", "B", "C", "D" }[i];
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                <option value="A" @(selectedLetter == "A" ? "selected" : "")>A</option>
+                                <option value="B" @(selectedLetter == "B" ? "selected" : "")>B</option>
+                                <option value="C" @(selectedLetter == "C" ? "selected" : "")>C</option>
+                                <option value="D" @(selectedLetter == "D" ? "selected" : "")>D</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- TRUE/FALSE SECTION -->
+                    <div id="tfSection" style="display:none">
+                        <div class="form-group">
+                            <label class="form-label">Correct Answer <span style="color:var(--red)">*</span></label>
+                            <select class="form-input" id="tfCorrect">
+                                <option value="">Select correct answer...</option>
+                                <option value="True" @(Model.correctAnswer == "True" ? "selected" : "")>True</option>
+                                <option value="False" @(Model.correctAnswer == "False" ? "selected" : "")>False</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- SHORT ANSWER SECTION -->
+                    <div id="saSection" style="display:none">
+                        <div class="form-group">
+                            <label class="form-label">Correct Answer <span style="color:var(--red)">*</span></label>
+                            <input class="form-input" id="saCorrect" placeholder="e.g. photosynthesis" value="@(Model.questionType == "short_answer" ? Model.correctAnswer : "")" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Accepted Keywords <span style="color:var(--muted);font-weight:500">(optional)</span></label>
+                            <input class="form-input" id="saKeywords" placeholder="e.g. photosynthesis|chlorophyll|light" value="@(Model.questionType == "short_answer" ? Model.questionAnswer : "")" />
+                            <small style="color:var(--muted);font-size:12px;font-weight:600">Pipe-separated alternative words that also count as correct.</small>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;gap:12px;margin-top:8px">
+                        <button type="button" onclick="submitEdit()" class="btn btn-primary">Save Changes</button>
+                        <a href="@Url.Action("Manage", "Assessment", new { lessonId = lessonId })" class="btn btn-ghost">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>function onTypeChange() {
+            var type = document.getElementById('questionType').value;
+            document.getElementById('mcqSection').style.display = type === 'multiple_choice' ? 'block' : 'none';
+            document.getElementById('tfSection').style.display  = type === 'true_false'      ? 'block' : 'none';
+            document.getElementById('saSection').style.display  = type === 'short_answer'    ? 'block' : 'none';
+        }
+
+        // Set initial visibility based on current type
+        onTypeChange();
+
+        function submitEdit() {
+            var type = document.getElementById('questionType').value;
+            if (!type) { alert('Please select a question type.'); return; }
+
+            if (type === 'multiple_choice') {
+                var a = document.getElementById('optA').value.trim();
+                var b = document.getElementById('optB').value.trim();
+                var c = document.getElementById('optC').value.trim();
+                var d = document.getElementById('optD').value.trim();
+                var letter = document.getElementById('mcqCorrect').value;
+                if (!a || !b || !c || !d) { alert('Please fill in all 4 options.'); return; }
+                if (!letter) { alert('Please select the correct option.'); return; }
+                var opts = [a, b, c, d];
+                var map = { A: 0, B: 1, C: 2, D: 3 };
+                document.getElementById('correctAnswerHidden').value = opts[map[letter]];
+                document.getElementById('questionAnswerHidden').value = opts.join('|');
+            } else if (type === 'true_false') {
+                var tf = document.getElementById('tfCorrect').value;
+                if (!tf) { alert('Please select True or False.'); return; }
+                document.getElementById('correctAnswerHidden').value = tf;
+                document.getElementById('questionAnswerHidden').value = '';
+            } else if (type === 'short_answer') {
+                var ans = document.getElementById('saCorrect').value.trim();
+                var kw  = document.getElementById('saKeywords').value.trim();
+                if (!ans) { alert('Please enter the correct answer.'); return; }
+                document.getElementById('correctAnswerHidden').value = ans;
+                document.getElementById('questionAnswerHidden').value = kw;
+            }
+
+            document.getElementById('editQuestionForm').submit();
+        }</script>
+
+</body>
+</html>

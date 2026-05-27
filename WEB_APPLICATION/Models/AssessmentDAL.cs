@@ -34,7 +34,7 @@ namespace WEB_APPLICATION.Models
                  conn.Close();
             }
         }
-
+       
         public  List<Assessment> GetAssessmentsByLesson(int lessonId)
         {
             List<Assessment> assessments = new List<Assessment>();
