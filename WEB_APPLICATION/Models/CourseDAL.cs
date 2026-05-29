@@ -15,7 +15,7 @@ namespace WEB_APPLICATION.Models
         // the method below Creates a new course and creates its document folder
         public bool CreateCourse(int userId, string courseName, string courseDescription, string imageUrl)
         {
-            bool success = true;
+            bool success = false;
             int newCourseId = 0;
             Course course = new Course(userId, courseName, courseDescription, imageUrl);
             try
@@ -33,9 +33,10 @@ namespace WEB_APPLICATION.Models
                     newCourseId = Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
-            catch (SqlException e) { Console.WriteLine(e.Message); success = false; }
+            catch (SqlException e) { Console.WriteLine(e.Message); }
             finally { conn.Close(); }
             if (newCourseId == 0) { success = false; }
+            else { success = true; }
             return success;
         }
 
