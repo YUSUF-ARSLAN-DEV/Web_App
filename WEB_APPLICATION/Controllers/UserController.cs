@@ -62,7 +62,6 @@ namespace WEB_APPLICATION.Controllers
         }
 
         // POST: Change Password
-        
         [HttpPost]
         public ActionResult ChangePassword(string currentPassword, string newPassword, string confirmPassword)
         {
@@ -77,7 +76,31 @@ namespace WEB_APPLICATION.Controllers
 
             string userName = (string)Session["userName"];
             UserDAL userDal = new UserDAL();
+            int userId = (int)Session["userId"];
+            User user = userDal.GetUserById(userId);
 
+            // Check if user has no password (OAuth signup)
+            if (string.IsNullOrEmpty(user.password))
+            {
+                // Skip current password check, just validate new password
+                if (!userDal.CheckValidCredentials(userName, newPassword))
+                {
+                    ViewBag.Error = "New password does not meet requirements. Must contain uppercase, lowercase, and a number.";
+                    return View();
+                }
+
+                bool success = userDal.UpdatePassword(userId, newPassword);
+                if (success)
+                {
+                    TempData["success"] = "Password created successfully. You can now log in using your username and password.";
+                    return RedirectToAction("Profile");
+                }
+
+                ViewBag.Error = "Failed to create password";
+                return View();
+            }
+
+            // Normal flow for users with existing password
             int authResult = userDal.LoginAuthentication(userName, currentPassword);
             if (authResult != 0)
             {
@@ -87,17 +110,17 @@ namespace WEB_APPLICATION.Controllers
 
             if (!userDal.CheckValidCredentials(userName, newPassword))
             {
-                ViewBag.Error = "New password does not meet requirements";
+                ViewBag.Error = "New password does not meet requirements. Must contain uppercase, lowercase, and a number.";
                 return View();
             }
 
-            int userId = (int)Session["userId"];
-            bool success = userDal.UpdatePassword(userId, newPassword);
-            if (success)
+            bool successNormal = userDal.UpdatePassword(userId, newPassword);
+            if (successNormal)
             {
                 TempData["success"] = "Password changed successfully";
                 return RedirectToAction("Profile");
             }
+
             ViewBag.Error = "Failed to change password";
             return View();
         }
