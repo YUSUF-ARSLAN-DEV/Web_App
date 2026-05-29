@@ -125,7 +125,7 @@
                 </div>
             }
 
-            <!-- POSTS  SINCE IN THE DETAILS OF A FORUM YOU CAN SEE THE POSTS IN THAT FORUM -->
+            <!-- POSTS -->
             @if (posts == null || posts.Count == 0)
             {
                 <div style="text-align:center;padding:60px 0;color:var(--muted)">
@@ -154,6 +154,10 @@
                                 </div>
 
                                 <div style="display:flex;gap:8px">
+                                    <a href="@Url.Action("PostCommentSpace", "Comment", new { postId = post.postId })"
+                                       class="btn btn-primary" style="font-size:12px;padding:6px 12px">
+                                        View Post
+                                    </a>
                                     @if (post.userId == currentUserId)
                                     {
                                         <a href="@Url.Action("Edit", "Post", new { id = post.postId })"

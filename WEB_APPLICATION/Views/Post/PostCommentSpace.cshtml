@@ -1,0 +1,131 @@
+﻿@{
+    Layout = null;
+    var post = ViewBag.Post as WEB_APPLICATION.Models.Post;
+    var comments = ViewBag.Comments as List<WEB_APPLICATION.Models.Comment>;
+    int forumId = ViewBag.ForumId != null ? (int)ViewBag.ForumId : 0;
+    string role = Session["role"] != null ? Session["role"].ToString() : "";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduNest – Post Comments</title>
+    <link rel="stylesheet" href="~/Content/site.css" />
+</head>
+<body>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <a class="nav-logo" href="@(role == "instructor" ? Url.Action("Dashboard", "Instructor") : role == "admin" ? Url.Action("Dashboard", "Admin") : Url.Action("MyEnrollments", "Enrollment"))" style="font-size:18px">
+                    <div class="nav-logo-icon" style="width:28px;height:28px;font-size:14px">&#129338;</div>EduNest
+                </a>
+            </div>
+            <nav style="padding:8px 0">
+                <a class="sidebar-item" href="@Url.Action("Details", "Forum", new { id = forumId })">
+                    <span class="sidebar-icon">←</span>Back to Forum
+                </a>
+                <a class="sidebar-item" href="@Url.Action("Profile", "User")">
+                    <span class="sidebar-icon">&#128100;</span>Profile
+                </a>
+            </nav>
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:18px 16px;border-top:1px solid var(--border)">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 8px;border-radius:10px;background:var(--surface2)">
+                    <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:#080a10;font-weight:800;font-size:15px;flex-shrink:0">
+                        @(Session["userName"] != null ? Session["userName"].ToString()[0].ToString().ToUpper() : "U")
+                    </div>
+                    <div>
+                        <div style="font-size:13px;font-weight:800">@Session["userName"]</div>
+                        <div style="font-size:11px;color:var(--muted);font-weight:600">@role</div>
+                    </div>
+                </div>
+                <a class="btn btn-ghost" href="@Url.Action("Logout", "Account")"
+                   style="width:100%;text-align:left;font-size:13px;font-weight:700;color:var(--muted);display:block">
+                    &#8592; Sign Out
+                </a>
+            </div>
+        </aside>
+
+        <main class="dashboard-main">
+            <div style="max-width:800px;margin:0 auto">
+
+                @if (TempData["success"] != null)
+                {
+                    <div style="background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;color:var(--teal);font-size:13px;font-weight:600">
+                        @TempData["success"]
+                    </div>
+                }
+
+                @if (TempData["error"] != null)
+                {
+                    <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;color:#f87171;font-size:13px;font-weight:600">
+                        @TempData["error"]
+                    </div>
+                }
+
+                <!-- Original Post -->
+                <div class="card" style="padding:28px;margin-bottom:28px">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+                        <div>
+                            <h2 style="font-size:20px;margin-bottom:6px">@post.title</h2>
+                            <div style="font-size:12px;color:var(--muted);font-weight:600">
+                                User #@post.userId · @post.postDate.ToString("MMM dd, yyyy") at @post.postTime.ToString(@"hh\:mm")
+                            </div>
+                        </div>
+                        <a href="@Url.Action("Details", "Forum", new { id = forumId })" class="btn btn-ghost" style="font-size:12px">← Back</a>
+                    </div>
+                    <p style="font-size:14px;line-height:1.7;margin-top:16px;white-space:pre-wrap">@post.textContent</p>
+                    @if (!string.IsNullOrEmpty(post.imageUrl))
+                    {
+                        <div style="margin-top:16px;border-radius:10px;overflow:hidden">
+                            <img src="@post.imageUrl" alt="Post image" style="max-width:100%;max-height:300px" />
+                        </div>
+                    }
+                </div>
+
+                <!-- Comments Section -->
+                <h3 style="font-size:18px;margin-bottom:16px">Comments (@(comments != null ? comments.Count : 0))</h3>
+
+                @if (comments == null || comments.Count == 0)
+                {
+                    <div style="padding:32px;text-align:center;color:var(--muted);border:1px solid var(--border);border-radius:12px;margin-bottom:28px">
+                        No comments yet. Be the first to comment.
+                    </div>
+                }
+                else
+                {
+                    <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:28px">
+                        @foreach (var comment in comments)
+                        {
+                            <div class="card" style="padding:18px 22px">
+                                <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+                                    <span style="font-weight:700;font-size:13px">User #@comment.userId</span>
+                                    <span style="font-size:11px;color:var(--muted)">@comment.commentDate.ToString("MMM dd, yyyy") at @comment.commentTime.ToString(@"hh\:mm")</span>
+                                </div>
+                                <p style="font-size:14px;line-height:1.6;margin:0;white-space:pre-wrap">@comment.commentText</p>
+                            </div>
+                        }
+                    </div>
+                }
+
+                <!-- Add Comment Form -->
+                <div class="card" style="padding:24px">
+                    <h4 style="font-size:16px;margin-bottom:16px">Add a Comment</h4>
+                    @using (Html.BeginForm("CreateComment", "Comment", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("postId", post.postId)
+                        <div class="form-group">
+                            <textarea class="form-input" name="commentText" rows="4" placeholder="Write your comment here..." style="resize:vertical" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Post Comment</button>
+                    }
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

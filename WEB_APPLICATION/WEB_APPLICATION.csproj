@@ -145,6 +145,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\AssessmentController.cs" />
+    <Compile Include="Controllers\CommentController.cs" />
     <Compile Include="Controllers\CourseController.cs" />
     <Compile Include="Controllers\EnrollmentController.cs" />
     <Compile Include="Controllers\ForumController.cs" />
@@ -159,6 +160,8 @@
     <Compile Include="Helpers\BlobStorageHelper.cs" />
     <Compile Include="Models\Assessment.cs" />
     <Compile Include="Models\AssessmentDAL.cs" />
+    <Compile Include="Models\CommentDAL.cs" />
+    <Compile Include="Models\Comment.cs" />
     <Compile Include="Models\LessonCompletionDAL.cs" />
     <Compile Include="Models\LessonCompletion.cs" />
     <Compile Include="Models\InstructorCourseViewModel.cs" />
@@ -270,9 +273,11 @@
     <Content Include="Views\Post\Edit.cshtml" />
     <Content Include="Views\Assessment\Manage.cshtml" />
     <Content Include="Views\Assessment\EditQuestion.cshtml" />
+    <Content Include="Views\Post\PostCommentSpace.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DOCUMENTS\Course_1\" />
+    <Folder Include="Views\Comment\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

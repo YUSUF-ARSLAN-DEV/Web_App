@@ -195,3 +195,16 @@ FOREIGN KEY (assessmentId) REFERENCES Assessment(assessmentId)
 ON DELETE CASCADE
 
 PRINT 'Added CASCADE constraint successfully'
+
+--  A new table that we are going to create for basically storing the comments on a post aka reddit style typa shiiii 
+CREATE TABLE Comment (
+    commentId INT IDENTITY(1,1) NOT NULL,
+    postId INT NOT NULL,
+    userId INT NOT NULL,
+    commentText NVARCHAR(1000) NOT NULL,
+    commentDate DATE NULL,
+    commentTime TIME NULL,
+    PRIMARY KEY (commentId),
+    FOREIGN KEY (postId) REFERENCES Post(postId),
+    FOREIGN KEY (userId) REFERENCES [User](userId)
+)
