@@ -23,7 +23,6 @@ namespace WEB_APPLICATION.Controllers
 
             return View("~/Views/Post/PostCommentSpace.cshtml");
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult CreateComment(int postId, string commentText)
@@ -34,7 +33,7 @@ namespace WEB_APPLICATION.Controllers
             if (string.IsNullOrWhiteSpace(commentText))
             {
                 TempData["error"] = "Comment cannot be empty.";
-                return RedirectToAction("PostCommentSpace", "Post", new { postId = postId });
+                return RedirectToAction("PostCommentSpace", new { postId = postId });
             }
 
             int userId = (int)Session["userId"];
@@ -46,7 +45,7 @@ namespace WEB_APPLICATION.Controllers
             else
                 TempData["error"] = "Failed to add comment.";
 
-            return RedirectToAction("PostCommentSpace", "Post", new { postId = postId });
+            return RedirectToAction("PostCommentSpace", new { postId = postId });
         }
     }
 }
