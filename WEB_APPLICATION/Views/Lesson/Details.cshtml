@@ -221,11 +221,16 @@
                         }
                         else
                         {
-                            using (Html.BeginForm("MarkComplete", "Lesson", FormMethod.Post, new { style = "margin:0" }))
+                            <!--  The studeent can mark a lesson as completely only if the lesson has no quiz OR the student has already taken the quiz (if it exists) -->
+                            if (assessment == null)
                             {
-                                @Html.Hidden("lessonId", Model.lessonId)
-                                @Html.Hidden("courseId", Model.courseId)
-                                <button type="submit" class="btn btn-primary">✓ Mark as Complete</button>
+                                using (Html.BeginForm("MarkComplete", "Lesson", FormMethod.Post, new { style = "margin:0" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.Hidden("lessonId", Model.lessonId)
+                                    @Html.Hidden("courseId", Model.courseId)
+                                    <button type="submit" class="btn btn-primary">✓ Mark as Complete</button>
+                                }
                             }
                         }
                     }
