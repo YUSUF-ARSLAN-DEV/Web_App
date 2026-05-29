@@ -21,7 +21,7 @@ namespace WEB_APPLICATION.Controllers
             ViewBag.Comments = new CommentDAL().GetCommentsByPost(postId);
             ViewBag.ForumId = post.forumId;
 
-            return View();
+            return View("~/Views/Post/PostCommentSpace.cshtml");
         }
 
         [HttpPost]
@@ -34,7 +34,7 @@ namespace WEB_APPLICATION.Controllers
             if (string.IsNullOrWhiteSpace(commentText))
             {
                 TempData["error"] = "Comment cannot be empty.";
-                return RedirectToAction("PostCommentSpace", new { postId = postId });
+                return RedirectToAction("PostCommentSpace", "Post", new { postId = postId });
             }
 
             int userId = (int)Session["userId"];
@@ -46,7 +46,7 @@ namespace WEB_APPLICATION.Controllers
             else
                 TempData["error"] = "Failed to add comment.";
 
-            return RedirectToAction("PostCommentSpace", new { postId = postId });
+            return RedirectToAction("PostCommentSpace", "Post", new { postId = postId });
         }
     }
 }
