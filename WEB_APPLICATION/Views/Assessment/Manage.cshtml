@@ -68,7 +68,7 @@
                         Lesson: <strong>@lesson.lessonTitle</strong>
                     </p>
                 </div>
-                <a href="@Url.Action("Index", "Lesson", new { courseId = lesson.courseId })" class="btn btn-ghost">← Back to Lessons</a>
+                <a href="@Url.Action("Index", "Lesson", new { courseId = lesson.courseId })" class="btn btn-ghost">Back to Lessons</a>
             </div>
 
             @if (TempData["success"] != null)
@@ -150,7 +150,7 @@
                                                 {
                                                     @Html.Hidden("questionId", q.questionId)
                                                     @Html.Hidden("assessmentId", assessment.assessmentId)
-                                                    <button type="submit" class="btn btn-ghost" style="font-size:12px;padding:4px 12px;color:var(--red)" onclick="return confirm('Delete this question?')">
+                                                    <button type="submit" class="btn btn-ghost" style="font-size:12px;padding:4px 12px;color:var(--red)">
                                                         Delete
                                                     </button>
                                                 }
@@ -169,7 +169,7 @@
                     {
                         @Html.Hidden("id", assessment.assessmentId)
                         @Html.Hidden("lessonId", lesson.lessonId)
-                        <button type="submit" class="btn btn-ghost" style="color:var(--red)" onclick="return confirm('Delete this entire quiz and all questions? This cannot be undone.')">
+                        <button type="submit" class="btn btn-ghost" style="color:var(--red)">
                             🗑️ Delete Entire Quiz
                         </button>
                     }

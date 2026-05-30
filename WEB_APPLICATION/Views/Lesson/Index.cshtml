@@ -23,28 +23,7 @@
                 </a>
             </div>
             <nav style="padding:8px 0">
-            <a class="sidebar-item" href="@{
-            string dashboardLink = "#";
-            string role = Session["role"] != null ? Session["role"].ToString() : "";
-
-            if (role == "student")
-            {
-                dashboardLink = Url.Action("MyEnrollments", "Enrollment");
-            }
-            else if (role == "instructor")
-            {
-                dashboardLink = Url.Action("Dashboard", "Instructor");
-            }
-            else if (role == "admin")
-            {
-                dashboardLink = Url.Action("Dashboard", "Admin");
-            }
-            else
-            {
-                dashboardLink = Url.Action("Index", "Home");
-            }
-            @dashboardLink
-            }">
+                <a class="sidebar-item" href="@(Session["role"] != null && Session["role"].ToString() == "instructor" ? Url.Action("Dashboard", "Instructor") : Session["role"] != null && Session["role"].ToString() == "admin" ? Url.Action("Dashboard", "Admin") : Session["role"] != null && Session["role"].ToString() == "student" ? Url.Action("MyEnrollments", "Enrollment") : Url.Action("Index", "Home"))">
                     <span class="sidebar-icon">&#127968;</span>Dashboard
                 </a>
                 <a class="sidebar-item" href="@Url.Action("Profile", "User")">
@@ -80,7 +59,7 @@
                     </p>
                 </div>
                 <div style="display:flex;gap:12px">
-                    <a href="@Url.Action("Details", "Course", new { id = courseId })" class="btn btn-ghost">← Back to Course</a>
+                    <a href="@Url.Action("Details", "Course", new { id = courseId })" class="btn btn-ghost"> Back to Course</a>
                     @if (Session["role"] != null && (Session["role"].ToString() == "instructor" || Session["role"].ToString() == "admin"))
                     {
                         <a href="@Url.Action("Create", "Lesson", new { courseId = courseId })" class="btn btn-primary">+ Add Lesson</a>
@@ -151,8 +130,7 @@
                                         @Html.Hidden("id", lesson.lessonId)
                                         @Html.Hidden("courseId", courseId)
                                         <button type="submit" class="btn btn-ghost"
-                                                style="font-size:12px;padding:6px 12px;color:var(--red)"
-                                                onclick="return confirm('Delete this lesson?')">
+                                                style="font-size:12px;padding:6px 12px;color:var(--red)">
                                             Delete
                                         </button>
                                     }

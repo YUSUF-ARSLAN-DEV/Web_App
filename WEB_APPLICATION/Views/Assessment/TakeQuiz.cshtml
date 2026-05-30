@@ -58,7 +58,7 @@
                         @(questions != null ? questions.Count : 0) question(s) — answer all before submitting
                     </p>
                 </div>
-                <a href="@Url.Action("Details", "Lesson", new { id = Model.lessonId })" class="btn btn-ghost">← Back to Lesson</a>
+                <a href="@Url.Action("Details", "Lesson", new { id = Model.lessonId })" class="btn btn-ghost">Back to Lesson</a>
             </div>
 
             @if (questions == null || questions.Count == 0)

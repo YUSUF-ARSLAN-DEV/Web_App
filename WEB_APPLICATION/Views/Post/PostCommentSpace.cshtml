@@ -24,7 +24,7 @@
             </div>
             <nav style="padding:8px 0">
                 <a class="sidebar-item" href="@Url.Action("Details", "Forum", new { id = forumId })">
-                    <span class="sidebar-icon">←</span>Back to Forum
+                    <span class="sidebar-icon"></span>Back to Forum
                 </a>
                 <a class="sidebar-item" href="@Url.Action("Profile", "User")">
                     <span class="sidebar-icon">&#128100;</span>Profile
@@ -73,7 +73,7 @@
                                 User #@post.userId · @post.postDate.ToString("MMM dd, yyyy") at @post.postTime.ToString(@"hh\:mm")
                             </div>
                         </div>
-                        <a href="@Url.Action("Details", "Forum", new { id = forumId })" class="btn btn-ghost" style="font-size:12px">← Back</a>
+                        <a href="@Url.Action("Details", "Forum", new { id = forumId })" class="btn btn-ghost" style="font-size:12px">Back</a>
                     </div>
                     <p style="font-size:14px;line-height:1.7;margin-top:16px;white-space:pre-wrap">@post.textContent</p>
                     @if (!string.IsNullOrEmpty(post.imageUrl))

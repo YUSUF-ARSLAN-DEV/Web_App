@@ -15,12 +15,7 @@
     <link rel="stylesheet" href="~/Content/site.css" />
 </head>
 <body>
-    @if (TempData["uploadDebug"] != null)
-    {
-        <div style="background:yellow;padding:15px;margin:20px;border:2px solid red;color:black;font-weight:bold">
-            DEBUG: @TempData["uploadDebug"]
-        </div>
-    }
+
 
     <div class="dashboard-layout">
         <!-- SIDEBAR -->
@@ -81,7 +76,7 @@
                 <div>
                     <a href="@Url.Action("Index", "Forum", new { courseId = Model.courseId })"
                        style="color:var(--muted);font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-bottom:10px">
-                        ← Back to Forums
+                         Back to Forums
                     </a>
                     <h1 style="font-size:32px;margin-bottom:6px">@Model.title</h1>
                     <span style="background:rgba(232,184,75,0.1);color:var(--gold);border:1px solid rgba(232,184,75,0.3);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700">
@@ -102,8 +97,7 @@
                             @Html.Hidden("id", Model.forumId)
                             @Html.Hidden("courseId", Model.courseId)
                             <button type="submit" class="btn btn-ghost"
-                                    style="color:var(--red)"
-                                    onclick="return confirm('Delete this forum and all its posts?')">
+                                    style="color:var(--red)">
                                 Delete Forum
                             </button>
                         }
@@ -168,8 +162,7 @@
                                         using (Html.BeginForm("Delete", "Post", new { id = post.postId, forumId = Model.forumId }, FormMethod.Post, new { style = "margin:0" }))
                                         {
                                             <button type="submit" class="btn btn-ghost"
-                                                    style="font-size:12px;padding:6px 12px;color:var(--red)"
-                                                    onclick="return confirm('Delete this post?')">
+                                                    style="font-size:12px;padding:6px 12px;color:var(--red)">
                                                 Delete
                                             </button>
                                         }

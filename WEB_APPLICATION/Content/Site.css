@@ -14,7 +14,21 @@
     --border2: #2a3347;
     --gold: #e8b84b;
     --gold2: #f5d47a;
-    --gold-dim: rgba(232,184,75,0.12);
+    --gold-dim: rgba(232,184,75,0.12);/* Base button class */
+.btn {
+    padding: 10px 22px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all .2s;
+    font-family: 'Cabinet Grotesk', sans-serif;
+    letter-spacing: 0.01em;
+    display: inline-block;
+    text-decoration: none;
+}
+
     --text: #dde3ef;
     --muted: #6b7892;
     --accent: #4e7cf6;

@@ -134,12 +134,7 @@
                 </div>
                 <div style="display:flex;gap:10px;align-items:center">
                     <a class="btn btn-primary" href="@Url.Action("Create", "Course")">+ New Course</a>
-                    <div style="position:relative">
-                        <button onclick="toggleSettings()" class="btn btn-ghost" style="font-size:18px;padding:8px 12px">&#8943;</button>
-                        <div class="settings-dropdown" id="settingsDropdown">
-                            <a href="@Url.Action("ArchivedCourses", "Course")">&#128193; Archived Courses</a>
-                        </div>
-                    </div>
+                    <a href="@Url.Action("ArchivedCourses", "Course")" class="btn btn-ghost" style="font-size:13px;font-weight:700">&#128193; Archived Courses</a>
                 </div>
             </div>
 
@@ -234,11 +229,7 @@
                                                title="Edit Course Details (title, description, thumbnail)">
                                                 Edit
                                             </a>
-                                            <button type="button" class="btn btn-ghost"
-                                                    style="font-size:12px;padding:6px 12px;color:var(--red)"
-                                                    onclick="openDeleteModal(@item.course.courseId, '@Html.Raw(item.course.courseName.Replace("'", "\\'"))')">
-                                                Archive
-                                            </button>
+
                                         </div>
                                     </td>
                                 </tr>
@@ -250,48 +241,6 @@
         </main>
     </div>
 
-    <!-- DELETE / ARCHIVE MODAL -->
-    <div class="modal-overlay" id="deleteModal">
-        <div class="modal-box">
-            <div style="font-size:40px;margin-bottom:16px">&#128193;</div>
-            <h2 style="font-size:20px;font-weight:800;margin-bottom:10px">Archive this course?</h2>
-            <p style="color:var(--muted);font-size:14px;font-weight:600;margin-bottom:24px" id="modalCourseName"></p>
-            <p style="color:var(--muted);font-size:13px;margin-bottom:28px">
-                The course will be hidden from students. You can reactivate it anytime from Archived Courses.
-            </p>
-            <div style="display:flex;gap:12px;justify-content:center">
-                <button onclick="closeDeleteModal()" class="btn btn-ghost" style="padding:10px 24px">Cancel</button>
-                <form id="deleteForm" method="post" style="margin:0">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="id" id="deleteCourseId" />
-                    <button type="submit" class="btn btn-primary" style="padding:10px 24px;background:var(--red);border-color:var(--red)">
-                        Archive
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function openDeleteModal(courseId, courseName) {
-            document.getElementById('deleteCourseId').value = courseId;
-            document.getElementById('modalCourseName').textContent = '"' + courseName + '"';
-            document.getElementById('deleteForm').action = '@Url.Action("Delete", "Course")';
-            document.getElementById('deleteModal').classList.add('open');
-        }
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').classList.remove('open');
-        }
-        function toggleSettings() {
-            document.getElementById('settingsDropdown').classList.toggle('open');
-        }
-        document.addEventListener('click', function(e) {
-            var dd = document.getElementById('settingsDropdown');
-            if (!e.target.closest('[onclick="toggleSettings()"]') && !e.target.closest('#settingsDropdown')) {
-                dd.classList.remove('open');
-            }
-        });
-    </script>
 
 </body>
 </html>

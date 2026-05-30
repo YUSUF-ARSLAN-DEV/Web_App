@@ -97,9 +97,7 @@
             </div>
         </aside>
 
-        <!-- ================================================ -->
-        <!-- MAIN CONTENT AREA                                 -->
-        <!-- ================================================ -->
+        <!-- MAIN CONTENT AREA -->
         <main class="dashboard-main">
 
             <!-- HEADER -->
@@ -107,7 +105,7 @@
                 <div>
                     <a href="@Url.Action("Index", "Lesson", new { courseId = Model.courseId })"
                        style="color:var(--muted);font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-bottom:10px">
-                        ← Back to Lessons
+                         Back to Lessons
                     </a>
                     <h1 style="font-size:32px;margin-bottom:6px">@Model.lessonTitle</h1>
                 </div>
@@ -124,8 +122,7 @@
                             @Html.Hidden("id", Model.lessonId)
                             @Html.Hidden("courseId", Model.courseId)
                             <button type="submit" class="btn btn-ghost"
-                                    style="color:var(--red)"
-                                    onclick="return confirm('Delete this lesson?')">
+                                    style="color:var(--red)">
                                 Delete
                             </button>
                         }
@@ -206,7 +203,7 @@
             <!-- ===== BOTTOM NAVIGATION ===== -->
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:28px;max-width:800px">
                 <a href="@Url.Action("Index", "Lesson", new { courseId = Model.courseId })"
-                   class="btn btn-ghost">← All Lessons</a>
+                   class="btn btn-ghost"> All Lessons</a>
 
                 <div style="display:flex;gap:12px">
 

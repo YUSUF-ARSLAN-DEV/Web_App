@@ -56,8 +56,11 @@
                     <h1 style="font-size:32px;margin-bottom:6px">Add Question</h1>
                     <p style="color:var(--muted);font-weight:600">Add questions to your quiz one at a time</p>
                 </div>
-                <a href="@Url.Action("Details", "Lesson", new { id = lessonId })" class="btn btn-ghost">← Back to Lesson</a>
-            </div>
+                @if (lessonId > 0)
+                {
+                    <a href="@Url.Action("Details", "Lesson", new { id = lessonId })" class="btn btn-ghost">Back to Lesson</a>
+                }
+                </div>
 
             @if (TempData["success"] != null)
             {
@@ -84,7 +87,7 @@
                     <!-- Question Type -->
                     <div class="form-group">
                         <label class="form-label">Question Type <span style="color:var(--red)">*</span></label>
-                        <select class="form-input" id="questionType" name="questionType" onchange="onTypeChange()" required>
+                        <select class="form-input" id="questionType" name="questionType" required>
                             <option value="" disabled selected>Select question type...</option>
                             <option value="multiple_choice">Multiple Choice</option>
                             <option value="true_false">True / False</option>
@@ -162,54 +165,16 @@
                     </div>
 
                     <div style="display:flex;gap:12px;margin-top:8px">
-                        <button type="button" onclick="submitQuestion()" class="btn btn-primary">Add Question</button>
-                        <a href="@Url.Action("Details", "Lesson", new { id = lessonId })" class="btn btn-ghost">Done</a>
+                        <button type="submit" class="btn btn-primary">Add Question</button>
+                        @if (lessonId > 0)
+                        {
+                            <a href="@Url.Action("Details", "Lesson", new { id = lessonId })" class="btn btn-ghost">Done</a>
+                        }
                     </div>
                 </form>
             </div>
         </main>
     </div>
-
-    <script>
-        function onTypeChange() {
-            var type = document.getElementById('questionType').value;
-            document.getElementById('mcqSection').style.display = type === 'multiple_choice' ? 'block' : 'none';
-            document.getElementById('tfSection').style.display  = type === 'true_false'      ? 'block' : 'none';
-            document.getElementById('saSection').style.display  = type === 'short_answer'    ? 'block' : 'none';
-        }
-
-        function submitQuestion() {
-            var type = document.getElementById('questionType').value;
-            if (!type) { alert('Please select a question type.'); return; }
-
-            if (type === 'multiple_choice') {
-                var a = document.getElementById('optA').value.trim();
-                var b = document.getElementById('optB').value.trim();
-                var c = document.getElementById('optC').value.trim();
-                var d = document.getElementById('optD').value.trim();
-                var letter = document.getElementById('mcqCorrect').value;
-                if (!a || !b || !c || !d) { alert('Please fill in all 4 options.'); return; }
-                if (!letter) { alert('Please select the correct option.'); return; }
-                var opts = [a, b, c, d];
-                var map = { A: 0, B: 1, C: 2, D: 3 };
-                document.getElementById('correctAnswerHidden').value = opts[map[letter]];
-                document.getElementById('questionAnswerHidden').value = opts.join('|');
-            } else if (type === 'true_false') {
-                var tf = document.getElementById('tfCorrect').value;
-                if (!tf) { alert('Please select True or False.'); return; }
-                document.getElementById('correctAnswerHidden').value = tf;
-                document.getElementById('questionAnswerHidden').value = '';
-            } else if (type === 'short_answer') {
-                var ans = document.getElementById('saCorrect').value.trim();
-                var kw  = document.getElementById('saKeywords').value.trim();
-                if (!ans) { alert('Please enter the correct answer.'); return; }
-                document.getElementById('correctAnswerHidden').value = ans;
-                document.getElementById('questionAnswerHidden').value = kw;
-            }
-
-            document.getElementById('questionForm').submit();
-        }
-    </script>
 
 </body>
 </html>

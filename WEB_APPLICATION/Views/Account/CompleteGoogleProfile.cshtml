@@ -80,13 +80,13 @@
             {
                 <div style="display:flex;gap:16px;margin-bottom:32px">
                     <label class="role-card" id="card-student">
-                        <input type="radio" name="role" value="student" checked onchange="highlightCard()" />
+                        <input type="radio" name="role" value="student" checked />
                         <div class="role-icon">&#127891;</div>
                         <div class="role-title">Student</div>
                         <div class="role-sub">I want to enroll in courses and learn new skills</div>
                     </label>
                     <label class="role-card" id="card-instructor">
-                        <input type="radio" name="role" value="instructor" onchange="highlightCard()" />
+                        <input type="radio" name="role" value="instructor" />
                         <div class="role-icon">&#129489;</div>
                         <div class="role-title">Instructor</div>
                         <div class="role-sub">I want to create and publish courses for learners</div>
@@ -104,19 +104,7 @@
         </div>
     </div>
 
-    <script>
-        // Highlight selected card (for browsers that don't support :has)
-        function highlightCard() {
-            var cards = document.querySelectorAll('.role-card');
-            cards.forEach(function(card) {
-                var radio = card.querySelector('input[type="radio"]');
-                card.style.borderColor = radio.checked ? 'var(--gold)' : 'var(--border)';
-                card.style.background = radio.checked ? 'rgba(201,168,76,0.08)' : 'var(--surface2)';
-            });
-        }
-        // Set initial state
-        highlightCard();
-    </script>
+  
 
 </body>
 </html>
