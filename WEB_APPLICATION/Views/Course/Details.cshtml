@@ -19,8 +19,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EduNest – @(Model != null ? Model.courseName : "Course")</title>
+    <title>EduNest - @(Model != null ? Model.courseName : "Course")</title>
     <link rel="stylesheet" href="~/Content/site.css" />
+  
 </head>
 <body>
 
@@ -32,19 +33,26 @@
         else { dashboardLink = Url.Action("Index", "Home"); }
     }
 
+
     <!-- NAVIGATION -->
     <nav class="nav">
+
         <a class="nav-logo" href="@dashboardLink">
-            <div class="nav-logo-icon"></div>EduNest
+            <img src="~/Uploads/logo.svg" alt="EduNest" class="nav-logo-icon" style="width:56px;height:56px" />EduNest
         </a>
+ 
+
+
         <div class="nav-right">
             @if (Session["userId"] != null)
             {
                 <span style="color:var(--muted);font-size:14px;margin-right:12px">Hi, @Session["userName"]</span>
+                <a href="@dashboardLink" class="btn btn-ghost">Back to Dashboard</a>
                 <a class="btn btn-ghost" href="@Url.Action("Logout", "Account")">Log Out</a>
             }
             else
             {
+                
                 <a class="btn btn-ghost" href="@Url.Action("Login", "Account")">Log In</a>
                 <a class="btn btn-primary" href="@Url.Action("Registration", "Account")">Get Started Free</a>
             }
