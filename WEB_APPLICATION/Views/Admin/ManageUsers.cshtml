@@ -1,7 +1,8 @@
-﻿﻿@model List<WEB_APPLICATION.Models.User>
+﻿@model List<WEB_APPLICATION.Models.User>
 @{
     Layout = null;
     string selectedRole = ViewBag.SelectedRole ?? "all";
+    string selectedStatus = ViewBag.SelectedStatus ?? "active";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -79,28 +80,35 @@
                 </div>
             }
 
-            <!-- FILTER COMBO BOX -->
+            <!-- FILTER FORM -->
             <div class="card" style="padding:18px 24px;margin-bottom:24px">
-                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-                    <div style="display:flex;align-items:center;gap:10px">
-                        <span style="font-weight:700;font-size:14px">Filter by role:</span>
-                        <select id="roleFilter" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:600;cursor:pointer">
-                            <option value="all" @(selectedRole == "all" ? "selected" : "")>All Users (Non-Admin)</option>
-                            <option value="student" @(selectedRole == "student" ? "selected" : "")>Students</option>
-                            <option value="instructor" @(selectedRole == "instructor" ? "selected" : "")>Instructors</option>
-                        </select>
+                <form method="get" action="@Url.Action("ManageUsers", "Admin")">
+                    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <span style="font-weight:700;font-size:14px">Role:</span>
+                            <select name="role" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:600;cursor:pointer">
+                                <option value="all" @(selectedRole == "all" ? "selected" : "")>All Users (Non-Admin)</option>
+                                <option value="student" @(selectedRole == "student" ? "selected" : "")>Students</option>
+                                <option value="instructor" @(selectedRole == "instructor" ? "selected" : "")>Instructors</option>
+                            </select>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <span style="font-weight:700;font-size:14px">Status:</span>
+                            <select name="status" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:600;cursor:pointer">
+                                <option value="active" @(selectedStatus == "active" ? "selected" : "")>Active</option>
+                                <option value="inactive" @(selectedStatus == "inactive" ? "selected" : "")>Inactive (Deleted)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="padding:8px 20px">Apply Filter</button>
+                        <div style="font-size:13px;color:var(--muted)">
+                            Showing @(Model != null ? Model.Count : 0) user(s)
+                        </div>
                     </div>
-                    <div style="font-size:13px;color:var(--muted)">
-                        @if (Model != null)
-                        {
-                            <text>Showing @Model.Count user(s)</text>
-                        }
-                    </div>
-                </div>
+                </form>
             </div>
 
             <!-- USERS TABLE -->
-            <div class="card" style="padding:0;overflow:hidden">
+            <div class="card" style="padding:0;overflow-x:auto">
                 <table style="width:100%;border-collapse:collapse">
                     <thead>
                         <tr style="border-bottom:1px solid var(--border);background:var(--surface2)">
@@ -117,7 +125,7 @@
                             <tr>
                                 <td colspan="5" style="padding:60px 20px;text-align:center;color:var(--muted)">
                                     <div style="font-size:48px;margin-bottom:16px">&#128101;</div>
-                                    <p style="font-size:16px">No users found in this category.</p>
+                                    <p style="font-size:16px">No users found.</p>
                                 </td>
                             </tr>
                         }
@@ -128,14 +136,12 @@
                                 <tr style="border-bottom:1px solid var(--border)">
                                     <td style="padding:14px 20px">
                                         <div style="display:flex;align-items:center;gap:12px">
-                                            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:#080a10;font-weight:800;font-size:14px;flex-shrink:0">
+                                            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:inline-flex;align-items:center;justify-content:center;color:#080a10;font-weight:800;font-size:14px">
                                                 @(user.firstName != null && user.firstName.Length > 0 ? user.firstName[0].ToString().ToUpper() : "U")
                                             </div>
-                                            <div>
-                                                <div style="font-weight:700;font-size:14px">@user.firstName @user.lastName</div>
-                                                <div style="font-size:11px;color:var(--muted)">ID: @user.userId</div>
-                                            </div>
+                                            <span>@user.firstName @user.lastName</span>
                                         </div>
+                                        <div style="font-size:11px;color:var(--muted);margin-top:4px">ID: @user.userId</div>
                                     </td>
                                     <td style="padding:14px 20px;font-size:14px;font-weight:600">@@@user.userName</td>
                                     <td style="padding:14px 20px">
@@ -145,7 +151,22 @@
                                     </td>
                                     <td style="padding:14px 20px;font-size:13px;color:var(--muted)">@user.accountCreationDate.ToString("MMM dd, yyyy")</td>
                                     <td style="padding:14px 20px;text-align:center">
-
+                                        @if (selectedStatus == "active")
+                                        {
+                                            using (Html.BeginForm("DeleteUser", "Admin", FormMethod.Post, new { style = "margin:0", onsubmit = "return confirm('Delete this user? They will not be able to log in again.')" }))
+                                            {
+                                                @Html.Hidden("userId", user.userId)
+                                                <button type="submit" class="btn btn-ghost" style="font-size:12px;padding:6px 12px;color:var(--red)">Delete</button>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            using (Html.BeginForm("ActivateUser", "Admin", FormMethod.Post, new { style = "margin:0", onsubmit = "return confirm('Reactivate this user? They will be able to log in again.')" }))
+                                            {
+                                                @Html.Hidden("userId", user.userId)
+                                                <button type="submit" class="btn btn-primary" style="font-size:12px;padding:6px 12px">Activate</button>
+                                            }
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -155,8 +176,6 @@
             </div>
         </main>
     </div>
-
- 
 
 </body>
 </html>

@@ -96,13 +96,7 @@
                                         <div style="display:flex;gap:8px;justify-content:center">
                                             <a href="@Url.Action("Details", "Course", new { id = course.courseId })"
                                                class="btn btn-ghost" style="font-size:12px;padding:6px 12px">View</a>
-                                            @using (Html.BeginForm("Reactivate", "Course", FormMethod.Post, new { style = "margin:0" }))
-                                            {
-                                                <input type="hidden" name="id" value="@course.courseId" />
-                                                <button type="submit" class="btn btn-primary" style="font-size:12px;padding:6px 12px">
-                                                    Reactivate
-                                                </button>
-                                            }
+
                                         </div>
                                     </td>
                                 </tr>

@@ -192,7 +192,7 @@
                                 <th style="padding:14px 20px;text-align:center;font-size:13px;font-weight:800;color:var(--muted)">Students</th>
                                 <th style="padding:14px 20px;text-align:center;font-size:13px;font-weight:800;color:var(--muted)">Rating</th>
                                 <th style="padding:14px 20px;text-align:center;font-size:13px;font-weight:800;color:var(--muted)">Actions</th>
-                            <tr>
+                            </tr>
                         </thead>
                         <tbody>
                             @foreach (var item in Model)
@@ -230,6 +230,14 @@
                                                 Edit
                                             </a>
 
+                                            <!-- ARCHIVE BUTTON - Soft delete the course -->
+                                            @using (Html.BeginForm("Delete", "Course", FormMethod.Post, new { style = "margin:0", onsubmit = "return confirm('Are you sure you want to archive this course? Students will no longer see it. You can reactivate it from Archived Courses page.')" }))
+                                            {
+                                                @Html.Hidden("id", item.course.courseId)
+                                                <button type="submit" class="btn btn-ghost" style="font-size:12px;padding:6px 12px;color:var(--red)">
+                                                    Archive
+                                                </button>
+                                            }
                                         </div>
                                     </td>
                                 </tr>
@@ -240,7 +248,6 @@
             }
         </main>
     </div>
-
 
 </body>
 </html>

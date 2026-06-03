@@ -358,5 +358,75 @@ namespace WEB_APPLICATION.Models
             catch (SqlException) { return false; }
             finally { conn.Close(); }
         }
+        public bool Activate(int userId)
+        {
+            try
+            {
+                SqlCommand cmd = new SqlCommand(
+                    "UPDATE [User] SET activeStatus = 1 WHERE userId = @userId AND activeStatus = 0", conn);
+                cmd.Parameters.AddWithValue("@userId", userId);
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+            catch (SqlException) { return false; }
+            finally { conn.Close(); }
+        }
+        // this method loads users based on their role and status this replaces the current drop down logic which apparently did not rely on the correct tech stack this will force the app to reread data from the database everytime  the filter is changed 
+        public List<User> GetUsersByRoleAndStatus(string role, string status)
+        {
+            List<User> users = new List<User>();
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = conn;
+
+                    // Build query based on role and status
+                    string query = "SELECT * FROM [User] WHERE activeStatus = @activeStatus";
+
+                    // Add role filter if not "all"
+                    if (role != "all")
+                    {
+                        query += " AND role = @role";
+                    }
+
+                    // Exclude admin users from "all" and "student"/"instructor" views
+                    if (role == "all")
+                    {
+                        query += " AND role != 'admin'";
+                    }
+
+                    cmd.CommandText = query;
+
+                    // Set activeStatus based on status parameter
+                    bool activeStatusValue = (status == "active");
+                    cmd.Parameters.AddWithValue("@activeStatus", activeStatusValue);
+
+                    if (role != "all")
+                    {
+                        cmd.Parameters.AddWithValue("@role", role);
+                    }
+
+                    conn.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            users.Add(MapUser(reader));
+                        }
+                    }
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.Message);
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+            }
+            return users;
+        }
     }
 }

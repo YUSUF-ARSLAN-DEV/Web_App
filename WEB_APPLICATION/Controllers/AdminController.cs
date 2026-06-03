@@ -52,8 +52,9 @@ namespace WEB_APPLICATION.Controllers
             return View();
         }
 
-        // GET: Manage Users (filter by role from combo box)
-        public ActionResult ManageUsers(string role = "all")
+        // GET: Manage Users (filter by role from combo box)  - the combo box in the .cshtml will pass the role and active status of users now we have 6 options 
+        // instructor active / inactive   student active/inactive and all active / inactive
+        public ActionResult ManageUsers(string role = "all", string status = "active")
         {
             if (Session["userId"] == null || !IsAdmin())
                 return RedirectToAction("Login", "Account");
@@ -61,21 +62,29 @@ namespace WEB_APPLICATION.Controllers
             UserDAL userDal = new UserDAL();
             List<User> users;
 
-            if (role == "student")
-            {
-                users = userDal.GetUsersByRole("student");
-            }
-            else if (role == "instructor")
-            {
-                users = userDal.GetUsersByRole("instructor");
-            }
-            else
-            {
-                users = userDal.GetAllActiveNonAdminUsers();
-            }
+            // Pass both role and status to DAL
+            users = userDal.GetUsersByRoleAndStatus(role, status);
 
             ViewBag.SelectedRole = role;
+            ViewBag.SelectedStatus = status;
             return View(users);
+        }
+
+         // basically this is the revive button for the user , since before we could only delete a user from existen but now they could be revieved 
+         // aka their activestatus changing from 0 to 1 again . 
+        [HttpPost]
+        public ActionResult ActivateUser(int userId)
+        {
+            if (Session["userId"] == null || !IsAdmin())
+                return RedirectToAction("Login", "Account");
+
+            bool success = new UserDAL().Activate(userId);
+            if (success)
+                TempData["success"] = "User activated successfully";
+            else
+                TempData["Error"] = "Failed to activate user";
+
+            return RedirectToAction("ManageUsers", new { role = Request.QueryString["role"], status = Request.QueryString["status"] });
         }
 
         // POST: Deleting a user 
@@ -119,8 +128,19 @@ namespace WEB_APPLICATION.Controllers
             new CourseDAL().DeleteCourse(courseId);
             return RedirectToAction("ManageCourses");
         }
+        // so that an admin is able to reactive a course that was delete before instead of deleting it permanently from the database , this is done by changing the active status of the course from 0 to 1 again 
+        [HttpPost]
+        public ActionResult ReactivateCourse(int courseId)
+        {
+            if (Session["userId"] == null || !IsAdmin())
+                return RedirectToAction("Login", "Account");
 
-        private bool IsAdmin()
+            new CourseDAL().ReactivateCourse(courseId);
+            TempData["success"] = "Course reactivated successfully";
+            return RedirectToAction("ManageCourses");
+        }
+
+        private bool IsAdmin() // checks if the logged in user is an admin and returns a boolean value accordingly 
         {
             return Session["role"] != null && Session["role"].ToString() == "admin";
         }
